@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUT Food Queue - Order Status</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="lang.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <h1>SUT FOOD QUEUE</h1>
+            <div class="header-icons" style="display: flex; align-items: center; gap: 15px;">
+                <span id="headerUsername" style="color: white; font-size: 14px; font-weight: bold;"></span>
+                <i class="fa-regular fa-user" style="cursor: pointer;" onclick="window.location.href='user.html'"></i>
+                <i class="fa-solid fa-globe" style="cursor: pointer;" onclick="window.location.href='home.html'"></i>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <div class="wrapper-box" style="display: flex; flex-direction: column; align-items: center;">
+                
+                <div class="title-with-back" style="width: 100%;">
+                    <i class="fa-solid fa-reply" style="cursor: pointer;" onclick="window.location.href='main.html'"></i>
+                    <span data-lang="status_title">สถานะออเดอร์</span>
+                </div>
+
+                <div class="status-container">
+                    <div class="status-box cooking active" id="statusCooking">
+                        <i class="fa-solid fa-utensils"></i>
+                        <span class="status-text" data-lang="status_cooking">กำลังทำ</span>
+                    </div>
+                    <div class="status-box done" id="statusDone">
+                        <i class="fa-solid fa-bowl-food"></i>
+                        <span class="status-text" data-lang="status_done">เสร็จสิ้น</span>
+                    </div>
+                </div>
+
+                <div class="queue-number-display" id="queueNum">1</div>
+                <p id="infoText" style="color: #888;" data-lang="status_wait">กรุณารออาหารสักครู่ค่ะ...</p>
+
+                <button class="btn-back" style="margin-top: 50px;" onclick="window.location.href='main.html'" data-lang="btn_home">กลับหน้าหลัก</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('load', function() {
+            let name = localStorage.getItem('savedUsername');
+            if(name) document.getElementById('headerUsername').innerText = name;
+        });
+
+        // หลังจาก 5 วินาที อาหารเสร็จ (แปลภาษาข้อความแจ้งเตือนด้วย)
+        setTimeout(function() {
+            let currentLang = localStorage.getItem('userLang') || 'th';
+            
+            document.getElementById('statusCooking').classList.remove('active');
+            document.getElementById('statusDone').classList.add('active');
+            
+            document.getElementById('infoText').innerText = translations[currentLang]['status_ready'];
+            document.getElementById('infoText').style.color = '#4CAF50';
+            
+            alert(translations[currentLang]['alert_order_ready']);
+        }, 5000);
+    </script>
+</body>
+</html>

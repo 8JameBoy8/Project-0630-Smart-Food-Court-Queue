@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUT Food Queue - User Profile</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+</head>
+<body>
+
+    <div class="app-container">
+        <div class="header">
+            <h1>SUT FOOD QUEUE</h1>
+            <div class="header-icons">
+                <i class="fa-regular fa-user" onclick="window.location.href='user.html'"></i>
+                <i class="fa-solid fa-globe" onclick="window.location.href='home.html'"></i>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <div class="wrapper-box profile-container">
+                <div class="edit-text">Edit</div>
+                
+                <label for="uploadProfile">
+                    <div class="profile-pic" id="profileImagePreview"></div>
+                </label>
+                <input type="file" id="uploadProfile" accept="image/*" style="display: none;" onchange="previewImage(event)">
+                
+                <div class="username-text" id="displayUsername">Username</div>
+
+                <button type="button" class="action-btn">
+                    <i class="fa-solid fa-lock"></i>
+                    Password
+                </button>
+
+                <button type="button" class="action-btn" onclick="window.location.href='history.html'">
+                    <i class="fa-regular fa-clock"></i>
+                    ประวัติคำสั่งซื้อ
+                </button>
+
+                <button type="button" class="btn-back" onclick="window.location.href='home.html'">กลับ</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="cropModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeCropModal()">&times;</span>
+            <h2>กำหนดตัดภาพโปรไฟล์</h2>
+            
+            <div class="img-container">
+                <img id="imageToCrop" src="" alt="Image to crop">
+            </div>
+            
+            <div class="modal-actions">
+                <button type="button" class="btn-submit" onclick="cropAndSave()" style="margin-top: 20px;">ตัดภาพและบันทึก</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let cropper = null; 
+        const cropModal = document.getElementById('cropModal');
+        const imageToCrop = document.getElementById('imageToCrop');
+
+        window.onload = function() {
+            let savedName = localStorage.getItem('savedUsername');
+            if (savedName) {
+                document.getElementById('displayUsername').innerText = savedName;
+            }
+
+            let savedImage = localStorage.getItem('savedProfilePic');
+            if (savedImage) {
+                document.getElementById('profileImagePreview').style.backgroundImage = "url('" + savedImage + "')";
+            }
+        };
+
+        // ฟังก์ชันเมื่อกดเลือกรูป
+        function previewImage(event) {
+            const files = event.target.files;
+            if (files && files.length > 0) {
+                const file = files[0];
+                const reader = new FileReader();
+                reader.onload = function() {
+                    const dataURL = reader.result;
+                    
+                    imageToCrop.src = dataURL;
+                    cropModal.style.display = 'block'; // โชว์หน้าต่างตัดรูป
+                    
+                    if (cropper) {
+                        cropper.destroy(); 
+                    }
+                    // ตั้งค่ากรอบตัดรูป
+                    cropper = new Cropper(imageToCrop, {
+                        aspectRatio: 4 / 5, // สัดส่วนรูปโปรไฟล์
+                        viewMode: 1,
+                    });
+                };
+                reader.readAsDataURL(file);
+                
+                // เคลียร์ค่า input file เพื่อให้กดเลือกรูปเดิมซ้ำได้
+                event.target.value = ''; 
+            }
+        }
+
+        // ฟังก์ชันตอนกดปุ่ม "ตัดภาพและบันทึก"
+        function cropAndSave() {
+            if (!cropper) return;
+            
+            // ดึงภาพที่ตัดแล้ว
+            const croppedCanvas = cropper.getCroppedCanvas({
+                width: 400,
+                height: 500,
+            });
+            
+            const croppedDataURL = croppedCanvas.toDataURL();
+            
+            // เปลี่ยนรูปโปรไฟล์และเซฟลงเครื่อง
+            document.getElementById('profileImagePreview').style.backgroundImage = "url('" + croppedDataURL + "')";
+            localStorage.setItem('savedProfilePic', croppedDataURL);
+            
+            closeCropModal();
+        }
+
+        function closeCropModal() {
+            cropModal.style.display = 'none';
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+        }
+    </script>
+
+</body>
+</html>

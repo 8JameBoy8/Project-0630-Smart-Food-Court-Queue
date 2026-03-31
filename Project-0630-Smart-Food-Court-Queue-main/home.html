@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUT Food Queue - Select Language</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <div class="header">
+            <h1>SUT FOOD QUEUE</h1>
+            <div class="header-icons">
+                <i class="fa-regular fa-user"></i>
+                <i class="fa-solid fa-globe"></i>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <div class="wrapper-box">
+                <button class="btn-lang btn-thai" onclick="setLanguage('th')">ภาษาไทย</button>
+        <button class="btn-lang btn-eng" onclick="setLanguage('en')">English</button>
+
+        <script>
+            function setLanguage(lang) {
+        localStorage.setItem('userLang', lang); 
+        window.location.href = 'main.html'; 
+            }
+            </script>
+                
+                <button type="button" class="btn-back" onclick="window.location.href='main.html'">กลับ</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

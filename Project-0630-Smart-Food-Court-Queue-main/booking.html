@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUT Food Queue - Booking Table</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="lang.js"></script>
+</head>
+<body>
+
+    <div class="app-container">
+        <div class="header">
+            <h1>SUT FOOD QUEUE</h1>
+            <div class="header-icons" style="display: flex; align-items: center; gap: 15px;">
+                <span id="headerUsername" style="color: white; font-size: 14px; font-weight: bold;"></span>
+                <i class="fa-regular fa-user" style="cursor: pointer;" onclick="window.location.href='user.html'"></i>
+                <i class="fa-solid fa-globe" style="cursor: pointer;" onclick="window.location.href='home.html'"></i>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <div class="wrapper-box">
+                
+                <div class="page-title" data-lang="booking_title" style="text-align: center; margin-bottom: 30px; margin-top: 10px;">จองโต๊ะ</div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; padding: 0 10px;">
+                    <button class="big-action-btn btn-yellow-dark" style="margin-bottom: 0;" onclick="bookTable(this, 1)" data-lang="table_1">โต๊ะที่ 1</button>
+                    <button class="big-action-btn btn-yellow-light" style="margin-bottom: 0;" onclick="bookTable(this, 2)" data-lang="table_2">โต๊ะที่ 2</button>
+                    
+                    <button class="big-action-btn btn-yellow-light" style="margin-bottom: 0;" onclick="bookTable(this, 3)" data-lang="table_3">โต๊ะที่ 3</button>
+                    <button class="big-action-btn btn-yellow-dark" style="margin-bottom: 0;" onclick="bookTable(this, 4)" data-lang="table_4">โต๊ะที่ 4</button>
+                    
+                    <button class="big-action-btn btn-yellow-dark" style="margin-bottom: 0;" onclick="bookTable(this, 5)" data-lang="table_5">โต๊ะที่ 5</button>
+                    <button class="big-action-btn btn-yellow-light" style="margin-bottom: 0;" onclick="bookTable(this, 6)" data-lang="table_6">โต๊ะที่ 6</button>
+                    
+                    <button class="big-action-btn btn-yellow-light" style="margin-bottom: 0;" onclick="bookTable(this, 7)" data-lang="table_7">โต๊ะที่ 7</button>
+                    <button class="big-action-btn btn-yellow-dark" style="margin-bottom: 0;" onclick="bookTable(this, 8)" data-lang="table_8">โต๊ะที่ 8</button>
+                    
+                    <button class="big-action-btn btn-yellow-dark" style="margin-bottom: 0;" onclick="bookTable(this, 9)" data-lang="table_9">โต๊ะที่ 9</button>
+                    <button class="big-action-btn btn-yellow-light" style="margin-bottom: 0;" onclick="bookTable(this, 10)" data-lang="table_10">โต๊ะที่ 10</button>
+                </div>
+
+                <div style="width: 100%; text-align: center; margin-top: 40px;">
+                    <button class="btn-back" style="width: 120px;" onclick="window.location.href='main.html'" data-lang="btn_back">กลับ</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('load', function() {
+            let name = localStorage.getItem('savedUsername');
+            if(name) document.getElementById('headerUsername').innerText = name;
+        });
+
+        function bookTable(btn, tableNum) {
+            let currentLang = localStorage.getItem('userLang') || 'th';
+            
+            // 1. เช็คว่าถ้าปุ่มนี้ถูกจองไปแล้ว (มีค่า data-booked เป็น true) ให้แจ้งเตือนว่าจองซ้ำไม่ได้
+            if (btn.getAttribute('data-booked') === 'true') {
+                alert(currentLang === 'th' ? 'ขออภัยค่ะ โต๊ะนี้ถูกจองไปแล้ว' : 'Sorry, this table is already booked.');
+                return;
+            }
+
+            // 2. ถ้ายังไม่จอง ให้ขึ้นแจ้งเตือนว่าจองสำเร็จ
+            let msg = currentLang === 'th' 
+                ? 'คุณได้จองโต๊ะที่ ' + tableNum + ' เรียบร้อยแล้วค่ะ' 
+                : 'You have successfully booked Table ' + tableNum + '!';
+            alert(msg);
+
+            // 3. เปลี่ยนหน้าตาปุ่มเป็นสีเทา เพื่อให้รู้ว่ามีคนจองแล้ว
+            btn.setAttribute('data-booked', 'true');
+            btn.style.backgroundColor = '#d9d9d9';
+            btn.style.color = '#888';
+            btn.innerText = currentLang === 'th' ? 'จองแล้ว' : 'Booked';
+            
+            // ลบ data-lang ออก เพื่อไม่ให้ระบบแปลภาษาแก้คำว่า "จองแล้ว" กลับเป็น "โต๊ะที่..."
+            btn.removeAttribute('data-lang');
+        }
+    </script>
+</body>
+</html>
