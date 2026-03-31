@@ -26,9 +26,9 @@
             <div class="wrapper-box">
                 <div class="page-title" data-lang="title_main">จองโต๊ะ & สั่งอาหาร</div>
 
-                <button class="big-action-btn btn-yellow-dark" onclick="window.location.href='booking.html'" data-lang="btn_book">จองโต๊ะ</button>
-                
-                <button class="big-action-btn btn-yellow-light" onclick="window.location.href='canteen.html'" data-lang="btn_order">สั่งอาหาร</button>
+                <button class="big-action-btn btn-yellow-dark" onclick="localStorage.setItem('userAction', 'book'); window.location.href='canteen.html'" data-lang="btn_book">จองโต๊ะ</button>
+
+                <button class="big-action-btn btn-yellow-light" onclick="localStorage.setItem('userAction', 'order'); window.location.href='canteen.html'" data-lang="btn_order">สั่งอาหาร</button>
                 
                 <button type="button" class="btn-back" onclick="window.location.href='index.html'" data-lang="btn_logout">ออกจากระบบ</button>
             </div>

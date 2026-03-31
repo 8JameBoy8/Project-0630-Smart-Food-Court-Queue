@@ -7,9 +7,9 @@ const translations = {
         "table_6": "โต๊ะที่ 6", "table_7": "โต๊ะที่ 7", "table_8": "โต๊ะที่ 8", "table_9": "โต๊ะที่ 9", "table_10": "โต๊ะที่ 10",
         "title_canteen": "Canteen",
         "canteen1_name": "โรงอาหารกาสะลองคำ", "canteen1_time": "05:00 - 21:00 น.",
-        "canteen2_name": "โรงอาหารเรียนรวม 2", "canteen2_time": "07:00 - 16:00 น.<br>เปิดในวันธรรมดา",
+        "canteen2_name": "โรงอาหารดอนตะวัน", "canteen2_time": "07:00 - 16:00 น.<br>เปิดในวันธรรมดา",
         "canteen3_name": "โรงอาหารพราวแสดทอง", "canteen3_time": "07:00 - 18:00 น.<br>เปิดในวันธรรมดา",
-        "canteen4_name": "โรงอาหารกลาง", "canteen4_time": "07:00 - 18:00 น.<br>เปิดในวันธรรมดา",
+        "canteen4_name": "โรงอาหารครัวท่านเท้า", "canteen4_time": "07:00 - 18:00 น.<br>เปิดในวันธรรมดา",
         "canteen5_name": "โรงเตี๊ยม มทส.", "canteen5_time": "07:00 - 18:00 น.<br>เปิดในวันธรรมดา",
         "store_title": "Store", "store_a": "ร้าน A", "store_b": "ร้าน B", "store_c": "ร้าน C", "store_d": "ร้าน D",
         "menu_recom": "เมนูแนะนำ<br>สำหรับคุณ", "menu_all": "รายการ",
@@ -18,7 +18,8 @@ const translations = {
         "price_55": "ราคา 55 บาท", "price_45": "ราคา 45 บาท", "price_40": "ราคา 40 บาท", "price_35": "ราคา 35 บาท",
         "order_summary": "สรุปคำสั่งซื้อ", "order_add": "เพิ่มรายการ", "addon_egg": "ไข่ดาว", "addon_omelet": "ไข่เจียว", "addon_rice": "ข้าวเปล่า",
         "price_5": "ราคา 5 บาท", "note_title": "หมายเหตุ", "note_place": "เช่น ไม่เผ็ด, ไม่ใส่ผัก", "total_text": "ราคารวม", "currency": "บาท", "btn_buy": "สั่งซื้อ",
-        
+        "timer_text": "เวลาที่เหลือในการจอง:",
+        "alert_timeout": "หมดเวลาการจองแล้ว โต๊ะของคุณถูกยกเลิก",
         // --- หน้า Payment ---
         "pay_title": "ชำระเงิน", "pay_store_name": "ชื่อ ร้านอาหาร A", "pay_upload_btn": "อัพโหลดหลักฐานการโอน", 
         "pay_upload_done": "อัพโหลดสลิปเรียบร้อยแล้ว", "btn_confirm": "ยืนยัน",
@@ -37,9 +38,9 @@ const translations = {
         "table_6": "Table 6", "table_7": "Table 7", "table_8": "Table 8", "table_9": "Table 9", "table_10": "Table 10",
         "title_canteen": "Canteen",
         "canteen1_name": "Kasalongkham Canteen", "canteen1_time": "05:00 AM - 09:00 PM",
-        "canteen2_name": "Complex Canteen", "canteen2_time": "07:00 AM - 04:00 PM<br>Open on Weekdays",
+        "canteen2_name": "Don Tawan Canteen", "canteen2_time": "07:00 AM - 04:00 PM<br>Open on Weekdays",
         "canteen3_name": "Proud Saed Thong Canteen", "canteen3_time": "07:00 AM - 06:00 PM<br>Open on Weekdays",
-        "canteen4_name": "Central Canteen", "canteen4_time": "07:00 AM - 06:00 PM<br>Open on Weekdays",
+        "canteen4_name": "Khrua Than Thao Canteen", "canteen4_time": "07:00 AM - 06:00 PM<br>Open on Weekdays",
         "canteen5_name": "SUT Rong Tiam", "canteen5_time": "07:00 AM - 06:00 PM<br>Open on Weekdays",
         "store_title": "Store", "store_a": "Store A", "store_b": "Store B", "store_c": "Store C", "store_d": "Store D",
         "menu_recom": "Recommended<br>for you", "menu_all": "All Items",
@@ -48,7 +49,8 @@ const translations = {
         "price_55": "55 THB", "price_45": "45 THB", "price_40": "40 THB", "price_35": "35 THB",
         "order_summary": "Order Summary", "order_add": "Add-ons", "addon_egg": "Fried Egg", "addon_omelet": "Omelet", "addon_rice": "Plain Rice",
         "price_5": "5 THB", "note_title": "Note", "note_place": "e.g., Not spicy, No veggies", "total_text": "Total Price", "currency": "THB", "btn_buy": "Checkout",
-        
+        "timer_text": "Booking expires in:",
+        "alert_timeout": "Booking time is up. Your table has been released.",
         // --- หน้า Payment ---
         "pay_title": "Payment", "pay_store_name": "Store A", "pay_upload_btn": "Upload Transfer Slip", 
         "pay_upload_done": "Slip Uploaded Successfully", "btn_confirm": "Confirm",

@@ -14,7 +14,6 @@
         <div class="header">
             <h1>SUT FOOD QUEUE</h1>
             <div class="header-icons" style="display: flex; align-items: center; gap: 15px;">
-                <span id="headerUsername" style="color: white; font-size: 14px; font-weight: bold;"></span>
                 <i class="fa-regular fa-user" style="cursor: pointer;" onclick="window.location.href='user.html'"></i>
                 <i class="fa-solid fa-globe" style="cursor: pointer;" onclick="window.location.href='home.html'"></i>
             </div>
@@ -28,10 +27,10 @@
                     <span data-lang="store_title">Store</span>
                 </div>
 
-                <div class="store-list">
+              <div class="store-list">
                     
                     <div class="store-card" onclick="window.location.href='menu.html'">
-                        <div class="store-banner"></div>
+                        <div class="store-banner" style="height: 140px; background-image: url('../pic/image6.jpg'); background-size: cover; background-position: center;"></div>
                         <div class="store-info">
                             <span class="store-name" data-lang="store_a">ร้าน A</span>
                             <span class="status-open">Open</span>
@@ -39,7 +38,7 @@
                     </div>
 
                     <div class="store-card" onclick="window.location.href='menu.html'">
-                        <div class="store-banner"></div>
+                        <div class="store-banner" style="height: 140px; background-image: url('../pic/image7.jpg'); background-size: cover; background-position: center;"></div>
                         <div class="store-info">
                             <span class="store-name" data-lang="store_b">ร้าน B</span>
                             <span class="status-open">Open</span>
@@ -47,7 +46,7 @@
                     </div>
 
                     <div class="store-card" onclick="alert('ขออภัยค่ะ ร้านนี้ปิดให้บริการแล้ว')">
-                        <div class="store-banner"></div>
+                        <div class="store-banner" style="height: 140px; background-image: url('../pic/image8.jpg'); background-size: cover; background-position: center;"></div>
                         <div class="store-info">
                             <span class="store-name" data-lang="store_c">ร้าน C</span>
                             <span class="status-close">Close</span>
@@ -55,27 +54,25 @@
                     </div>
 
                     <div class="store-card" onclick="alert('ขออภัยค่ะ ร้านนี้ปิดให้บริการแล้ว')">
-                        <div class="store-banner"></div>
+                        <div class="store-banner" style="height: 140px; background-image: url('../pic/image9.jpg'); background-size: cover; background-position: center;"></div>
                         <div class="store-info">
                             <span class="store-name" data-lang="store_d">ร้าน D</span>
                             <span class="status-close">Close</span>
                         </div>
                     </div>
 
-                </div>
+                    <div class="store-card" onclick="alert('ขออภัยค่ะ ร้านนี้ปิดให้บริการแล้ว')">
+                        <div class="store-banner" style="height: 140px; background-image: url('../pic/image10.jpg'); background-size: cover; background-position: center;"></div>
+                        <div class="store-info">
+                            <span class="store-name" data-lang="store_e">ร้าน E</span>
+                            <span class="status-close">Close</span>
+                        </div>
+                    </div>
 
+                </div>
             </div>
         </div>
     </div>
-
-    <script>
-        window.addEventListener('load', function() {
-            let name = localStorage.getItem('savedUsername');
-            if(name) {
-                document.getElementById('headerUsername').innerText = name;
-            }
-        });
-    </script>
 
 </body>
 </html>

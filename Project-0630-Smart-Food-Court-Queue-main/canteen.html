@@ -6,7 +6,6 @@
     <title>SUT Food Queue - Canteen</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-    
     <script src="lang.js"></script>
 </head>
 <body>
@@ -15,7 +14,6 @@
         <div class="header">
             <h1>SUT FOOD QUEUE</h1>
             <div class="header-icons" style="display: flex; align-items: center; gap: 15px;">
-                <span id="headerUsername" style="color: white; font-size: 14px; font-weight: bold;"></span>
                 <i class="fa-regular fa-user" style="cursor: pointer;" onclick="window.location.href='user.html'"></i>
                 <i class="fa-solid fa-globe" style="cursor: pointer;" onclick="window.location.href='home.html'"></i>
             </div>
@@ -25,42 +23,43 @@
             <div class="wrapper-box">
                 
                 <div class="title-with-back">
-                    <i class="fa-solid fa-reply" onclick="window.location.href='main.html'"></i>
+                    <i class="fa-solid fa-reply" style="cursor: pointer;" onclick="window.location.href='main.html'"></i>
                     <span data-lang="title_canteen">Canteen</span>
                 </div>
 
                 <div class="canteen-grid">
                     
-                    <div class="canteen-card" onclick="window.location.href='store.html'">
-                        <div class="canteen-img"></div>
+                    <div class="canteen-card" onclick="goToNext()">
+                        <div class="canteen-img" style="background-image: url('../pic/image2.jpg'); background-size: cover; background-position: center;"></div>
                         <div class="canteen-name" data-lang="canteen1_name">โรงอาหารกาสะลองคำ</div>
                         <div class="canteen-time" data-lang="canteen1_time">05:00 - 21:00 น.</div>
                     </div>
 
-                    <div class="canteen-card" onclick="window.location.href='store.html'">
-                        <div class="canteen-img"></div>
-                        <div class="canteen-name" data-lang="canteen2_name">โรงอาหารเรียนรวม 2</div>
+                    <div class="canteen-card" onclick="goToNext()">
+                       <div class="canteen-img" style="background-image: url('../pic/image4.jpg'); background-size: cover; background-position: center;"></div>
+                        <div class="canteen-name" data-lang="canteen2_name">โรงอาหารดอนตะวัน</div>
                         <div class="canteen-time" data-lang="canteen2_time">07:00 - 16:00 น.<br>เปิดในวันธรรมดา</div>
                     </div>
 
-                    <div class="canteen-card" onclick="window.location.href='store.html'">
-                        <div class="canteen-img"></div>
+                    <div class="canteen-card" onclick="goToNext()">
+                      <div class="canteen-img" style="background-image: url('../pic/image3.jpg'); background-size: cover; background-position: center;"></div>
                         <div class="canteen-name" data-lang="canteen3_name">โรงอาหารพราวแสดทอง</div>
                         <div class="canteen-time" data-lang="canteen3_time">07:00 - 18:00 น.<br>เปิดในวันธรรมดา</div>
                     </div>
 
-                    <div class="canteen-card" onclick="window.location.href='store.html'">
-                        <div class="canteen-img"></div>
-                        <div class="canteen-name" data-lang="canteen4_name">โรงอาหารกลาง</div>
+                    <div class="canteen-card" onclick="goToNext()">
+                       <div class="canteen-img" style="background-image: url('../pic/image5.jpg'); background-size: cover; background-position: center;"></div>
+                        <div class="canteen-name" data-lang="canteen4_name">โรงอาหารครัวท่านท้าว</div>
                         <div class="canteen-time" data-lang="canteen4_time">07:00 - 18:00 น.<br>เปิดในวันธรรมดา</div>
                     </div>
 
-                    <div class="canteen-card" onclick="window.location.href='store.html'">
-                        <div class="canteen-img"></div>
+                    <div class="canteen-card" onclick="goToNext()">
+                      <div class="canteen-img" style="background-image: url('../pic/image1.jpg'); background-size: cover; background-position: center;"></div>
                         <div class="canteen-name" data-lang="canteen5_name">โรงเตี๊ยม มทส.</div>
                         <div class="canteen-time" data-lang="canteen5_time">07:00 - 18:00 น.<br>เปิดในวันธรรมดา</div>
                     </div>
 
+                </div>
                 </div>
 
             </div>
@@ -68,12 +67,15 @@
     </div>
 
     <script>
-        window.addEventListener('load', function() {
-            let name = localStorage.getItem('savedUsername');
-            if(name) {
-                document.getElementById('headerUsername').innerText = name;
+        function goToNext() {
+            let action = localStorage.getItem('userAction');
+            
+            if (action === 'book') {
+                window.location.href = 'booking.html'; // ไปหน้าจองโต๊ะ
+            } else {
+                window.location.href = 'store.html'; // ไปหน้าร้านอาหาร
             }
-        });
+        }
     </script>
 
 </body>
