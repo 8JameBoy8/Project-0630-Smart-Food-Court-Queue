@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SUT Food Queue - Order Status</title>
+    <title>SUT Food Queue - Status</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <script src="lang.js"></script>
 </head>
 <body>
+
     <div class="app-container">
         <div class="header">
             <h1>SUT FOOD QUEUE</h1>
@@ -20,50 +21,101 @@
         </div>
 
         <div class="content-section">
-            <div class="wrapper-box" style="display: flex; flex-direction: column; align-items: center;">
+            <div class="wrapper-box">
                 
-                <div class="title-with-back" style="width: 100%;">
-                    <i class="fa-solid fa-reply" style="cursor: pointer;" onclick="window.location.href='main.html'"></i>
-                    <span data-lang="status_title">สถานะออเดอร์</span>
+                <div class="page-title" data-lang="status_title" style="text-align: center; margin-bottom: 30px; margin-top: 10px;">สถานะปัจจุบัน</div>
+
+                <div id="statusContainer" style="text-align: center; padding: 30px 20px; background-color: #fcfcfc; border-radius: 12px; border: 1px solid #ddd; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                    <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 2.5rem; color: #ffcc00; margin-bottom: 15px;"></i>
+                    <p style="color: #666; font-size: 1.1rem;">กำลังตรวจสอบสถานะกับเซิร์ฟเวอร์...</p>
                 </div>
 
-                <div class="status-container">
-                    <div class="status-box cooking active" id="statusCooking">
-                        <i class="fa-solid fa-utensils"></i>
-                        <span class="status-text" data-lang="status_cooking">กำลังทำ</span>
-                    </div>
-                    <div class="status-box done" id="statusDone">
-                        <i class="fa-solid fa-bowl-food"></i>
-                        <span class="status-text" data-lang="status_done">เสร็จสิ้น</span>
-                    </div>
+                <div style="width: 100%; text-align: center; margin-top: 40px;">
+                    <button class="btn-back" style="width: 120px;" onclick="window.location.href='main.html'" data-lang="btn_back">กลับ</button>
                 </div>
 
-                <div class="queue-number-display" id="queueNum">1</div>
-                <p id="infoText" style="color: #888;" data-lang="status_wait">กรุณารออาหารสักครู่ค่ะ...</p>
-
-                <button class="btn-back" style="margin-top: 50px;" onclick="window.location.href='main.html'" data-lang="btn_home">กลับหน้าหลัก</button>
             </div>
         </div>
     </div>
 
     <script>
         window.addEventListener('load', function() {
+            // ดึงชื่อผู้ใช้มาโชว์ที่ Header
             let name = localStorage.getItem('savedUsername');
             if(name) document.getElementById('headerUsername').innerText = name;
+
+            // สั่งให้โหลดสถานะจาก Java ทันทีที่เปิดหน้านี้
+            fetchStatusFromJava();
         });
 
-        // หลังจาก 5 วินาที อาหารเสร็จ (แปลภาษาข้อความแจ้งเตือนด้วย)
-        setTimeout(function() {
-            let currentLang = localStorage.getItem('userLang') || 'th';
-            
-            document.getElementById('statusCooking').classList.remove('active');
-            document.getElementById('statusDone').classList.add('active');
-            
-            document.getElementById('infoText').innerText = translations[currentLang]['status_ready'];
-            document.getElementById('infoText').style.color = '#4CAF50';
-            
-            alert(translations[currentLang]['alert_order_ready']);
-        }, 5000);
+        // ฟังก์ชันหัวใจสำคัญ: ไปดึงสถานะจาก Java
+        function fetchStatusFromJava() {
+            const statusContainer = document.getElementById('statusContainer');
+
+            /* ========================================================================
+               ฝากบอกเพื่อน Backend:
+               เตรียม API GET /api/currentStatus 
+               เพื่อให้หน้าเว็บยิงไปถาม แล้วให้ Java ตอบกลับมาเป็น JSON ตามตัวอย่างด้านล่าง
+               ========================================================================
+            */
+
+            console.log("กำลังเชื่อมต่อเซิร์ฟเวอร์ Java...");
+
+            // ** ผมทำตัวจำลองสถานการณ์ (Mockup) ไว้ให้ดูหน้าตาก่อนเชื่อมจริง **
+            // ใช้ setTimeout เพื่อหน่วงเวลา 1 วินาที ให้เหมือนกำลังโหลดจากเน็ตจริงๆ
+            setTimeout(() => {
+                
+                // สมมติว่านี่คือข้อมูลที่ส่งมาจาก Java
+                const dataFromJava = {
+                    hasBooking: true,      // true = มีคิว, false = ไม่มีคิว
+                    tableNum: 5,           // เลขโต๊ะที่จอง
+                    timeLeft: 29           // เวลาที่เหลือ (ให้ Java เป็นคนนับและส่งมา)
+                };
+
+                // ถ้ามีข้อมูลการจอง
+                if (dataFromJava.hasBooking) {
+                    statusContainer.innerHTML = `
+                        <i class="fa-solid fa-utensils" style="font-size: 3rem; color: #2e7d32; margin-bottom: 15px;"></i>
+                        <h2 style="color: #333; margin-bottom: 15px;">คุณมีคิวจองโต๊ะ</h2>
+                        <div style="background-color: #fff; padding: 15px; border-radius: 8px; border: 2px dashed #2e7d32; display: inline-block; text-align: left;">
+                            <p style="font-size: 1.2rem; margin: 5px 0;"><i class="fa-solid fa-hashtag" style="color: #888;"></i> <strong>โต๊ะที่:</strong> <span style="color: #2e7d32; font-size: 1.4rem;">${dataFromJava.tableNum}</span></p>
+                            <p style="font-size: 1.2rem; margin: 5px 0;"><i class="fa-regular fa-clock" style="color: #888;"></i> <strong>เวลาคงเหลือ:</strong> <span style="color: #d32f2f; font-size: 1.4rem;">${dataFromJava.timeLeft} นาที</span></p>
+                        </div>
+                        <br>
+                        <button onclick="cancelBookingFromJava()" style="margin-top: 25px; background-color: #d32f2f; color: white; font-family: inherit; font-size: 16px; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                            <i class="fa-solid fa-xmark"></i> ยกเลิกการจอง
+                        </button>
+                    `;
+                } 
+                // ถ้าไม่มีการจอง
+                else {
+                    statusContainer.innerHTML = `
+                        <i class="fa-regular fa-calendar-xmark" style="font-size: 3rem; color: #aaa; margin-bottom: 15px;"></i>
+                        <h3 style="color: #555;">ขณะนี้คุณยังไม่มีคิวจองโต๊ะ</h3>
+                        <p style="color: #888; margin-top: 10px;">สามารถไปที่เมนู "จองโต๊ะ" เพื่อทำการจองได้เลยค่ะ</p>
+                    `;
+                }
+
+            }, 1000); // หน่วงเวลา 1000 มิลลิวินาที (1 วินาที)
+        }
+
+        // ฟังก์ชันกดยกเลิกการจอง (ส่งคำสั่งไปให้ Java ลบข้อมูล)
+        function cancelBookingFromJava() {
+            if(confirm("คุณต้องการยกเลิกการจองโต๊ะนี้ใช่หรือไม่?")) {
+                console.log("ส่งคำสั่งยกเลิกไปที่ Java API...");
+                alert("ระบบได้ส่งคำขอยกเลิกไปยังเซิร์ฟเวอร์แล้ว");
+                
+                /* โค้ดสำหรับเชื่อม Java จริง:
+                fetch('http://localhost:8080/api/cancelBooking', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.status === 'success') {
+                        location.reload(); // รีเฟรชหน้าเพื่อโหลดสถานะใหม่ (จะกลายเป็นไม่มีคิว)
+                    }
+                });
+                */
+            }
+        }
     </script>
 </body>
 </html>
