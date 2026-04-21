@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUT Food Queue - Payment</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="lang.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <h1>SUT FOOD QUEUE</h1>
+            <div class="header-icons" style="display: flex; align-items: center; gap: 15px;">
+                <span id="headerUsername" style="color: white; font-size: 14px; font-weight: bold;"></span>
+                <i class="fa-regular fa-user" style="cursor: pointer;" onclick="window.location.href='user.html'"></i>
+                <i class="fa-solid fa-globe" style="cursor: pointer;" onclick="window.location.href='home.html'"></i>
+            </div>
+        </div>
+
+        <div class="content-section" style="padding-bottom: 0;">
+            <div class="wrapper-box payment-wrapper" style="height: 100%; justify-content: space-between;">
+                <div style="width: 100%;">
+                    <div class="title-with-back" style="margin-bottom: 10px;">
+                        <i class="fa-solid fa-reply" style="cursor: pointer;" onclick="window.location.href='order.html'"></i>
+                        <span data-lang="pay_title">ชำระเงิน</span>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; align-items: center;">
+                        <div class="qr-container">
+                            <i class="fa-solid fa-qrcode" style="font-size: 100px; color: #aaa;"></i>
+                        </div>
+                        
+                        <div class="qr-text">QR PROMPTPAY</div>
+                        <div class="store-account-name" data-lang="pay_store_name">ชื่อ ร้านอาหาร A</div>
+                        <div class="payment-total">
+                            <span data-lang="total_text">ราคารวม</span> <span id="displayPaymentTotal">0</span> <span data-lang="currency">บาท</span>
+                        </div>
+
+                        <label for="slipUpload" class="upload-slip-btn">
+                            <div class="upload-icon-box" id="slipIconBox"><i class="fa-solid fa-image"></i></div>
+                            <div class="upload-text" id="slipText" data-lang="pay_upload_btn">อัพโหลดหลักฐานการโอน</div>
+                        </label>
+                        <input type="file" id="slipUpload" accept="image/*" style="display: none;" onchange="handleSlipUpload(event)">
+                    </div>
+                </div>
+                <button class="btn-checkout" style="margin-bottom: 20px; border-radius: 8px;" onclick="confirmPayment()" data-lang="btn_confirm">ยืนยัน</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isSlipUploaded = false; // ตัวแปรเช็คว่าอัปสลิปหรือยัง
+        let currentLang = localStorage.getItem('userLang') || 'th';
+
+        window.onload = function() {
+            let finalPrice = localStorage.getItem('finalPrice');
+            if (finalPrice) document.getElementById('displayPaymentTotal').innerText = finalPrice;
+            
+            let name = localStorage.getItem('savedUsername');
+            if(name) document.getElementById('headerUsername').innerText = name;
+        };
+
+        function handleSlipUpload(event) {
+            if (event.target.files && event.target.files[0]) {
+                isSlipUploaded = true;
+                document.getElementById('slipIconBox').style.backgroundColor = '#4CAF50';
+                document.getElementById('slipIconBox').style.color = 'white';
+                document.getElementById('slipIconBox').innerHTML = '<i class="fa-solid fa-check"></i>';
+                // ดึงคำแปลจาก lang.js มาแสดง
+                document.getElementById('slipText').innerText = translations[currentLang]['pay_upload_done'];
+                document.getElementById('slipText').style.color = '#4CAF50';
+                document.getElementById('slipText').style.fontWeight = 'bold';
+            }
+        }
+
+        function confirmPayment() {
+            if (!isSlipUploaded) {
+                alert(translations[currentLang]['alert_no_slip']);
+                return;
+            }
+            alert(translations[currentLang]['alert_pay_success']);
+            window.location.href = 'status.html';
+        }
+    </script>
+</body>
+</html>

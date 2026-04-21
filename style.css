@@ -1,0 +1,520 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f0f2f5; }
+.app-container { width: 100%; min-height: 100vh; display: flex; flex-direction: column; }
+
+/* ส่วน Header สีเหลือง */
+.header { background-color: #FFC107; min-height: 180px; display: flex; align-items: center; justify-content: space-between; padding: 20px 5%; }
+.header h1 { color: white; font-size: clamp(24px, 4vw, 32px); font-weight: bold; }
+.header-icons { color: white; font-size: clamp(24px, 3vw, 28px); }
+.header-icons i { margin-left: 20px; cursor: pointer; }
+
+/* โครงสร้างตรงกลางจอ */
+.content-section { padding: 40px 20px; flex: 1; display: flex; flex-direction: column; align-items: center; background-color: white; }
+.wrapper-box { width: 100%; max-width: 450px; display: flex; flex-direction: column; gap: 20px; }
+
+/* ปุ่มหน้าเลือกภาษา */
+.btn-lang { width: 100%; padding: 20px; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; text-align: center; }
+.btn-thai { background-color: #FFC107; color: white; }
+.btn-eng { background-color: #FCE493; color: #555; }
+.btn-lang:hover { opacity: 0.8; }
+.btn-back { background-color: #e0e0e0; width: 120px; margin: 40px auto 0; padding: 10px; border-radius: 20px; border: none; color: #555; cursor: pointer; display: block; }
+.btn-back:hover { background-color: #ccc; }
+
+/* ทำให้หน้าตาเหมือนกันบนจอคอม */
+@media (min-width: 768px) {
+    .app-container { background-color: #f0f2f5; }
+    .header { min-height: 100px; }
+    .content-section { background-color: transparent; justify-content: center; }
+    .wrapper-box { background-color: white; padding: 50px 40px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+}
+
+/* ========================================= */
+/* CSS สำหรับหน้า User Profile (user.html) */
+/* ========================================= */
+.profile-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+.edit-text {
+    align-self: flex-end; /* ดันคำว่า Edit ไปชิดขวา */
+    color: #888;
+    font-size: 14px;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+.profile-pic {
+    width: 120px;
+    height: 150px;
+    background-color: #d9d9d9;
+    margin-bottom: 15px;
+    background-size: cover;      /* ทำให้รูปยืดพอดีกรอบ */
+    background-position: center; /* จัดให้รูปอยู่กึ่งกลางเสมอ */
+    border-radius: 8px;          /* เพิ่มขอบมนให้สวยขึ้นนิดนึง (ถ้าอยากได้ตาม Figma เป๊ะๆ ลบบรรทัดนี้ได้ครับ) */
+    cursor: pointer;             /* เปลี่ยนเมาส์เป็นรูปนิ้วตอนชี้ */
+}
+.username-text {
+    font-size: 20px;
+    color: #555;
+    margin-bottom: 30px;
+}
+.action-btn {
+    width: 100%;
+    background-color: #f2f2f2;
+    border: none;
+    padding: 15px 20px;
+    border-radius: 8px;
+    font-size: 16px;
+    color: #555;
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    cursor: pointer;
+    text-align: left;
+}
+.action-btn i {
+    margin-right: 15px;
+    font-size: 20px;
+    color: #888;
+}
+/* ========================================= */
+/* CSS สำหรับ Modal ตัดภาพ (Cropper Modal) */
+/* ========================================= */
+.modal {
+    display: none; /* ซ่อนไว้เป็นค่าเริ่มต้น */
+    position: fixed; 
+    z-index: 1000; /* ให้อยู่ด้านบนสุด */
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgba(0,0,0,0.4); /* สีพื้นหลังโปร่งแสง */
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 10% auto; 
+    padding: 20px;
+    border: 1px solid #888;
+    width: 90%; 
+    max-width: 600px;
+    border-radius: 8px;
+    position: relative;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.close-modal {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    cursor: pointer;
+}
+
+.close-modal:hover,
+.close-modal:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* ส่วนครอบรูปที่จะถูกตัด */
+.img-container {
+    max-width: 100%;
+    height: 400px; /* กำหนดความสูงของพื้นที่ตัดภาพ */
+    overflow: hidden;
+    margin-bottom: 20px;
+    border: 1px solid #eee;
+}
+
+#imageToCrop {
+    max-width: 100%;
+}
+
+.modal-actions {
+    text-align: center;
+}
+/* ========================================= */
+/* CSS สำหรับหน้า ประวัติคำสั่งซื้อ (history.html) */
+/* ========================================= */
+.history-title {
+    background-color: #f2f2f2;
+    padding: 15px 20px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+    color: #555;
+    margin-bottom: 20px;
+    width: 100%;
+}
+.history-title i {
+    margin-right: 15px;
+    font-size: 22px;
+}
+.history-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px; /* ระยะห่างระหว่างกล่อง */
+    margin-bottom: 30px;
+}
+.history-item {
+    padding: 15px 20px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between; /* กระจายข้อความ ซ้าย-กลาง-ขวา */
+    align-items: center;
+    font-size: 14px;
+    min-height: 50px; /* กำหนดความสูงขั้นต่ำให้เท่าๆ กัน */
+}
+
+/* สลับสีรายการอัตโนมัติ (คี่=สีอ่อน, คู่=สีเข้ม ตามรูป Figma) */
+.history-item:nth-child(odd) {
+    background-color: #FCE493; /* สีเหลืองอ่อน */
+    color: #555;
+}
+.history-item:nth-child(even) {
+    background-color: #FFC107; /* สีเหลืองเข้ม */
+    color: white; /* ใช้ตัวหนังสือสีขาวเพื่อให้ตัดกับพื้นเข้ม */
+
+}
+/* ========================================= */
+/* CSS สำหรับหน้า Main (จองโต๊ะ & สั่งอาหาร) และ Canteen */
+/* ========================================= */
+
+.page-title {
+    font-size: 24px;
+    color: #555;
+    text-align: center;
+    margin-bottom: 30px;
+    font-weight: bold;
+}
+
+/* ปุ่มใหญ่สำหรับเมนูหลัก */
+.big-action-btn {
+    width: 100%;
+    padding: 40px 20px;
+    font-size: 24px;
+    font-weight: bold;
+    border: none;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+.btn-yellow-dark { background-color: #FFC107; color: #555; }
+.btn-yellow-light { background-color: #FCE493; color: #555; }
+.big-action-btn:hover { transform: translateY(-3px); }
+
+/* หัวข้อพร้อมปุ่มย้อนกลับ */
+.title-with-back {
+    display: flex;
+    align-items: center;
+    font-size: 24px;
+    color: #555;
+    margin-bottom: 25px;
+    font-weight: bold;
+}
+.title-with-back i { 
+    margin-right: 20px; 
+    cursor: pointer; 
+    font-size: 20px;
+}
+
+/* ตารางแสดงโรงอาหาร (Grid) */
+.canteen-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* แบ่งเป็น 2 คอลัมน์ */
+    gap: 20px;
+    width: 100%;
+    padding-bottom: 30px;
+}
+.canteen-card {
+    text-align: center;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.canteen-card:hover { opacity: 0.7; }
+.canteen-img {
+    width: 100%;
+    aspect-ratio: 1 / 1; /* ทำให้กล่องเป็นสี่เหลี่ยมจัตุรัสเสมอ */
+    background-color: #d9d9d9;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+.canteen-name { font-size: 13px; font-weight: bold; color: #555; margin-bottom: 2px;}
+.canteen-time { font-size: 11px; color: #888; }
+/* ========================================= */
+/* CSS สำหรับหน้า Store (รายชื่อร้านอาหาร) */
+/* ========================================= */
+.store-list {
+    display: flex;
+    flex-direction: column;
+    gap: 25px; /* ระยะห่างระหว่างแต่ละร้าน */
+    width: 100%;
+    padding-bottom: 30px;
+}
+.store-card {
+    width: 100%;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.store-card:hover { opacity: 0.8; }
+.store-banner {
+    width: 100%;
+    height: 140px;
+    background-color: #d9d9d9; /* กล่องสีเทาแทนรูปภาพร้าน */
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+.store-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 5px;
+}
+.store-name {
+    font-size: 16px;
+    color: #555;
+    font-weight: bold;
+}
+/* สีของสถานะร้าน */
+.status-open { color: #4CAF50; font-size: 14px; }
+.status-close { color: #F44336; font-size: 14px; }
+/* ========================================= */
+/* CSS สำหรับหน้า จองโต๊ะ (booking.html) */
+/* ========================================= */
+.table-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* แบ่งเป็น 2 คอลัมน์เท่าๆ กัน */
+    gap: 15px;
+    width: 100%;
+    margin-bottom: 30px;
+}
+.table-btn {
+    width: 100%;
+    padding: 25px 10px;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+    color: #555;
+}
+.table-btn:hover {
+    transform: scale(1.03); /* เอาเมาส์ชี้แล้วปุ่มจะขยายขึ้นนิดนึง */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+/* ========================================= */
+/* CSS สำหรับหน้า เมนูอาหาร (menu.html) */
+/* ========================================= */
+.menu-section-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #555;
+    margin: 20px 0 10px 0;
+    text-align: left;
+    width: 100%;
+}
+
+.menu-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* แบ่งเป็น 2 คอลัมน์ */
+    gap: 15px;
+    width: 100%;
+}
+
+.menu-card {
+    text-align: center;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.menu-card:hover { opacity: 0.8; }
+
+.menu-img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background-color: #d9d9d9;
+    border-radius: 8px;
+    margin-bottom: 5px;
+}
+
+.menu-name { font-size: 12px; color: #555; font-weight: bold; }
+.menu-price { font-size: 11px; color: #888; }
+
+/* ไอคอนตะกร้าสินค้ามุมขวาบน */
+.cart-icon {
+    position: absolute;
+    right: 0;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* ========================================= */
+/* CSS สำหรับหน้า ชำระเงิน (payment.html) */
+/* ========================================= */
+.payment-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+.qr-container {
+    width: 200px;
+    height: 250px;
+    background-color: #d9d9d9;
+    margin: 20px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #888;
+    border-radius: 8px;
+}
+.qr-text {
+    font-size: 10px;
+    color: #888;
+    text-align: center;
+    margin-bottom: 5px;
+}
+.store-account-name {
+    font-size: 14px;
+    font-weight: bold;
+    color: #555;
+    margin-bottom: 5px;
+}
+.payment-total {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 30px;
+}
+.upload-slip-btn {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    margin-bottom: 40px;
+}
+.upload-icon-box {
+    width: 40px;
+    height: 40px;
+    background-color: #d9d9d9;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #555;
+}
+.upload-text {
+    font-size: 14px;
+    color: #555;
+}
+/* ========================================= */
+/* CSS สำหรับหน้า ชำระเงิน (payment.html) */
+/* ========================================= */
+.payment-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+.qr-container {
+    width: 200px;
+    height: 250px;
+    background-color: #d9d9d9;
+    margin: 20px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #888;
+    border-radius: 8px;
+}
+.qr-text {
+    font-size: 10px;
+    color: #888;
+    text-align: center;
+    margin-bottom: 5px;
+}
+.store-account-name {
+    font-size: 14px;
+    font-weight: bold;
+    color: #555;
+    margin-bottom: 5px;
+}
+.payment-total {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 30px;
+}
+.upload-slip-btn {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    margin-bottom: 40px;
+}
+.upload-icon-box {
+    width: 40px;
+    height: 40px;
+    background-color: #d9d9d9;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #555;
+}
+.upload-text {
+    font-size: 14px;
+    color: #555;
+}
+/* ========================================= */
+/* CSS สำหรับหน้า สถานะออเดอร์ (status.html) */
+/* ========================================= */
+.status-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    margin-top: 50px;
+}
+.status-box {
+    text-align: center;
+    transition: 0.5s;
+    opacity: 0.3; /* ค่าเริ่มต้นให้ดูจางๆ */
+}
+.status-box.active {
+    opacity: 1;
+    transform: scale(1.1);
+}
+.status-box i {
+    font-size: 50px;
+    margin-bottom: 10px;
+    display: block;
+}
+.status-text {
+    font-size: 14px;
+    font-weight: bold;
+}
+/* สีสถานะ */
+.status-box.cooking.active { color: #555; }
+.status-box.done.active { color: #4CAF50; }
+
+.queue-number-display {
+    font-size: 60px;
+    font-weight: bold;
+    color: #FFC107;
+    margin: 40px 0;
+}
