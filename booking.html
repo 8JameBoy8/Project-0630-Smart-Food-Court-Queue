@@ -38,20 +38,16 @@
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; padding: 0 10px;">
-                    <button class="big-action-btn btn-yellow-dark" style="margin-bottom: 0;" onclick="bookTable(this, 1)" data-lang="table_1">โต๊ะที่ 1</button>
-                    <button class="big-action-btn btn-yellow-light" style="margin-bottom: 0;" onclick="bookTable(this, 2)" data-lang="table_2">โต๊ะที่ 2</button>
-                    
-                    <button class="big-action-btn btn-yellow-light" style="margin-bottom: 0;" onclick="bookTable(this, 3)" data-lang="table_3">โต๊ะที่ 3</button>
-                    <button class="big-action-btn btn-yellow-dark" style="margin-bottom: 0;" onclick="bookTable(this, 4)" data-lang="table_4">โต๊ะที่ 4</button>
-                    
-                    <button class="big-action-btn btn-yellow-dark" style="margin-bottom: 0;" onclick="bookTable(this, 5)" data-lang="table_5">โต๊ะที่ 5</button>
-                    <button class="big-action-btn btn-yellow-light" style="margin-bottom: 0;" onclick="bookTable(this, 6)" data-lang="table_6">โต๊ะที่ 6</button>
-                    
-                    <button class="big-action-btn btn-yellow-light" style="margin-bottom: 0;" onclick="bookTable(this, 7)" data-lang="table_7">โต๊ะที่ 7</button>
-                    <button class="big-action-btn btn-yellow-dark" style="margin-bottom: 0;" onclick="bookTable(this, 8)" data-lang="table_8">โต๊ะที่ 8</button>
-                    
-                    <button class="big-action-btn btn-yellow-dark" style="margin-bottom: 0;" onclick="bookTable(this, 9)" data-lang="table_9">โต๊ะที่ 9</button>
-                    <button class="big-action-btn btn-yellow-light" style="margin-bottom: 0;" onclick="bookTable(this, 10)" data-lang="table_10">โต๊ะที่ 10</button>
+                    <button class="big-action-btn btn-yellow-dark" onclick="bookTable(this, 1)" data-lang="table_1">โต๊ะที่ 1</button>
+                    <button class="big-action-btn btn-yellow-light" onclick="bookTable(this, 2)" data-lang="table_2">โต๊ะที่ 2</button>
+                    <button class="big-action-btn btn-yellow-light" onclick="bookTable(this, 3)" data-lang="table_3">โต๊ะที่ 3</button>
+                    <button class="big-action-btn btn-yellow-dark" onclick="bookTable(this, 4)" data-lang="table_4">โต๊ะที่ 4</button>
+                    <button class="big-action-btn btn-yellow-dark" onclick="bookTable(this, 5)" data-lang="table_5">โต๊ะที่ 5</button>
+                    <button class="big-action-btn btn-yellow-light" onclick="bookTable(this, 6)" data-lang="table_6">โต๊ะที่ 6</button>
+                    <button class="big-action-btn btn-yellow-light" onclick="bookTable(this, 7)" data-lang="table_7">โต๊ะที่ 7</button>
+                    <button class="big-action-btn btn-yellow-dark" onclick="bookTable(this, 8)" data-lang="table_8">โต๊ะที่ 8</button>
+                    <button class="big-action-btn btn-yellow-dark" onclick="bookTable(this, 9)" data-lang="table_9">โต๊ะที่ 9</button>
+                    <button class="big-action-btn btn-yellow-light" onclick="bookTable(this, 10)" data-lang="table_10">โต๊ะที่ 10</button>
                 </div>
 
                 <div style="width: 100%; text-align: center; margin-top: 40px;">
@@ -67,61 +63,45 @@
             let name = localStorage.getItem('savedUsername');
             if(name) document.getElementById('headerUsername').innerText = name;
 
-            // 2. ตรวจจับ QR Code (ถ้าผู้ใช้สแกน QR Code URL จะมี ?table=X)
             const urlParams = new URLSearchParams(window.location.search);
             const tableFromQR = urlParams.get('table');
-            
             if (tableFromQR) {
-                // ถ้ามาจากการสแกนโต๊ะ ให้ส่งไปเช็คกับ Java ทันที
-                console.log("ผู้ใช้สแกน QR Code โต๊ะที่: " + tableFromQR);
                 checkTableStatusFromJava(tableFromQR);
             }
         });
 
-        // ฟังก์ชันสำหรับ QR Code (ให้เพื่อนมาเขียน Fetch ยิงไปหา Java ตรงนี้)
         function checkTableStatusFromJava(tableId) {
             alert("ระบบกำลังตรวจสอบสถานะโต๊ะที่ " + tableId + " จากเซิร์ฟเวอร์...");
-            // อนาคต: fetch('http://.../api/checkTable?id=' + tableId) ...
         }
 
-        // ฟังก์ชันกดจองโต๊ะ
         function bookTable(btn, tableNum) {
             let currentLang = localStorage.getItem('userLang') || 'th';
-            
+            let selectedDuration = document.getElementById('durationSelect').value;
+
             if (btn.getAttribute('data-booked') === 'true') {
                 alert(currentLang === 'th' ? 'ขออภัยค่ะ โต๊ะนี้ถูกจองไปแล้ว' : 'Sorry, this table is already booked.');
                 return;
             }
 
-            // 3. ดึงเวลาที่เลือกว่าจะจองกี่นาที
-            let selectedDuration = document.getElementById('durationSelect').value;
-
-            // แจ้งเตือนจำลองการยิง API (เดี๋ยวเอาออกตอนต่อ Java จริง)
-            console.log("เตรียมส่งข้อมูลไป Java -> โต๊ะ: " + tableNum + ", เวลา: " + selectedDuration + " นาที");
-            
-            /* ========================================================================
-               ฝากบอกเพื่อน: ให้เอาโค้ดด้านล่างนี้ไปปรับใช้เพื่อยิง Request ไปหา Java
-               ========================================================================
-               fetch('http://localhost:8080/api/book', {
-                   method: 'POST',
-                   headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                   body: `tableId=${tableNum}&duration=${selectedDuration}`
-               })
-               .then(response => response.json())
-               .then(data => {
-                   if(data.status === 'success') {
-                       // สั่งเปลี่ยนสีปุ่มตรงนี้
-                   }
-               });
+            /* โค้ดสำหรับส่งให้ Java Backend (บอกเพื่อน JameBoy ให้เขียน API มารับนะ)
+            fetch('http://localhost:8080/api/book', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `tableId=${tableNum}&duration=${selectedDuration}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    // Logic เปลี่ยนสีปุ่ม
+                }
+            });
             */
 
-            // โชว์แจ้งเตือนว่าส่งข้อมูลแล้ว
             let msg = currentLang === 'th' 
                 ? 'ระบบได้ส่งคำขอจองโต๊ะที่ ' + tableNum + ' เป็นเวลา ' + selectedDuration + ' นาทีแล้ว' 
                 : 'Booking request for Table ' + tableNum + ' (' + selectedDuration + ' mins) sent.';
             alert(msg);
 
-            // เปลี่ยนสีปุ่ม (จำลองไปก่อน อนาคตต้องย้ายโค้ดก้อนนี้ไปไว้ในวงเล็บของ fetch ข้างบน)
             btn.setAttribute('data-booked', 'true');
             btn.style.backgroundColor = '#d9d9d9';
             btn.style.color = '#888';
