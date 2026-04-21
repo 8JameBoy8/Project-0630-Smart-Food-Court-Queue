@@ -23,23 +23,31 @@
         <div class="content-section">
             <div class="wrapper-box">
                 
-                <div class="page-title" data-lang="booking_title" style="text-align: center; margin-bottom: 30px; margin-top: 10px;">จองโต๊ะ</div>
+                <div class="page-title" data-lang="booking_title" style="text-align: center; margin-bottom: 20px; margin-top: 10px;">จองโต๊ะ</div>
+
+                <div class="booking-duration-section" style="margin-bottom: 25px; padding: 15px; background-color: #fcfcfc; border-radius: 10px; border: 1px solid #eee; text-align: center;">
+                    <label for="durationSelect" style="display: block; margin-bottom: 10px; font-weight: bold; color: #555;">
+                        <i class="fa-solid fa-hourglass-start"></i> เลือกระยะเวลาการใช้งาน:
+                    </label>
+                    <select id="durationSelect" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #ffcc00; font-family: inherit; font-size: 16px; background-color: white; cursor: pointer;">
+                        <option value="5">5 นาที (แวะรับอาหาร)</option>
+                        <option value="10">10 นาที (ทานด่วน)</option>
+                        <option value="15">15 นาที (ทานปกติ)</option>
+                        <option value="30" selected>30 นาที (มาตรฐาน)</option>
+                    </select>
+                </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; padding: 0 10px;">
-                    <button class="big-action-btn btn-yellow-dark" style="margin-bottom: 0;" onclick="bookTable(this, 1)" data-lang="table_1">โต๊ะที่ 1</button>
-                    <button class="big-action-btn btn-yellow-light" style="margin-bottom: 0;" onclick="bookTable(this, 2)" data-lang="table_2">โต๊ะที่ 2</button>
-                    
-                    <button class="big-action-btn btn-yellow-light" style="margin-bottom: 0;" onclick="bookTable(this, 3)" data-lang="table_3">โต๊ะที่ 3</button>
-                    <button class="big-action-btn btn-yellow-dark" style="margin-bottom: 0;" onclick="bookTable(this, 4)" data-lang="table_4">โต๊ะที่ 4</button>
-                    
-                    <button class="big-action-btn btn-yellow-dark" style="margin-bottom: 0;" onclick="bookTable(this, 5)" data-lang="table_5">โต๊ะที่ 5</button>
-                    <button class="big-action-btn btn-yellow-light" style="margin-bottom: 0;" onclick="bookTable(this, 6)" data-lang="table_6">โต๊ะที่ 6</button>
-                    
-                    <button class="big-action-btn btn-yellow-light" style="margin-bottom: 0;" onclick="bookTable(this, 7)" data-lang="table_7">โต๊ะที่ 7</button>
-                    <button class="big-action-btn btn-yellow-dark" style="margin-bottom: 0;" onclick="bookTable(this, 8)" data-lang="table_8">โต๊ะที่ 8</button>
-                    
-                    <button class="big-action-btn btn-yellow-dark" style="margin-bottom: 0;" onclick="bookTable(this, 9)" data-lang="table_9">โต๊ะที่ 9</button>
-                    <button class="big-action-btn btn-yellow-light" style="margin-bottom: 0;" onclick="bookTable(this, 10)" data-lang="table_10">โต๊ะที่ 10</button>
+                    <button class="big-action-btn btn-yellow-dark" onclick="bookTable(this, 1)" data-lang="table_1">โต๊ะที่ 1</button>
+                    <button class="big-action-btn btn-yellow-light" onclick="bookTable(this, 2)" data-lang="table_2">โต๊ะที่ 2</button>
+                    <button class="big-action-btn btn-yellow-light" onclick="bookTable(this, 3)" data-lang="table_3">โต๊ะที่ 3</button>
+                    <button class="big-action-btn btn-yellow-dark" onclick="bookTable(this, 4)" data-lang="table_4">โต๊ะที่ 4</button>
+                    <button class="big-action-btn btn-yellow-dark" onclick="bookTable(this, 5)" data-lang="table_5">โต๊ะที่ 5</button>
+                    <button class="big-action-btn btn-yellow-light" onclick="bookTable(this, 6)" data-lang="table_6">โต๊ะที่ 6</button>
+                    <button class="big-action-btn btn-yellow-light" onclick="bookTable(this, 7)" data-lang="table_7">โต๊ะที่ 7</button>
+                    <button class="big-action-btn btn-yellow-dark" onclick="bookTable(this, 8)" data-lang="table_8">โต๊ะที่ 8</button>
+                    <button class="big-action-btn btn-yellow-dark" onclick="bookTable(this, 9)" data-lang="table_9">โต๊ะที่ 9</button>
+                    <button class="big-action-btn btn-yellow-light" onclick="bookTable(this, 10)" data-lang="table_10">โต๊ะที่ 10</button>
                 </div>
 
                 <div style="width: 100%; text-align: center; margin-top: 40px;">
@@ -54,30 +62,50 @@
         window.addEventListener('load', function() {
             let name = localStorage.getItem('savedUsername');
             if(name) document.getElementById('headerUsername').innerText = name;
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const tableFromQR = urlParams.get('table');
+            if (tableFromQR) {
+                checkTableStatusFromJava(tableFromQR);
+            }
         });
+
+        function checkTableStatusFromJava(tableId) {
+            alert("ระบบกำลังตรวจสอบสถานะโต๊ะที่ " + tableId + " จากเซิร์ฟเวอร์...");
+        }
 
         function bookTable(btn, tableNum) {
             let currentLang = localStorage.getItem('userLang') || 'th';
-            
-            // 1. เช็คว่าถ้าปุ่มนี้ถูกจองไปแล้ว (มีค่า data-booked เป็น true) ให้แจ้งเตือนว่าจองซ้ำไม่ได้
+            let selectedDuration = document.getElementById('durationSelect').value;
+
             if (btn.getAttribute('data-booked') === 'true') {
                 alert(currentLang === 'th' ? 'ขออภัยค่ะ โต๊ะนี้ถูกจองไปแล้ว' : 'Sorry, this table is already booked.');
                 return;
             }
 
-            // 2. ถ้ายังไม่จอง ให้ขึ้นแจ้งเตือนว่าจองสำเร็จ
+            /* โค้ดสำหรับส่งให้ Java Backend (บอกเพื่อน JameBoy ให้เขียน API มารับนะ)
+            fetch('http://localhost:8080/api/book', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `tableId=${tableNum}&duration=${selectedDuration}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    // Logic เปลี่ยนสีปุ่ม
+                }
+            });
+            */
+
             let msg = currentLang === 'th' 
-                ? 'คุณได้จองโต๊ะที่ ' + tableNum + ' เรียบร้อยแล้วค่ะ' 
-                : 'You have successfully booked Table ' + tableNum + '!';
+                ? 'ระบบได้ส่งคำขอจองโต๊ะที่ ' + tableNum + ' เป็นเวลา ' + selectedDuration + ' นาทีแล้ว' 
+                : 'Booking request for Table ' + tableNum + ' (' + selectedDuration + ' mins) sent.';
             alert(msg);
 
-            // 3. เปลี่ยนหน้าตาปุ่มเป็นสีเทา เพื่อให้รู้ว่ามีคนจองแล้ว
             btn.setAttribute('data-booked', 'true');
             btn.style.backgroundColor = '#d9d9d9';
             btn.style.color = '#888';
             btn.innerText = currentLang === 'th' ? 'จองแล้ว' : 'Booked';
-            
-            // ลบ data-lang ออก เพื่อไม่ให้ระบบแปลภาษาแก้คำว่า "จองแล้ว" กลับเป็น "โต๊ะที่..."
             btn.removeAttribute('data-lang');
         }
     </script>

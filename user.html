@@ -6,134 +6,103 @@
     <title>SUT Food Queue - User Profile</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <script src="lang.js"></script>
 </head>
 <body>
 
     <div class="app-container">
         <div class="header">
             <h1>SUT FOOD QUEUE</h1>
-            <div class="header-icons">
-                <i class="fa-regular fa-user" onclick="window.location.href='user.html'"></i>
-                <i class="fa-solid fa-globe" onclick="window.location.href='home.html'"></i>
+            <div class="header-icons" style="display: flex; align-items: center; gap: 15px;">
+                <i class="fa-regular fa-user" style="color: #ffcc00;"></i>
+                <i class="fa-solid fa-globe" style="cursor: pointer;" onclick="window.location.href='home.html'"></i>
             </div>
         </div>
 
         <div class="content-section">
-            <div class="wrapper-box profile-container">
-                <div class="edit-text">Edit</div>
+            <div class="wrapper-box" style="text-align: center;">
                 
-                <label for="uploadProfile">
-                    <div class="profile-pic" id="profileImagePreview"></div>
-                </label>
-                <input type="file" id="uploadProfile" accept="image/*" style="display: none;" onchange="previewImage(event)">
-                
-                <div class="username-text" id="displayUsername">Username</div>
+                <div class="page-title" data-lang="user_title" style="margin-bottom: 30px; margin-top: 10px;">ข้อมูลผู้ใช้งาน</div>
 
-                <button type="button" class="action-btn">
-                    <i class="fa-solid fa-lock"></i>
-                    Password
-                </button>
+                <div id="userProfileContainer">
+                    <div style="margin-bottom: 20px;">
+                        <i class="fa-solid fa-circle-user" style="font-size: 6rem; color: #ddd;"></i>
+                    </div>
+                    
+                    <div id="userData">
+                        <i class="fa-solid fa-spinner fa-spin" style="color: #ffcc00;"></i>
+                        <p>กำลังโหลดข้อมูลจากเซิร์ฟเวอร์...</p>
+                    </div>
+                </div>
 
-                <button type="button" class="action-btn" onclick="window.location.href='history.html'">
-                    <i class="fa-regular fa-clock"></i>
-                    ประวัติคำสั่งซื้อ
-                </button>
+                <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
 
-                <button type="button" class="btn-back" onclick="window.location.href='home.html'">กลับ</button>
-            </div>
-        </div>
-    </div>
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <button class="btn-back" style="width: 100%; background-color: #f5f5f5; color: #333; border: 1px solid #ddd;" onclick="window.location.href='main.html'" data-lang="btn_back">กลับหน้าหลัก</button>
+                    
+                    <button class="btn-logout" style="width: 100%; background-color: #ffeeee; color: #d32f2f; border: 1px solid #ffcccc; padding: 12px; border-radius: 8px; cursor: pointer; font-family: inherit; font-weight: bold;" onclick="logoutFromJava()">
+                        <i class="fa-solid fa-right-from-bracket"></i> ออกจากระบบ
+                    </button>
+                </div>
 
-    <div id="cropModal" class="modal" style="display:none;">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeCropModal()">&times;</span>
-            <h2>กำหนดตัดภาพโปรไฟล์</h2>
-            
-            <div class="img-container">
-                <img id="imageToCrop" src="" alt="Image to crop">
-            </div>
-            
-            <div class="modal-actions">
-                <button type="button" class="btn-submit" onclick="cropAndSave()" style="margin-top: 20px;">ตัดภาพและบันทึก</button>
             </div>
         </div>
     </div>
 
     <script>
-        let cropper = null; 
-        const cropModal = document.getElementById('cropModal');
-        const imageToCrop = document.getElementById('imageToCrop');
+        window.addEventListener('load', function() {
+            // สั่งโหลดข้อมูลผู้ใช้จาก Java ทันที
+            fetchUserProfileFromJava();
+        });
 
-        window.onload = function() {
-            let savedName = localStorage.getItem('savedUsername');
-            if (savedName) {
-                document.getElementById('displayUsername').innerText = savedName;
-            }
+        function fetchUserProfileFromJava() {
+            const userDataDiv = document.getElementById('userData');
 
-            let savedImage = localStorage.getItem('savedProfilePic');
-            if (savedImage) {
-                document.getElementById('profileImagePreview').style.backgroundImage = "url('" + savedImage + "')";
-            }
-        };
+            /* ========================================================================
+               ฝากบอกเพื่อน Backend:
+               เตรียม API GET /api/userProfile 
+               ส่งข้อมูล JSON ของนักศึกษาที่ล็อกอินอยู่กลับมา
+               ========================================================================
+            */
 
-        // ฟังก์ชันเมื่อกดเลือกรูป
-        function previewImage(event) {
-            const files = event.target.files;
-            if (files && files.length > 0) {
-                const file = files[0];
-                const reader = new FileReader();
-                reader.onload = function() {
-                    const dataURL = reader.result;
-                    
-                    imageToCrop.src = dataURL;
-                    cropModal.style.display = 'block'; // โชว์หน้าต่างตัดรูป
-                    
-                    if (cropper) {
-                        cropper.destroy(); 
-                    }
-                    // ตั้งค่ากรอบตัดรูป
-                    cropper = new Cropper(imageToCrop, {
-                        aspectRatio: 4 / 5, // สัดส่วนรูปโปรไฟล์
-                        viewMode: 1,
-                    });
-                };
-                reader.readAsDataURL(file);
+            // จำลองการดึงข้อมูลจาก Database ผ่าน Java
+            setTimeout(() => {
                 
-                // เคลียร์ค่า input file เพื่อให้กดเลือกรูปเดิมซ้ำได้
-                event.target.value = ''; 
-            }
+                // ข้อมูลสมมติที่ Java จะส่งมาให้
+                const user = {
+                    name: "Teerawat K.", // ตัวอย่างชื่อจริงของคุณวานิต
+                    studentId: "B63xxxxx",
+                    faculty: "Engineering"
+                };
+
+                userDataDiv.innerHTML = `
+                    <h2 style="margin: 10px 0; color: #333;">${user.name}</h2>
+                    <p style="margin: 5px 0; color: #666; font-size: 1.1rem;">
+                        <i class="fa-solid fa-id-card"></i> ID: ${user.studentId}
+                    </p>
+                    <p style="margin: 5px 0; color: #888;">
+                        <i class="fa-solid fa-graduation-cap"></i> ${user.faculty}
+                    </p>
+                `;
+            }, 800);
         }
 
-        // ฟังก์ชันตอนกดปุ่ม "ตัดภาพและบันทึก"
-        function cropAndSave() {
-            if (!cropper) return;
-            
-            // ดึงภาพที่ตัดแล้ว
-            const croppedCanvas = cropper.getCroppedCanvas({
-                width: 400,
-                height: 500,
-            });
-            
-            const croppedDataURL = croppedCanvas.toDataURL();
-            
-            // เปลี่ยนรูปโปรไฟล์และเซฟลงเครื่อง
-            document.getElementById('profileImagePreview').style.backgroundImage = "url('" + croppedDataURL + "')";
-            localStorage.setItem('savedProfilePic', croppedDataURL);
-            
-            closeCropModal();
-        }
-
-        function closeCropModal() {
-            cropModal.style.display = 'none';
-            if (cropper) {
-                cropper.destroy();
-                cropper = null;
+        function logoutFromJava() {
+            if(confirm("คุณต้องการออกจากระบบใช่หรือไม่?")) {
+                console.log("ส่งคำสั่ง Logout ไปให้ Java เคลียร์ Session...");
+                
+                // เคลียร์ค่าที่หลงเหลือในเครื่อง (ถ้ามี)
+                localStorage.removeItem('savedUsername');
+                
+                /* โค้ดเชื่อม Java:
+                fetch('http://localhost:8080/api/logout', { method: 'POST' })
+                .then(() => { window.location.href = 'home.html'; });
+                */
+                
+                alert("ออกจากระบบเรียบร้อยแล้ว");
+                window.location.href = 'home.html';
             }
         }
     </script>
-
 </body>
 </html>
