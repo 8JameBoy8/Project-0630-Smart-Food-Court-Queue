@@ -10,30 +10,46 @@
 <body>
 
     <div class="app-container">
+        
         <div class="header">
             <h1>SUT FOOD QUEUE</h1>
-            <div class="header-icons">
-                <i class="fa-regular fa-user"></i>
-                <i class="fa-solid fa-globe"></i>
-            </div>
+            <i class="fa-solid fa-globe"></i>
         </div>
 
-        <div class="content-section">
-            <div class="wrapper-box">
-                <button class="btn-lang btn-thai" onclick="setLanguage('th')">ภาษาไทย</button>
-        <button class="btn-lang btn-eng" onclick="setLanguage('en')">English</button>
+        <div class="wrapper-box" style="text-align: center;">
+            <h2 class="page-title" style="margin-top: 10px; margin-bottom: 30px;" data-lang="lang_title">เลือกภาษา / Select Language</h2>
 
-        <script>
-            function setLanguage(lang) {
-        localStorage.setItem('userLang', lang); 
-        window.location.href = 'main.html'; 
-            }
-            </script>
+            <div style="display: flex; flex-direction: column; gap: 15px;">
                 
-                <button type="button" class="btn-back" onclick="window.location.href='main.html'">กลับ</button>
+                <button class="big-action-btn btn-yellow-dark" onclick="setLanguage('th')">
+                    <i class="fa-solid fa-language" style="font-size: 1.5rem;"></i>
+                    ภาษาไทย
+                </button>
+
+                <button class="big-action-btn btn-yellow-light" onclick="setLanguage('en')">
+                    <i class="fa-solid fa-earth-americas" style="font-size: 1.5rem;"></i>
+                    English
+                </button>
+
+            </div>
+
+            <div style="margin-top: 40px;">
+                <button class="btn-back" data-lang="btn_back" onclick="window.location.href='index.html'">
+                    <i class="fa-solid fa-arrow-left"></i> กลับ (Back)
+                </button>
             </div>
         </div>
+
     </div>
 
+    <script src="lang.js"></script>
+
+    <script>
+        function setLanguage(lang) {
+            localStorage.setItem('userLang', lang);
+            // เมื่อเลือกเสร็จให้เด้งไปหน้า Login (index.html)
+            window.location.href = 'index.html'; 
+        }
+    </script>
 </body>
 </html>

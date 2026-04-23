@@ -6,7 +6,7 @@
     <title>SUT Food Queue - Booking Table</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-    <script src="lang.js"></script>
+    
 </head>
 <body>
 
@@ -15,7 +15,7 @@
             <h1>SUT FOOD QUEUE</h1>
             <div class="header-icons" style="display: flex; align-items: center; gap: 15px;">
                 <span id="headerUsername" style="color: white; font-size: 14px; font-weight: bold;"></span>
-                <i class="fa-regular fa-user" style="cursor: pointer;" onclick="window.location.href='user.html'"></i>
+                <i class="fa-regular fa-user" style="cursor: pointer; color: #ffcc00;" onclick="window.location.href='user.html'"></i>
                 <i class="fa-solid fa-globe" style="cursor: pointer;" onclick="window.location.href='home.html'"></i>
             </div>
         </div>
@@ -26,28 +26,22 @@
                 <div class="page-title" data-lang="booking_title" style="text-align: center; margin-bottom: 20px; margin-top: 10px;">จองโต๊ะ</div>
 
                 <div class="booking-duration-section" style="margin-bottom: 25px; padding: 15px; background-color: #fcfcfc; border-radius: 10px; border: 1px solid #eee; text-align: center;">
-                    <label for="durationSelect" style="display: block; margin-bottom: 10px; font-weight: bold; color: #555;">
+                    <label for="durationSelect" data-lang="book_time_label" style="display: block; margin-bottom: 10px; font-weight: bold; color: #555;">
                         <i class="fa-solid fa-hourglass-start"></i> เลือกระยะเวลาการใช้งาน:
                     </label>
                     <select id="durationSelect" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #ffcc00; font-family: inherit; font-size: 16px; background-color: white; cursor: pointer;">
-                        <option value="5">5 นาที (แวะรับอาหาร)</option>
-                        <option value="10">10 นาที (ทานด่วน)</option>
-                        <option value="15">15 นาที (ทานปกติ)</option>
-                        <option value="30" selected>30 นาที (มาตรฐาน)</option>
+                        <option value="5" data-lang="time_5">5 นาที (แวะรับอาหาร)</option>
+                        <option value="10" data-lang="time_10">10 นาที (ทานด่วน)</option>
+                        <option value="15" data-lang="time_15">15 นาที (ทานปกติ)</option>
+                        <option value="30" data-lang="time_30" selected>30 นาที (มาตรฐาน)</option>
                     </select>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; padding: 0 10px;">
-                    <button class="big-action-btn btn-yellow-dark" onclick="bookTable(this, 1)" data-lang="table_1">โต๊ะที่ 1</button>
-                    <button class="big-action-btn btn-yellow-light" onclick="bookTable(this, 2)" data-lang="table_2">โต๊ะที่ 2</button>
-                    <button class="big-action-btn btn-yellow-light" onclick="bookTable(this, 3)" data-lang="table_3">โต๊ะที่ 3</button>
-                    <button class="big-action-btn btn-yellow-dark" onclick="bookTable(this, 4)" data-lang="table_4">โต๊ะที่ 4</button>
-                    <button class="big-action-btn btn-yellow-dark" onclick="bookTable(this, 5)" data-lang="table_5">โต๊ะที่ 5</button>
-                    <button class="big-action-btn btn-yellow-light" onclick="bookTable(this, 6)" data-lang="table_6">โต๊ะที่ 6</button>
-                    <button class="big-action-btn btn-yellow-light" onclick="bookTable(this, 7)" data-lang="table_7">โต๊ะที่ 7</button>
-                    <button class="big-action-btn btn-yellow-dark" onclick="bookTable(this, 8)" data-lang="table_8">โต๊ะที่ 8</button>
-                    <button class="big-action-btn btn-yellow-dark" onclick="bookTable(this, 9)" data-lang="table_9">โต๊ะที่ 9</button>
-                    <button class="big-action-btn btn-yellow-light" onclick="bookTable(this, 10)" data-lang="table_10">โต๊ะที่ 10</button>
+                <div id="tableGrid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; padding: 0 10px;">
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 20px; color: #888;">
+                        <i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; color: #ffcc00; margin-bottom: 10px;"></i>
+                        <p>กำลังโหลดข้อมูลโต๊ะจากเซิร์ฟเวอร์...</p>
+                    </div>
                 </div>
 
                 <div style="width: 100%; text-align: center; margin-top: 40px;">
@@ -58,55 +52,100 @@
         </div>
     </div>
 
+    <script src="lang.js"></script>
     <script>
-        window.addEventListener('load', function() {
+        window.addEventListener('DOMContentLoaded', function() {
             let name = localStorage.getItem('savedUsername');
             if(name) document.getElementById('headerUsername').innerText = name;
 
-            const urlParams = new URLSearchParams(window.location.search);
-            const tableFromQR = urlParams.get('table');
-            if (tableFromQR) {
-                checkTableStatusFromJava(tableFromQR);
-            }
+            // สั่งดึงข้อมูลโต๊ะจาก Java ทันทีที่เข้าหน้านี้
+            fetchTablesFromBackend();
         });
 
-        function checkTableStatusFromJava(tableId) {
-            alert("ระบบกำลังตรวจสอบสถานะโต๊ะที่ " + tableId + " จากเซิร์ฟเวอร์...");
-        }
+        // 🚀 ฟังก์ชันดึงข้อมูลจาก Java แล้วสร้างปุ่ม
+        function fetchTablesFromBackend() {
+            const tableGrid = document.getElementById('tableGrid');
 
-        function bookTable(btn, tableNum) {
-            let currentLang = localStorage.getItem('userLang') || 'th';
-            let selectedDuration = document.getElementById('durationSelect').value;
-
-            if (btn.getAttribute('data-booked') === 'true') {
-                alert(currentLang === 'th' ? 'ขออภัยค่ะ โต๊ะนี้ถูกจองไปแล้ว' : 'Sorry, this table is already booked.');
-                return;
-            }
-
-            /* โค้ดสำหรับส่งให้ Java Backend (บอกเพื่อน JameBoy ให้เขียน API มารับนะ)
-            fetch('http://localhost:8080/api/book', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `tableId=${tableNum}&duration=${selectedDuration}`
-            })
-            .then(response => response.json())
-            .then(data => {
-                if(data.status === 'success') {
-                    // Logic เปลี่ยนสีปุ่ม
-                }
-            });
+            /* =========================================================
+               ฝากบอกเพื่อน Backend ว่าให้ส่ง JSON กลับมาหน้าตาแบบนี้นะ:
+               {
+                   "totalTables": 12,       // จำนวนโต๊ะทั้งหมดในโรงอาหารนั้น
+                   "bookedTables": [3, 7]   // อาเรย์บอกว่าโต๊ะไหนไม่ว่างบ้าง
+               }
+               =========================================================
             */
 
-            let msg = currentLang === 'th' 
-                ? 'ระบบได้ส่งคำขอจองโต๊ะที่ ' + tableNum + ' เป็นเวลา ' + selectedDuration + ' นาทีแล้ว' 
-                : 'Booking request for Table ' + tableNum + ' (' + selectedDuration + ' mins) sent.';
-            alert(msg);
+            // ใช้ setTimeout จำลองการดึงข้อมูลจาก Server
+            setTimeout(() => {
+                
+                // สมมติว่านี่คือข้อมูลที่ได้จาก Java (สมมติว่าโรงอาหารนี้มี 12 โต๊ะ และโต๊ะ 3 กับ 7 มีคนจองแล้ว)
+                const dataFromJava = {
+                    totalTables: 12, 
+                    bookedTables: [3, 7] 
+                };
 
-            btn.setAttribute('data-booked', 'true');
-            btn.style.backgroundColor = '#d9d9d9';
-            btn.style.color = '#888';
-            btn.innerText = currentLang === 'th' ? 'จองแล้ว' : 'Booked';
-            btn.removeAttribute('data-lang');
+                // ลบข้อความ "กำลังโหลด..." ออก
+                tableGrid.innerHTML = ''; 
+
+                let currentLang = localStorage.getItem('userLang') || 'th';
+
+                // ใช้ลูป for เพื่อ "เสก" ปุ่มขึ้นมาตามจำนวน totalTables
+                for (let i = 1; i <= dataFromJava.totalTables; i++) {
+                    // สร้างปุ่ม
+                    let btn = document.createElement('button');
+                    
+                    // สลับสีปุ่มให้สวยงามเหมือนดีไซน์เดิม
+                    btn.className = (i % 2 !== 0) ? 'big-action-btn btn-yellow-dark' : 'big-action-btn btn-yellow-light';
+
+                    // เช็คว่าโต๊ะนี้อยู่ในรายชื่อที่โดนจองไปแล้วหรือยัง
+                    let isBooked = dataFromJava.bookedTables.includes(i);
+
+                    if (isBooked) {
+                        // ถ้าไม่ว่าง: ทำปุ่มให้เป็นสีเทาและกดไม่ได้
+                        btn.innerHTML = currentLang === 'th' ? "ไม่ว่าง" : "Booked";
+                        btn.setAttribute('data-booked', 'true');
+                        btn.style.backgroundColor = '#d9d9d9';
+                        btn.style.color = '#888';
+                        btn.style.border = 'none';
+                        btn.style.boxShadow = 'none';
+                        btn.style.cursor = 'default';
+                    } else {
+                        // ถ้าว่าง: โชว์เลขโต๊ะ และผูกฟังก์ชันจองโต๊ะ
+                        btn.innerHTML = currentLang === 'th' ? `โต๊ะที่ ${i}` : `Table ${i}`;
+                        // ใส่ event onclick ให้มันทำงานเหมือนเดิม
+                        btn.onclick = function() { bookTable(this, i); };
+                    }
+
+                    // เอาปุ่มที่สร้างเสร็จแล้วไปยัดใส่ใน Container
+                    tableGrid.appendChild(btn);
+                }
+
+            }, 800); // หน่วงเวลา 0.8 วินาทีให้ดูสมจริง
+        }
+
+        // ฟังก์ชันจองโต๊ะเหมือนเดิม
+        function bookTable(btn, tableNum) {
+            let currentLang = localStorage.getItem('userLang') || 'th';
+            let select = document.getElementById('durationSelect');
+            
+            let durationValue = select.value;
+            let durationText = select.options[select.selectedIndex].text;
+
+            if (btn.getAttribute('data-booked') === 'true') {
+                return; // ถ้าปุ่มล็อกอยู่แล้ว จะกดไม่ติด
+            }
+
+            let successMsg = currentLang === 'th' ? "จองสำเร็จ!" : "Booking Success!";
+            if (currentLang === 'th') {
+                alert(`${successMsg} โต๊ะที่ ${tableNum} เป็นเวลา ${durationText} เรียบร้อยแล้ว`);
+            } else {
+                alert(`Booking table ${tableNum} for ${durationText} successful.`);
+            }
+
+            // บันทึกแล้วเด้งไปหน้า Status
+            localStorage.setItem('bookedTableNumber', tableNum);
+            localStorage.setItem('bookedDuration', durationValue);
+            window.location.href = 'status.html';
         }
     </script>
 </body>

@@ -11,98 +11,92 @@
 <body>
     <div class="app-container">
         <div class="header">
-            <h1>SUT FOOD QUEUE</h1>
-            <div class="header-icons" style="display: flex; align-items: center; gap: 15px;">
-                <span id="headerUsername" style="color: white; font-size: 14px; font-weight: bold;"></span>
-                <i class="fa-regular fa-user" style="cursor: pointer;" onclick="window.location.href='user.html'"></i>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <i class="fa-solid fa-chevron-left" onclick="history.back()" style="cursor: pointer;"></i>
+                <h1 data-lang="order_summary">สรุปคำสั่งซื้อ</h1>
+            </div>
+            <div class="header-icons">
+                <span id="headerUsername" style="color: white; font-size: 14px; font-weight: bold; margin-right: 10px;"></span>
                 <i class="fa-solid fa-globe" style="cursor: pointer;" onclick="window.location.href='home.html'"></i>
             </div>
         </div>
 
-        <div class="content-section" style="padding-bottom: 0;">
-            <div class="wrapper-box" style="height: 100%; justify-content: space-between;">
-                <div class="top-content">
-                    <div class="title-with-back">
-                        <i class="fa-solid fa-reply" style="cursor: pointer;" onclick="window.location.href='menu.html'"></i>
-                        <span data-lang="store_a">Store A</span>
-                    </div>
+        <div class="wrapper-box" style="padding: 15px; background: transparent; box-shadow: none;">
+            
+            <div class="shop-banner-simple">
+                <i class="fa-solid fa-store"></i> <span data-lang="store_a">Store A</span>
+            </div>
 
-                    <div class="order-section">
-                        <div class="order-section-title" data-lang="order_summary">สรุปคำสั่งซื้อ</div>
-                        <div class="order-item-list">
-                            <div class="order-item-row">
-                                <div class="order-item-img"></div>
-                                <div class="order-item-details">
-                                    <span class="order-item-name" data-lang="menu_krapao_moo">ข้าวผัดกระเพราหมู</span>
-                                    <span class="order-item-price" data-lang="price_40">ราคา 40 บาท</span>
-                                </div>
-                            </div>
-                            <div class="order-item-row">
-                                <div class="order-item-img"></div>
-                                <div class="order-item-details">
-                                    <span class="order-item-name" data-lang="menu_krapao_kung">ข้าวผัดกระเพรากุ้ง</span>
-                                    <span class="order-item-price" data-lang="price_45">ราคา 45 บาท</span>
-                                </div>
-                            </div>
-                        </div>
+            <div class="order-card main-items">
+                <div class="order-item-row-modern">
+                    <div class="item-img-placeholder"><i class="fa-solid fa-bowl-food"></i></div>
+                    <div class="item-info">
+                        <h4 data-lang="menu_krapao_moo">ข้าวผัดกระเพราหมู</h4>
+                        <p data-lang="price_40">ราคา 40 บาท</p>
                     </div>
-
-                    <div class="order-section">
-                        <div class="order-section-title" data-lang="order_add">เพิ่มรายการ</div>
-                        <div class="topping-grid">
-                            <div class="topping-card" id="top1" onclick="toggleTopping('top1', 5)">
-                                <div class="topping-img"></div>
-                                <div class="topping-name" data-lang="addon_egg">ไข่ดาว</div>
-                                <div class="topping-price" data-lang="price_5">ราคา 5 บาท</div>
-                            </div>
-                            <div class="topping-card" id="top2" onclick="toggleTopping('top2', 5)">
-                                <div class="topping-img"></div>
-                                <div class="topping-name" data-lang="addon_omelet">ไข่เจียว</div>
-                                <div class="topping-price" data-lang="price_5">ราคา 5 บาท</div>
-                            </div>
-                            <div class="topping-card" id="top3" onclick="toggleTopping('top3', 5)">
-                                <div class="topping-img"></div>
-                                <div class="topping-name" data-lang="addon_rice">ข้าวเปล่า</div>
-                                <div class="topping-price" data-lang="price_5">ราคา 5 บาท</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="order-section">
-                        <div class="order-section-title" data-lang="note_title">หมายเหตุ</div>
-                        <input type="text" class="note-input" placeholder="เช่น ไม่เผ็ด, ไม่ใส่ผัก" data-lang="note_place">
-                    </div>
-                </div>
-
-                <div class="bottom-action" style="margin-top: 20px;">
-                    <div class="total-price-bar">
-                        <span data-lang="total_text">ราคารวม</span> <span id="displayTotal">85</span> <span data-lang="currency">บาท</span>
-                    </div>
-                    <button class="btn-checkout" onclick="goToPayment()" data-lang="btn_buy">สั่งซื้อ</button>
                 </div>
             </div>
+
+            <div class="section-container">
+                <h3 class="section-title-modern" data-lang="order_add">เพิ่มรายการ</h3>
+                <div class="topping-grid-modern">
+                    <div class="topping-card-modern" id="top1" onclick="toggleTopping('top1', 5)">
+                        <i class="fa-solid fa-egg"></i>
+                        <span data-lang="addon_egg">ไข่ดาว</span>
+                        <small>+5฿</small>
+                    </div>
+                    <div class="topping-card-modern" id="top2" onclick="toggleTopping('top2', 7)">
+                        <i class="fa-solid fa-stroopwafel"></i>
+                        <span data-lang="addon_omelet">ไข่เจียว</span>
+                        <small>+7฿</small>
+                    </div>
+                    <div class="topping-card-modern" id="top3" onclick="toggleTopping('top3', 5)">
+                        <i class="fa-solid fa-bowl-rice"></i>
+                        <span data-lang="addon_rice">ข้าวเปล่า</span>
+                        <small>+5฿</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-container">
+                <h3 class="section-title-modern" data-lang="note_title">หมายเหตุ</h3>
+                <textarea class="note-input-modern" placeholder="เช่น ไม่เผ็ด, ไม่ใส่ผัก" data-lang-placeholder="note_place"></textarea>
+            </div>
+
+            <div class="bottom-sticky-bar">
+                <div class="total-info">
+                    <p data-lang="total_text">ราคารวม</p>
+                    <h3>฿ <span id="displayTotal">40</span></h3> </div>
+                <button class="btn-checkout-modern" onclick="goToPayment()" data-lang="btn_buy">สั่งซื้อ</button>
+            </div>
+
         </div>
     </div>
+
     <script>
         window.addEventListener('load', function() {
             let name = localStorage.getItem('savedUsername');
             if(name) document.getElementById('headerUsername').innerText = name;
+            applyLanguage();
         });
 
-        let basePrice = 85; 
+        let basePrice = 40; // ปรับเป็น 40 ให้ตรงกับรูป
         let currentTotal = basePrice;
+
         function toggleTopping(elementId, price) {
             let element = document.getElementById(elementId);
-            if (element.classList.contains("topping-selected")) {
-                element.classList.remove("topping-selected");
+            if (element.classList.contains("topping-active")) {
+                element.classList.remove("topping-active");
                 currentTotal -= price;
             } else {
-                element.classList.add("topping-selected");
+                element.classList.add("topping-active");
                 currentTotal += price;
             }
             document.getElementById("displayTotal").innerText = currentTotal;
         }
+
         function goToPayment() {
+            // บันทึกยอดเงินปัจจุบันลงเครื่อง (Key คือ finalPrice)
             localStorage.setItem('finalPrice', currentTotal);
             window.location.href = 'payment.html';
         }

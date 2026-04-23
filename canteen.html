@@ -1,80 +1,107 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SUT Food Queue - Canteen</title>
+    <title>SUT Food Queue - Select Canteen</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-    
     <script src="lang.js"></script>
 </head>
+
 <body>
 
     <div class="app-container">
         <div class="header">
-            <h1>SUT FOOD QUEUE</h1>
-            <div class="header-icons" style="display: flex; align-items: center; gap: 15px;">
-                <span id="headerUsername" style="color: white; font-size: 14px; font-weight: bold;"></span>
-                <i class="fa-regular fa-user" style="cursor: pointer;" onclick="window.location.href='user.html'"></i>
-                <i class="fa-solid fa-globe" style="cursor: pointer;" onclick="window.location.href='home.html'"></i>
-            </div>
+            <h1 data-lang="title_canteen">โรงอาหาร</h1>
+            <i class="fa-solid fa-globe" style="cursor: pointer;" onclick="window.location.href='home.html'"></i>
         </div>
 
-        <div class="content-section">
-            <div class="wrapper-box">
-                
-                <div class="title-with-back">
-                    <i class="fa-solid fa-reply" onclick="window.location.href='main.html'"></i>
-                    <span data-lang="title_canteen">Canteen</span>
+        <div class="wrapper-box canteen-list-container">
+            <div style="margin-bottom: 20px;">
+                <button class="btn-back" onclick="window.location.href='main.html'">
+                    <i class="fa-solid fa-arrow-left"></i> กลับ (Back)
+                </button>
+            </div>
+
+            <div class="canteen-cards-grid">
+
+                <div class="canteen-card open" onclick="selectCanteen('canteen1')">
+                    <div class="card-icon"><i class="fa-solid fa-house-chimney-window"></i></div>
+                    <div class="card-info">
+                        <h3 data-lang="canteen1_name">Kasalongkham Canteen</h3>
+                        <p><i class="fa-regular fa-clock"></i> <span data-lang="canteen1_time">05:00 AM - 09:00
+                                PM</span></p>
+                    </div>
+                    <div class="card-arrow"><i class="fa-solid fa-chevron-right"></i></div>
                 </div>
 
-                <div class="canteen-grid">
-                    
-                    <div class="canteen-card" onclick="window.location.href='store.html'">
-                        <div class="canteen-img"></div>
-                        <div class="canteen-name" data-lang="canteen1_name">โรงอาหารกาสะลองคำ</div>
-                        <div class="canteen-time" data-lang="canteen1_time">05:00 - 21:00 น.</div>
+                <div class="canteen-card weekday-only" onclick="selectCanteen('canteen2')">
+                    <div class="card-icon"><i class="fa-solid fa-school"></i></div>
+                    <div class="card-info">
+                        <h3 data-lang="canteen2_name">Complex Canteen</h3>
+                        <p><i class="fa-regular fa-clock"></i> <span data-lang="canteen2_time">07:00 AM - 04:00
+                                PM<br>Open on Weekdays</span></p>
                     </div>
+                    <div class="card-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+                </div>
 
-                    <div class="canteen-card" onclick="window.location.href='store.html'">
-                        <div class="canteen-img"></div>
-                        <div class="canteen-name" data-lang="canteen2_name">โรงอาหารเรียนรวม 2</div>
-                        <div class="canteen-time" data-lang="canteen2_time">07:00 - 16:00 น.<br>เปิดในวันธรรมดา</div>
+                <div class="canteen-card weekday-only" onclick="selectCanteen('canteen3')">
+                    <div class="card-icon"><i class="fa-solid fa-sun"></i></div>
+                    <div class="card-info">
+                        <h3 data-lang="canteen3_name">Proud Saed Thong Canteen</h3>
+                        <p><i class="fa-regular fa-clock"></i> <span data-lang="canteen3_time">07:00 AM - 06:00
+                                PM<br>Open on Weekdays</span></p>
                     </div>
+                    <div class="card-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+                </div>
 
-                    <div class="canteen-card" onclick="window.location.href='store.html'">
-                        <div class="canteen-img"></div>
-                        <div class="canteen-name" data-lang="canteen3_name">โรงอาหารพราวแสดทอง</div>
-                        <div class="canteen-time" data-lang="canteen3_time">07:00 - 18:00 น.<br>เปิดในวันธรรมดา</div>
+                <div class="canteen-card weekday-only" onclick="selectCanteen('canteen4')">
+
+                    <div class="card-icon"><i class="fa-solid fa-building"></i></div>
+
+                    <div class="card-info">
+                        <h3 data-lang="canteen4_name">Central Canteen</h3>
+                        <p><i class="fa-regular fa-clock"></i> <span data-lang="canteen4_time">07:00 AM - 06:00
+                                PM<br>Open on Weekdays</span></p>
                     </div>
+                    <div class="card-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+                </div>
 
-                    <div class="canteen-card" onclick="window.location.href='store.html'">
-                        <div class="canteen-img"></div>
-                        <div class="canteen-name" data-lang="canteen4_name">โรงอาหารกลาง</div>
-                        <div class="canteen-time" data-lang="canteen4_time">07:00 - 18:00 น.<br>เปิดในวันธรรมดา</div>
+                <div class="canteen-card weekday-only" onclick="selectCanteen('canteen5')">
+                    <div class="card-icon"><i class="fa-solid fa-shop"></i></div>
+                    <div class="card-info">
+                        <h3 data-lang="canteen5_name">SUT Rong Tiam</h3>
+                        <p><i class="fa-regular fa-clock"></i> <span data-lang="canteen5_time">07:00 AM - 06:00
+                                PM<br>Open on Weekdays</span></p>
                     </div>
-
-                    <div class="canteen-card" onclick="window.location.href='store.html'">
-                        <div class="canteen-img"></div>
-                        <div class="canteen-name" data-lang="canteen5_name">โรงเตี๊ยม มทส.</div>
-                        <div class="canteen-time" data-lang="canteen5_time">07:00 - 18:00 น.<br>เปิดในวันธรรมดา</div>
-                    </div>
-
+                    <div class="card-arrow"><i class="fa-solid fa-chevron-right"></i></div>
                 </div>
 
             </div>
+
         </div>
     </div>
 
     <script>
-        window.addEventListener('load', function() {
-            let name = localStorage.getItem('savedUsername');
-            if(name) {
-                document.getElementById('headerUsername').innerText = name;
-            }
-        });
-    </script>
+        function selectCanteen(canteenId) {
+            // เช็คว่าผู้ใช้เข้ามาแบบ "จองโต๊ะ" หรือ "สั่งอาหาร" จาก URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const mode = urlParams.get('mode');
 
+            if (mode === 'book') {
+                // ถ้าจะจองโต๊ะ ให้เด้งไปหน้า booking พร้อมส่งรหัสโรงอาหารไป
+                window.location.href = `booking.html?canteen=${canteenId}`;
+            } else if (mode === 'order') {
+                // ถ้าจะสั่งอาหาร ให้เด้งไปหน้าเลือกบรรดาร้านอาหาร
+                window.location.href = `store.html?canteen=${canteenId}`;
+            } else {
+                // ถ้าไม่มีโหมด ให้แสดงแจ้งเตือน (กรณีปกติไม่น่าเจอ)
+                alert(translations[localStorage.getItem('userLang') || 'th']['alert_no_slip'] || 'Please select from Main Menu first.');
+            }
+        }
+    </script>
 </body>
+
 </html>
