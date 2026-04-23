@@ -14,8 +14,7 @@
         <div class="header">
             <h1>SUT FOOD QUEUE</h1>
             <div class="header-icons" style="display: flex; align-items: center; gap: 15px;">
-                <i class="fa-regular fa-user" style="color: #ffcc00;"></i>
-                <i class="fa-solid fa-globe" style="cursor: pointer;" onclick="window.location.href='home.html'"></i>
+                <i class="fa-solid fa-globe" style="cursor: pointer; color: #ffcc00;" onclick="window.location.href='home.html'"></i>
             </div>
         </div>
 
@@ -31,16 +30,16 @@
                     
                     <div id="userData">
                         <i class="fa-solid fa-spinner fa-spin" style="color: #ffcc00;"></i>
-                        <p>กำลังโหลดข้อมูลจากเซิร์ฟเวอร์...</p>
+                        <p>กำลังโหลดข้อมูล...</p>
                     </div>
                 </div>
 
                 <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
 
                 <div style="display: flex; flex-direction: column; gap: 15px;">
-                    <button class="btn-back" style="width: 100%; background-color: #f5f5f5; color: #333; border: 1px solid #ddd;" onclick="window.location.href='main.html'" data-lang="btn_back">กลับหน้าหลัก</button>
+                    <button class="btn-back" style="width: 100%; background-color: #f5f5f5; color: #333; border: 1px solid #ddd; padding: 12px; border-radius: 8px; cursor: pointer; font-family: inherit; font-weight: bold;" onclick="window.location.href='main.html'" data-lang="btn_back">กลับหน้าหลัก</button>
                     
-                    <button class="btn-logout" style="width: 100%; background-color: #ffeeee; color: #d32f2f; border: 1px solid #ffcccc; padding: 12px; border-radius: 8px; cursor: pointer; font-family: inherit; font-weight: bold;" onclick="logoutFromJava()">
+                    <button class="btn-logout" style="width: 100%; background-color: #ffeeee; color: #d32f2f; border: 1px solid #ffcccc; padding: 12px; border-radius: 8px; cursor: pointer; font-family: inherit; font-weight: bold;" onclick="logout()">
                         <i class="fa-solid fa-right-from-bracket"></i> ออกจากระบบ
                     </button>
                 </div>
@@ -51,56 +50,35 @@
 
     <script>
         window.addEventListener('load', function() {
-            // สั่งโหลดข้อมูลผู้ใช้จาก Java ทันที
-            fetchUserProfileFromJava();
+            displayUserProfile();
         });
 
-        function fetchUserProfileFromJava() {
+        function displayUserProfile() {
             const userDataDiv = document.getElementById('userData');
+            
+            let loggedInUser = localStorage.getItem('savedUsername');
+            
+            if (!loggedInUser) {
+                loggedInUser = "Guest User";
+            }
 
-            /* ========================================================================
-               ฝากบอกเพื่อน Backend:
-               เตรียม API GET /api/userProfile 
-               ส่งข้อมูล JSON ของนักศึกษาที่ล็อกอินอยู่กลับมา
-               ========================================================================
-            */
-
-            // จำลองการดึงข้อมูลจาก Database ผ่าน Java
             setTimeout(() => {
-                
-                // ข้อมูลสมมติที่ Java จะส่งมาให้
-                const user = {
-                    name: "Teerawat K.", // ตัวอย่างชื่อจริงของคุณวานิต
-                    studentId: "B63xxxxx",
-                    faculty: "Engineering"
-                };
-
                 userDataDiv.innerHTML = `
-                    <h2 style="margin: 10px 0; color: #333;">${user.name}</h2>
+                    <h2 style="margin: 10px 0; color: #333;">${loggedInUser}</h2>
                     <p style="margin: 5px 0; color: #666; font-size: 1.1rem;">
-                        <i class="fa-solid fa-id-card"></i> ID: ${user.studentId}
+                        <i class="fa-solid fa-id-card"></i> ID: B63xxxxx
                     </p>
                     <p style="margin: 5px 0; color: #888;">
-                        <i class="fa-solid fa-graduation-cap"></i> ${user.faculty}
+                        <i class="fa-solid fa-graduation-cap"></i> Engineering
                     </p>
                 `;
-            }, 800);
+            }, 500);
         }
 
-        function logoutFromJava() {
+        function logout() {
             if(confirm("คุณต้องการออกจากระบบใช่หรือไม่?")) {
-                console.log("ส่งคำสั่ง Logout ไปให้ Java เคลียร์ Session...");
-                
-                // เคลียร์ค่าที่หลงเหลือในเครื่อง (ถ้ามี)
                 localStorage.removeItem('savedUsername');
-                
-                /* โค้ดเชื่อม Java:
-                fetch('http://localhost:8080/api/logout', { method: 'POST' })
-                .then(() => { window.location.href = 'home.html'; });
-                */
-                
-                alert("ออกจากระบบเรียบร้อยแล้ว");
-                window.location.href = 'home.html';
+                window.location.href = 'index.html';
             }
         }
     </script>

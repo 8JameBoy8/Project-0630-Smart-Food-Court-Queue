@@ -6,43 +6,47 @@
     <title>SUT Food Queue - Main Menu</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-    
-    <script src="lang.js"></script>
 </head>
 <body>
 
     <div class="app-container">
+        
         <div class="header">
-            <h1>SUT FOOD QUEUE</h1>
-            <div class="header-icons" style="display: flex; align-items: center; gap: 15px;">
-                <span id="headerUsername" style="color: white; font-size: 14px; font-weight: bold;"></span>
-                
-                <i class="fa-regular fa-user" style="cursor: pointer;" onclick="window.location.href='user.html'"></i>
-                <i class="fa-solid fa-globe" style="cursor: pointer;" onclick="window.location.href='home.html'"></i>
+            <h1 data-lang="title_main">จองโต๊ะ & สั่งอาหาร</h1>
+            <div class="header-icons">
+                <i class="fa-solid fa-circle-user" style="color: #ffcc00; cursor: pointer; font-size: 1.5rem;" onclick="window.location.href='user.html'"></i>
             </div>
         </div>
 
-        <div class="content-section">
-            <div class="wrapper-box">
-                <div class="page-title" data-lang="title_main">จองโต๊ะ & สั่งอาหาร</div>
+        <div class="wrapper-box">
+            <div style="margin-bottom: 30px; text-align: center;">
+                <p style="color: #888; font-size: 0.9rem;" data-lang="main_desc">SUT Smart Life</p>
+                <h3 style="color: #333; font-weight: 500;" data-lang="main_subtitle">เลือกรายการที่คุณต้องการ</h3>
+            </div>
 
-                <button class="big-action-btn btn-yellow-dark" onclick="window.location.href='booking.html'" data-lang="btn_book">จองโต๊ะ</button>
+            <div style="display: flex; flex-direction: column; gap: 20px;">
                 
-                <button class="big-action-btn btn-yellow-light" onclick="window.location.href='canteen.html'" data-lang="btn_order">สั่งอาหาร</button>
-                
-                <button type="button" class="btn-back" onclick="window.location.href='index.html'" data-lang="btn_logout">ออกจากระบบ</button>
+                <button class="big-action-btn btn-yellow-dark" onclick="window.location.href='canteen.html?mode=book'">
+                    <i class="fa-solid fa-chair" style="font-size: 2.5rem; margin-bottom: 10px;"></i>
+                    <span data-lang="btn_book">จองโต๊ะ</span>
+                </button>
+
+                <button class="big-action-btn btn-yellow-light" onclick="window.location.href='canteen.html?mode=order'">
+                    <i class="fa-solid fa-utensils" style="font-size: 2.5rem; margin-bottom: 10px;"></i>
+                    <span data-lang="btn_order">สั่งอาหาร</span>
+                </button>
+
+            </div>
+
+            <div style="margin-top: 50px; text-align: center;">
+                <button class="btn-back" style="color: #d32f2f; border-color: #ffcdd2;" data-lang="btn_logout" onclick="window.location.href='index.html'">
+                    ออกจากระบบ
+                </button>
             </div>
         </div>
+
     </div>
 
-    <script>
-        window.addEventListener('load', function() {
-            let name = localStorage.getItem('savedUsername');
-            if(name) {
-                document.getElementById('headerUsername').innerText = name;
-            }
-        });
-    </script>
-
+    <script src="lang.js"></script>
 </body>
 </html>

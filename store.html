@@ -3,65 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SUT Food Queue - Store</title>
+    <title>SUT Food Queue - Select Store</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-    <script src="lang.js"></script>
+    
 </head>
 <body>
 
     <div class="app-container">
         <div class="header">
-            <h1>SUT FOOD QUEUE</h1>
-            <div class="header-icons" style="display: flex; align-items: center; gap: 15px;">
-                <span id="headerUsername" style="color: white; font-size: 14px; font-weight: bold;"></span>
-                <i class="fa-regular fa-user" style="cursor: pointer;" onclick="window.location.href='user.html'"></i>
-                <i class="fa-solid fa-globe" style="cursor: pointer;" onclick="window.location.href='home.html'"></i>
-            </div>
+            <h1 data-lang="store_title">ร้านอาหาร</h1>
+            <i class="fa-solid fa-globe" style="cursor: pointer;" onclick="window.location.href='home.html'"></i>
         </div>
 
-        <div class="content-section">
-            <div class="wrapper-box">
+        <div class="wrapper-box">
+            <div style="margin-bottom: 20px;">
+                <button class="btn-back" onclick="history.back()">
+                    <i class="fa-solid fa-arrow-left"></i> <span data-lang="btn_back">กลับ</span>
+                </button>
+            </div>
+
+            <div class="canteen-cards-grid">
                 
-                <div class="title-with-back" style="justify-content: center; position: relative;">
-                    <i class="fa-solid fa-reply" style="position: absolute; left: 0; cursor: pointer;" onclick="window.location.href='canteen.html'"></i>
-                    <span data-lang="store_title">Store</span>
+                <div class="canteen-card open" onclick="window.location.href='menu.html?store=A'" style="border-left: 5px solid #2e7d32;">
+                    <div class="card-icon" style="background: #e8f5e9; color: #2e7d32;"><i class="fa-solid fa-store"></i></div>
+                    <div class="card-info">
+                        <h3 data-lang="store_a">ร้าน A</h3>
+                        <p style="color: #2e7d32; font-weight: 500; font-size: 0.85rem; margin-top: 5px;">
+                            <i class="fa-solid fa-door-open" style="color: #2e7d32;"></i> <span data-lang="status_open">เปิดให้บริการ</span>
+                        </p>
+                    </div>
+                    <div class="card-arrow"><i class="fa-solid fa-chevron-right"></i></div>
                 </div>
 
-                <div class="store-list">
-                    
-                    <div class="store-card" onclick="window.location.href='menu.html'">
-                        <div class="store-banner"></div>
-                        <div class="store-info">
-                            <span class="store-name" data-lang="store_a">ร้าน A</span>
-                            <span class="status-open">Open</span>
-                        </div>
+                <div class="canteen-card open" onclick="window.location.href='menu.html?store=B'" style="border-left: 5px solid #2e7d32;">
+                    <div class="card-icon" style="background: #e8f5e9; color: #2e7d32;"><i class="fa-solid fa-store"></i></div>
+                    <div class="card-info">
+                        <h3 data-lang="store_b">ร้าน B</h3>
+                        <p style="color: #2e7d32; font-weight: 500; font-size: 0.85rem; margin-top: 5px;">
+                            <i class="fa-solid fa-door-open" style="color: #2e7d32;"></i> <span data-lang="status_open">เปิดให้บริการ</span>
+                        </p>
                     </div>
+                    <div class="card-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+                </div>
 
-                    <div class="store-card" onclick="window.location.href='menu.html'">
-                        <div class="store-banner"></div>
-                        <div class="store-info">
-                            <span class="store-name" data-lang="store_b">ร้าน B</span>
-                            <span class="status-open">Open</span>
-                        </div>
+                <div class="canteen-card closed" style="opacity: 0.6; cursor: not-allowed; border-left: 5px solid #ff5252; transform: none; box-shadow: none;" onclick="alertClosed()">
+                    <div class="card-icon" style="background: #ffebee; color: #ff5252;"><i class="fa-solid fa-store-slash"></i></div>
+                    <div class="card-info">
+                        <h3 data-lang="store_c" style="color: #888;">ร้าน C</h3>
+                        <p style="color: #ff5252; font-weight: 500; font-size: 0.85rem; margin-top: 5px;">
+                            <i class="fa-solid fa-door-closed" style="color: #ff5252;"></i> <span data-lang="status_closed">ปิดให้บริการ</span>
+                        </p>
                     </div>
+                </div>
 
-                    <div class="store-card" onclick="alert('ขออภัยค่ะ ร้านนี้ปิดให้บริการแล้ว')">
-                        <div class="store-banner"></div>
-                        <div class="store-info">
-                            <span class="store-name" data-lang="store_c">ร้าน C</span>
-                            <span class="status-close">Close</span>
-                        </div>
+                <div class="canteen-card closed" style="opacity: 0.6; cursor: not-allowed; border-left: 5px solid #ff5252; transform: none; box-shadow: none;" onclick="alertClosed()">
+                    <div class="card-icon" style="background: #ffebee; color: #ff5252;"><i class="fa-solid fa-store-slash"></i></div>
+                    <div class="card-info">
+                        <h3 data-lang="store_d" style="color: #888;">ร้าน D</h3>
+                        <p style="color: #ff5252; font-weight: 500; font-size: 0.85rem; margin-top: 5px;">
+                            <i class="fa-solid fa-door-closed" style="color: #ff5252;"></i> <span data-lang="status_closed">ปิดให้บริการ</span>
+                        </p>
                     </div>
-
-                    <div class="store-card" onclick="alert('ขออภัยค่ะ ร้านนี้ปิดให้บริการแล้ว')">
-                        <div class="store-banner"></div>
-                        <div class="store-info">
-                            <span class="store-name" data-lang="store_d">ร้าน D</span>
-                            <span class="status-close">Close</span>
-                        </div>
-                    </div>
-
                 </div>
 
             </div>
@@ -69,13 +72,13 @@
     </div>
 
     <script>
-        window.addEventListener('load', function() {
-            let name = localStorage.getItem('savedUsername');
-            if(name) {
-                document.getElementById('headerUsername').innerText = name;
-            }
-        });
+        // ฟังก์ชันแจ้งเตือนเวลากดร้านที่ปิดอยู่
+        function alertClosed() {
+            let currentLang = localStorage.getItem('userLang') || 'th';
+            let msg = currentLang === 'th' ? 'ขออภัยค่ะ ร้านนี้ปิดให้บริการแล้ว' : 'Sorry, this store is currently closed.';
+            alert(msg);
+        }
     </script>
-
+    <script src="lang.js"></script>
 </body>
 </html>

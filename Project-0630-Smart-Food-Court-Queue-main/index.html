@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUT Food Queue - Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: #f0f2f5; 
+        }
+
+        /* Container หลัก ปล่อยให้เต็มจอ 100% */
+        .app-container {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- ส่วน Header สีเหลือง --- */
+        .header {
+            background-color: #FFC107; 
+            min-height: 180px; 
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* ดันข้อความกับไอคอนให้อยู่คนละฝั่ง */
+            padding: 20px 5%; /* ใช้ % เพื่อให้ยืดหยุ่นตามขนาดจอ */
+        }
+        .header h1 {
+            color: white;
+            font-size: clamp(24px, 4vw, 32px); /* ขนาดตัวอักษรยืดหยุ่นตามจอ */
+            font-weight: bold;
+        }
+        .header-icons {
+            color: white;
+            font-size: clamp(24px, 3vw, 28px);
+        }
+        .header-icons i { margin-left: 20px; cursor: pointer; }
+        
+        /* --- ส่วนเนื้อหาและฟอร์ม Login --- */
+        .login-section { 
+            padding: 40px 20px;
+            flex: 1; /* ดันเนื้อหาให้เต็มพื้นที่ด้านล่างที่เหลือ */
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* จัดฟอร์มให้อยู่กึ่งกลางหน้าจอ */
+            background-color: white;
+        }
+
+        /* กล่องครอบฟอร์ม (จำกัดความกว้างไม่ให้ฟอร์มยาวทะลุจอคอม) */
+        .form-wrapper {
+            width: 100%;
+            max-width: 450px; /* จำกัดความกว้างสูงสุดของช่องกรอกข้อมูล */
+        }
+
+        .input-group {
+            background-color: #f2f2f2;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        .input-group i { color: #888; margin-right: 15px; font-size: 18px; }
+        .input-group input {
+            border: none;
+            background: none;
+            outline: none;
+            width: 100%;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .btn-submit {
+            width: 100%;
+            max-width: 200px;
+            margin: 30px auto 0;
+            display: block;
+            background-color: #e0e0e0;
+            color: #555;
+            border: none;
+            padding: 12px;
+            border-radius: 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-submit:hover { background-color: #FFC107; color: white; }
+
+        /* ========================================= */
+        /* Media Query: สำหรับหน้าจอคอมพิวเตอร์ (หน้าจอกว้าง 768px ขึ้นไป) */
+        /* ========================================= */
+        @media (min-width: 768px) {
+            .app-container {
+                background-color: #f0f2f5;
+            }
+            .header {
+                min-height: 100px; /* บนคอม ไม่ต้องให้แถบสีเหลืองหนามาก */
+            }
+            .login-section {
+                background-color: transparent;
+                justify-content: center; /* บนคอมให้ฟอร์มอยู่ตรงกลางจอแนวตั้งด้วย */
+            }
+            .form-wrapper {
+                background-color: white;
+                padding: 50px 40px;
+                border-radius: 12px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.05); /* บนคอมให้กล่องฟอร์มมีเงาลอยขึ้นมาสวยๆ */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <div class="header">
+            <h1>SUT FOOD QUEUE</h1>
+            <div class="header-icons">
+                <i class="fa-regular fa-user" onclick="window.location.href='user.html'"></i>
+                <i class="fa-solid fa-globe" onclick="window.location.href='home.html'"></i>
+            </div>
+        </div>
+
+        <div class="login-section">
+            <div class="wrapper-box">
+                <div class="input-group">
+                    <i class="fa-regular fa-user"></i>
+                    <input type="text" id="usernameInput" placeholder="Username">
+                </div>
+                
+                <div class="input-group">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" placeholder="Password">
+                </div>
+
+                <button class="btn-submit" onclick="loginUser()">Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function loginUser() {
+            // 1. ดึงข้อความที่พิมพ์ในช่อง Username
+            let user = document.getElementById('usernameInput').value;
+            
+            // 2. ถ้าไม่ได้พิมพ์อะไรเลย ให้ใส่คำว่า "Guest" แทน
+            if(user.trim() === "") {
+                user = "Guest";
+            }
+            
+            // 3. สั่งให้เบราว์เซอร์จำชื่อเอาไว้ในตัวแปรชื่อ 'savedUsername'
+            localStorage.setItem('savedUsername', user);
+            
+            // 4. เปลี่ยนหน้าไปที่ home.html (เลือกภาษา)
+            window.location.href = 'main.html';
+        }
+    </script>
+
+</body>
+</html>

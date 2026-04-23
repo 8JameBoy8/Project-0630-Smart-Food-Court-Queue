@@ -6,81 +6,79 @@
     <title>SUT Food Queue - Payment</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-    <script src="lang.js"></script>
 </head>
 <body>
+
     <div class="app-container">
         <div class="header">
-            <h1>SUT FOOD QUEUE</h1>
-            <div class="header-icons" style="display: flex; align-items: center; gap: 15px;">
-                <span id="headerUsername" style="color: white; font-size: 14px; font-weight: bold;"></span>
-                <i class="fa-regular fa-user" style="cursor: pointer;" onclick="window.location.href='user.html'"></i>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <i class="fa-solid fa-chevron-left" onclick="history.back()" style="cursor: pointer;"></i>
+                <h1 data-lang="pay_title">ชำระเงิน</h1>
+            </div>
+            <div class="header-icons">
                 <i class="fa-solid fa-globe" style="cursor: pointer;" onclick="window.location.href='home.html'"></i>
             </div>
         </div>
 
-        <div class="content-section" style="padding-bottom: 0;">
-            <div class="wrapper-box payment-wrapper" style="height: 100%; justify-content: space-between;">
-                <div style="width: 100%;">
-                    <div class="title-with-back" style="margin-bottom: 10px;">
-                        <i class="fa-solid fa-reply" style="cursor: pointer;" onclick="window.location.href='order.html'"></i>
-                        <span data-lang="pay_title">ชำระเงิน</span>
-                    </div>
-
-                    <div style="display: flex; flex-direction: column; align-items: center;">
-                        <div class="qr-container">
-                            <i class="fa-solid fa-qrcode" style="font-size: 100px; color: #aaa;"></i>
-                        </div>
-                        
-                        <div class="qr-text">QR PROMPTPAY</div>
-                        <div class="store-account-name" data-lang="pay_store_name">ชื่อ ร้านอาหาร A</div>
-                        <div class="payment-total">
-                            <span data-lang="total_text">ราคารวม</span> <span id="displayPaymentTotal">0</span> <span data-lang="currency">บาท</span>
-                        </div>
-
-                        <label for="slipUpload" class="upload-slip-btn">
-                            <div class="upload-icon-box" id="slipIconBox"><i class="fa-solid fa-image"></i></div>
-                            <div class="upload-text" id="slipText" data-lang="pay_upload_btn">อัพโหลดหลักฐานการโอน</div>
-                        </label>
-                        <input type="file" id="slipUpload" accept="image/*" style="display: none;" onchange="handleSlipUpload(event)">
-                    </div>
+        <div class="wrapper-box" style="background-color: transparent; box-shadow: none; padding: 15px;">
+            
+            <div class="payment-card summary-card" style="background: white !important; border-left: 5px solid #ffcc00; border: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-radius: 15px;">
+                <div class="shop-info" style="display: flex; align-items: center; gap: 10px; font-weight: bold; color: #333;">
+                    <i class="fa-solid fa-store" style="color: #ffcc00;"></i>
+                    <span data-lang="store_a">ร้าน A</span>
                 </div>
-                <button class="btn-checkout" style="margin-bottom: 20px; border-radius: 8px;" onclick="confirmPayment()" data-lang="btn_confirm">ยืนยัน</button>
+                <div class="amount-info" style="text-align: right;">
+                    <p data-lang="total_text" style="font-size: 0.75rem; color: #888; margin: 0;">ราคารวม</p>
+                    <h2 id="displayFinalPrice" style="margin: 0; color: #b8860b; font-weight: bold;">฿ 0.00</h2>
+                </div>
             </div>
+
+            <div class="payment-card qr-card" style="background: white; border-radius: 20px; padding: 20px; text-align: center; margin-top: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=SUT-FOOD-QUEUE" alt="QR Code" style="width: 180px;">
+                <p style="font-weight: bold; color: #555; margin-top: 10px;">Scan to Pay</p>
+            </div>
+
+            <div class="payment-card upload-section" style="background: white; border-radius: 20px; padding: 20px; margin-top: 15px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                <h3 data-lang="pay_upload_btn" style="font-size: 1rem; margin-bottom: 15px;">อัปโหลดหลักฐานการโอน</h3>
+                <label for="file-upload" class="custom-file-upload" style="display: flex; flex-direction: column; align-items: center; border: 2px dashed #ddd; border-radius: 15px; padding: 20px; cursor: pointer;">
+                    <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2rem; color: #ffcc00; margin-bottom: 10px;"></i>
+                    <span id="file-name-text" style="font-size: 0.9rem; color: #666;">เลือกรูปภาพสลิป</span>
+                </label>
+                <input id="file-upload" type="file" accept="image/*" onchange="updateFileName(this)" style="display: none;"/>
+            </div>
+
+            <button class="big-action-btn btn-yellow-dark" style="margin-top: 20px; width: 100%;" onclick="confirmPayment()">
+                <i class="fa-solid fa-check-circle"></i> 
+                <span data-lang="btn_confirm">ยืนยันการชำระเงิน</span>
+            </button>
+
         </div>
     </div>
 
+    <script src="lang.js"></script>
     <script>
-        let isSlipUploaded = false; // ตัวแปรเช็คว่าอัปสลิปหรือยัง
-        let currentLang = localStorage.getItem('userLang') || 'th';
+        // 🚀 จุดสำคัญ: ดึงราคาที่ 'order.html' จดไว้มาแสดง
+        window.addEventListener('load', function() {
+            let savedPrice = localStorage.getItem('finalPrice');
+            if (savedPrice) {
+                document.getElementById('displayFinalPrice').innerText = '฿ ' + savedPrice + '.00';
+            }
+            applyLanguage();
+        });
 
-        window.onload = function() {
-            let finalPrice = localStorage.getItem('finalPrice');
-            if (finalPrice) document.getElementById('displayPaymentTotal').innerText = finalPrice;
-            
-            let name = localStorage.getItem('savedUsername');
-            if(name) document.getElementById('headerUsername').innerText = name;
-        };
-
-        function handleSlipUpload(event) {
-            if (event.target.files && event.target.files[0]) {
-                isSlipUploaded = true;
-                document.getElementById('slipIconBox').style.backgroundColor = '#4CAF50';
-                document.getElementById('slipIconBox').style.color = 'white';
-                document.getElementById('slipIconBox').innerHTML = '<i class="fa-solid fa-check"></i>';
-                // ดึงคำแปลจาก lang.js มาแสดง
-                document.getElementById('slipText').innerText = translations[currentLang]['pay_upload_done'];
-                document.getElementById('slipText').style.color = '#4CAF50';
-                document.getElementById('slipText').style.fontWeight = 'bold';
+        function updateFileName(input) {
+            if (input.files && input.files[0]) {
+                document.getElementById('file-name-text').innerText = input.files[0].name;
+                document.getElementById('file-name-text').style.color = "#2e7d32";
             }
         }
 
         function confirmPayment() {
-            if (!isSlipUploaded) {
-                alert(translations[currentLang]['alert_no_slip']);
+            const fileInput = document.getElementById('file-upload');
+            if (fileInput.files.length === 0) {
+                alert("กรุณาอัปโหลดสลิปก่อนนะคะ");
                 return;
             }
-            alert(translations[currentLang]['alert_pay_success']);
             window.location.href = 'status.html';
         }
     </script>
