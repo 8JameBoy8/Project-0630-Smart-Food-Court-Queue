@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUT Food Queue - Order Summary</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="lang.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <h1>SUT FOOD QUEUE</h1>
+            <div class="header-icons" style="display: flex; align-items: center; gap: 15px;">
+                <span id="headerUsername" style="color: white; font-size: 14px; font-weight: bold;"></span>
+                <i class="fa-regular fa-user" style="cursor: pointer;" onclick="window.location.href='user.html'"></i>
+                <i class="fa-solid fa-globe" style="cursor: pointer;" onclick="window.location.href='home.html'"></i>
+            </div>
+        </div>
+
+        <div class="content-section" style="padding-bottom: 0;">
+            <div class="wrapper-box" style="height: 100%; justify-content: space-between;">
+                <div class="top-content">
+                    <div class="title-with-back">
+                        <i class="fa-solid fa-reply" style="cursor: pointer;" onclick="window.location.href='menu.html'"></i>
+                        <span data-lang="store_a">Store A</span>
+                    </div>
+
+                    <div class="order-section">
+                        <div class="order-section-title" data-lang="order_summary">สรุปคำสั่งซื้อ</div>
+                        <div class="order-item-list">
+                            <div class="order-item-row">
+                                <div class="order-item-img"></div>
+                                <div class="order-item-details">
+                                    <span class="order-item-name" data-lang="menu_krapao_moo">ข้าวผัดกระเพราหมู</span>
+                                    <span class="order-item-price" data-lang="price_40">ราคา 40 บาท</span>
+                                </div>
+                            </div>
+                            <div class="order-item-row">
+                                <div class="order-item-img"></div>
+                                <div class="order-item-details">
+                                    <span class="order-item-name" data-lang="menu_krapao_kung">ข้าวผัดกระเพรากุ้ง</span>
+                                    <span class="order-item-price" data-lang="price_45">ราคา 45 บาท</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="order-section">
+                        <div class="order-section-title" data-lang="order_add">เพิ่มรายการ</div>
+                        <div class="topping-grid">
+                            <div class="topping-card" id="top1" onclick="toggleTopping('top1', 5)">
+                                <div class="topping-img"></div>
+                                <div class="topping-name" data-lang="addon_egg">ไข่ดาว</div>
+                                <div class="topping-price" data-lang="price_5">ราคา 5 บาท</div>
+                            </div>
+                            <div class="topping-card" id="top2" onclick="toggleTopping('top2', 5)">
+                                <div class="topping-img"></div>
+                                <div class="topping-name" data-lang="addon_omelet">ไข่เจียว</div>
+                                <div class="topping-price" data-lang="price_5">ราคา 5 บาท</div>
+                            </div>
+                            <div class="topping-card" id="top3" onclick="toggleTopping('top3', 5)">
+                                <div class="topping-img"></div>
+                                <div class="topping-name" data-lang="addon_rice">ข้าวเปล่า</div>
+                                <div class="topping-price" data-lang="price_5">ราคา 5 บาท</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="order-section">
+                        <div class="order-section-title" data-lang="note_title">หมายเหตุ</div>
+                        <input type="text" class="note-input" placeholder="เช่น ไม่เผ็ด, ไม่ใส่ผัก" data-lang="note_place">
+                    </div>
+                </div>
+
+                <div class="bottom-action" style="margin-top: 20px;">
+                    <div class="total-price-bar">
+                        <span data-lang="total_text">ราคารวม</span> <span id="displayTotal">85</span> <span data-lang="currency">บาท</span>
+                    </div>
+                    <button class="btn-checkout" onclick="goToPayment()" data-lang="btn_buy">สั่งซื้อ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        window.addEventListener('load', function() {
+            let name = localStorage.getItem('savedUsername');
+            if(name) document.getElementById('headerUsername').innerText = name;
+        });
+
+        let basePrice = 85; 
+        let currentTotal = basePrice;
+        function toggleTopping(elementId, price) {
+            let element = document.getElementById(elementId);
+            if (element.classList.contains("topping-selected")) {
+                element.classList.remove("topping-selected");
+                currentTotal -= price;
+            } else {
+                element.classList.add("topping-selected");
+                currentTotal += price;
+            }
+            document.getElementById("displayTotal").innerText = currentTotal;
+        }
+        function goToPayment() {
+            localStorage.setItem('finalPrice', currentTotal);
+            window.location.href = 'payment.html';
+        }
+    </script>
+</body>
+</html>

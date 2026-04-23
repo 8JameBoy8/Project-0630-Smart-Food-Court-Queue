@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUT Food Queue - Store Menu</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="lang.js"></script>
+</head>
+<body>
+
+    <div class="app-container">
+        <div class="header">
+            <h1>SUT FOOD QUEUE</h1>
+            <div class="header-icons" style="display: flex; align-items: center; gap: 15px;">
+                <span id="headerUsername" style="color: white; font-size: 14px; font-weight: bold;"></span>
+                <i class="fa-regular fa-user" style="cursor: pointer;" onclick="window.location.href='user.html'"></i>
+                <i class="fa-solid fa-globe" style="cursor: pointer;" onclick="window.location.href='home.html'"></i>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <div class="wrapper-box">
+                
+                <div class="title-with-back" style="justify-content: center; position: relative;">
+                    <i class="fa-solid fa-reply" style="position: absolute; left: 0; cursor: pointer;" onclick="window.location.href='store.html'"></i>
+                    <span data-lang="store_a">Store A</span>
+                    <i class="fa-solid fa-cart-shopping cart-icon" style="cursor: pointer;" onclick="window.location.href='order.html'"></i>
+                </div>
+
+                <div class="store-banner" style="margin-bottom: 20px;"></div>
+
+                <div class="menu-section-title" data-lang="menu_recom">เมนูแนะนำ<br>สำหรับคุณ</div>
+                <div class="menu-grid">
+                    <div class="menu-card" onclick="window.location.href='order.html'">
+                        <div class="menu-img"></div>
+                        <div class="menu-name" data-lang="menu_krapao_kung">ข้าวผัดกระเพรากุ้ง</div>
+                        <div class="menu-price" data-lang="price_45">ราคา 45 บาท</div>
+                    </div>
+                    
+                    <div class="menu-card" onclick="window.location.href='order.html'">
+                        <div class="menu-img"></div>
+                        <div class="menu-name" data-lang="menu_krapao_kai">ข้าวผัดกระเพราไก่</div>
+                        <div class="menu-price" data-lang="price_35">ราคา 35 บาท</div>
+                    </div>
+                </div>
+
+                <div class="menu-section-title" style="margin-top: 30px;" data-lang="menu_all">รายการ</div>
+                <div class="menu-grid">
+                    
+                    <div class="menu-card" onclick="window.location.href='order.html'">
+                        <div class="menu-img"></div>
+                        <div class="menu-name" data-lang="menu_krapao_moo">ข้าวผัดกระเพราหมู</div>
+                        <div class="menu-price" data-lang="price_40">ราคา 40 บาท</div>
+                    </div>
+                    <div class="menu-card" onclick="window.location.href='order.html'">
+                        <div class="menu-img"></div>
+                        <div class="menu-name" data-lang="menu_krapao_kai">ข้าวผัดกระเพราไก่</div>
+                        <div class="menu-price" data-lang="price_35">ราคา 35 บาท</div>
+                    </div>
+
+                    <div class="menu-card" onclick="window.location.href='order.html'">
+                        <div class="menu-img"></div>
+                        <div class="menu-name" data-lang="menu_krapao_kung">ข้าวผัดกระเพรากุ้ง</div>
+                        <div class="menu-price" data-lang="price_45">ราคา 45 บาท</div>
+                    </div>
+                    <div class="menu-card" onclick="window.location.href='order.html'">
+                        <div class="menu-img"></div>
+                        <div class="menu-name" data-lang="menu_krapao_muek">ข้าวผัดกระเพราปลาหมึก</div>
+                        <div class="menu-price" data-lang="price_40">ราคา 40 บาท</div>
+                    </div>
+
+                    <div class="menu-card" onclick="window.location.href='order.html'">
+                        <div class="menu-img"></div>
+                        <div class="menu-name" data-lang="menu_krapao_nuea">ข้าวผัดกระเพราเนื้อ</div>
+                        <div class="menu-price" data-lang="price_55">ราคา 55 บาท</div>
+                    </div>
+                    <div class="menu-card" onclick="window.location.href='order.html'">
+                        <div class="menu-img"></div>
+                        <div class="menu-name" data-lang="menu_krapao_hotdog">ข้าวผัดกระเพราฮอทดอก</div>
+                        <div class="menu-price" data-lang="price_35">ราคา 35 บาท</div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('load', function() {
+            let name = localStorage.getItem('savedUsername');
+            if(name) {
+                document.getElementById('headerUsername').innerText = name;
+            }
+        });
+    </script>
+</body>
+</html>
