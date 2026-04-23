@@ -96,13 +96,13 @@
                     container.innerHTML += cardHTML;
                 });
 
-                /* โค้ดสำหรับเชื่อม Java จริง:
+                /* โค้ดสำหรับเชื่อม Java จริง: */
                 fetch('http://localhost:8080/api/bookingHistory')
                 .then(response => response.json())
                 .then(data => {
                     // เอาข้อมูล data มาวนลูปสร้างกล่องแบบข้างบน
                 });
-                */
+                
 
             }, 1000);
         }

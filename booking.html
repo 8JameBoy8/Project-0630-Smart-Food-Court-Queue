@@ -83,7 +83,7 @@
                 return;
             }
 
-            /* โค้ดสำหรับส่งให้ Java Backend (บอกเพื่อน JameBoy ให้เขียน API มารับนะ)
+              /* โค้ดสำหรับส่งให้ Backend เขียน API มารับ) */
             fetch('http://localhost:8080/api/book', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -95,7 +95,7 @@
                     // Logic เปลี่ยนสีปุ่ม
                 }
             });
-            */
+            
 
             let msg = currentLang === 'th' 
                 ? 'ระบบได้ส่งคำขอจองโต๊ะที่ ' + tableNum + ' เป็นเวลา ' + selectedDuration + ' นาทีแล้ว' 

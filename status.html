@@ -105,7 +105,7 @@
                 console.log("ส่งคำสั่งยกเลิกไปที่ Java API...");
                 alert("ระบบได้ส่งคำขอยกเลิกไปยังเซิร์ฟเวอร์แล้ว");
                 
-                /* โค้ดสำหรับเชื่อม Java จริง:
+                /* โค้ดสำหรับเชื่อม Java จริง: */
                 fetch('http://localhost:8080/api/cancelBooking', { method: 'POST' })
                 .then(response => response.json())
                 .then(data => {
@@ -113,7 +113,7 @@
                         location.reload(); // รีเฟรชหน้าเพื่อโหลดสถานะใหม่ (จะกลายเป็นไม่มีคิว)
                     }
                 });
-                */
+                
             }
         }
     </script>

@@ -94,10 +94,10 @@
                 // เคลียร์ค่าที่หลงเหลือในเครื่อง (ถ้ามี)
                 localStorage.removeItem('savedUsername');
                 
-                /* โค้ดเชื่อม Java:
+                /* โค้ดเชื่อม Java: */
                 fetch('http://localhost:8080/api/logout', { method: 'POST' })
                 .then(() => { window.location.href = 'home.html'; });
-                */
+                
                 
                 alert("ออกจากระบบเรียบร้อยแล้ว");
                 window.location.href = 'home.html';
