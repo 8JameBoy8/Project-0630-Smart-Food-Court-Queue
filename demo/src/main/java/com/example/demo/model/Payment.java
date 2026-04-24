@@ -1,0 +1,45 @@
+package com.example.demo.model;
+public class Payment {
+
+    private int paymentId;
+    private Order order;
+    private String slipImagePath; // path รูป
+    private PaymentStatus status; //สถานะของการจ่ายเงิน
+    
+    public enum PaymentStatus {
+        PENDING,
+        UPLOADED,     
+        VERIFIED,     
+        REJECTED     
+    }
+
+    //contructor ที่ใส่ข้อมูล IDpayment ออเดอร์ที่จะจ่าย เพื่อสร้าง Class Payment และเปลี่ยนสถานะเป็นรอดำเนินการ
+    public Payment(int paymentId, Order order) {
+        this.paymentId = paymentId;
+        this.order = order;
+        this.status = PaymentStatus.PENDING; 
+    }
+
+    // ลูกค้าอัปโหลดสลิป
+    public void uploadSlip(String imagePath) {
+        this.slipImagePath = imagePath; //รับ path/directory ของรูปที่อัปโหลดเข้ามา (example c/image/pic.jpg)
+        this.status = PaymentStatus.UPLOADED; //เปลี่ยนสถานะการจ่ายเงิน
+    }
+
+    // ร้านยืนยัน
+    public void verify() {
+        this.status = PaymentStatus.VERIFIED; //เปลี่ยนสถานะการจ่ายเงิน
+        order.updateStatus(Order.OrderStatus.Received); //เปลี่ยนสถานะของ order เป็นรับแล้วหลังจากให้ Staff เช็ครูป
+    }
+
+    // ร้านปฏิเสธ
+    public void reject() {
+        this.status = PaymentStatus.REJECTED; //เปลี่ยนสถานะการจ่ายเงิน
+
+        // ยกเลิก order
+        order.cancelOrder();
+    }
+
+    //method get ต่างๆที่เอาขอค่าของ class Payment
+    public PaymentStatus getStatus() { return status; } //ขอสถานะการจ่ายเงินของรายการนี้
+}
