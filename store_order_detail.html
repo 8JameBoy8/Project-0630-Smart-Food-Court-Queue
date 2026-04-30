@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUT Food Queue - Order Detail</title>
+    <!-- นำเข้าไอคอนจาก FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- นำเข้าฟอนต์ Kanit -->
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #FFB703; 
+            --secondary: #FB8500;
+            --dark: #2b2d42;
+            --gray: #8d99ae;
+            --light: #f8f9fa;
+            --white: #ffffff;
+            --success: #2a9d8f;
+            --success-bg: #e9f5f4;
+        }
+
+        body {
+            background-color: #edf2f4;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Kanit', sans-serif;
+        }
+
+        .app-container {
+            background-color: var(--light);
+            width: 100%;
+            max-width: 400px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 30px rgba(0,0,0,0.08);
+            position: relative;
+        }
+
+        /* แถบ Header */
+        .header {
+            background-color: var(--dark); 
+            color: var(--white);
+            padding: 25px 20px 45px; 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+        }
+        .header h1 { margin: 0; font-size: 1.2rem; font-weight: 500; color: var(--primary); }
+        
+        .header-icons { display: flex; align-items: center; gap: 15px; position: relative;}
+        .header-icons i.fa-address-card { font-size: 1.5rem; cursor: pointer; transition: 0.2s; }
+        .header-icons i.fa-address-card:hover { color: var(--primary); }
+
+        /* ปุ่มลูกโลกเปลี่ยนภาษา */
+        .lang-btn { background: none; border: none; color: var(--white); font-size: 1.5rem; cursor: pointer; transition: 0.2s; padding: 0;}
+        .lang-btn:hover { color: var(--primary); }
+        .lang-dropdown {
+            position: absolute; top: 35px; right: 0; background: var(--white); border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15); display: none; flex-direction: column; overflow: hidden; width: 120px; z-index: 10;
+        }
+        .lang-dropdown.show { display: flex; } 
+        .lang-option { padding: 12px; text-align: center; font-size: 0.95rem; color: var(--dark); cursor: pointer; border-bottom: 1px solid #f0f2f5; transition: 0.2s;}
+        .lang-option:hover { background-color: #f0f2f5; color: var(--primary); }
+        .lang-option:last-child { border-bottom: none; }
+
+        /* การ์ดชื่อร้าน (ลอยทับ Header) */
+        .store-header-card {
+            background: var(--white);
+            margin: -25px 20px 20px;
+            padding: 15px 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+        .store-name { color: var(--dark); font-size: 1.1rem; font-weight: 600; }
+
+        /* พื้นที่เนื้อหา */
+        .content {
+            padding: 0 20px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        /* รูปลูกค้าและชื่อ */
+        .customer-profile {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .customer-img-box {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #f0f2f5, #e2e6ea);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .customer-img-box i { font-size: 4rem; color: var(--gray); }
+        .customer-name { font-size: 1.2rem; font-weight: 600; color: var(--dark); }
+
+        /* การ์ดใบเสร็จ (Receipt Card) */
+        .receipt-card {
+            background-color: var(--white);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+        }
+        .receipt-header {
+            font-size: 1rem;
+            color: var(--gray);
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        .receipt-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1rem;
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+        .receipt-divider {
+            border-top: 2px dashed #eee;
+            margin: 15px 0;
+        }
+        .receipt-total {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        /* สถานะการชำระเงิน (คลิกดูสลิปได้) */
+        .payment-status {
+            background-color: var(--success-bg);
+            border: 1px solid rgba(42, 157, 143, 0.2);
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--success);
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .payment-status:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(42, 157, 143, 0.15);
+        }
+        .payment-status-left { display: flex; align-items: center; gap: 8px; }
+        .payment-status-right { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+
+        /* ปุ่มอัปเดตสถานะอาหาร */
+        .status-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .btn-action {
+            padding: 15px; border-radius: 12px; border: none;
+            font-size: 1rem; font-weight: 600; font-family: 'Kanit', sans-serif;
+            cursor: pointer; transition: 0.3s;
+        }
+        .btn-inactive { background-color: #f0f2f5; color: var(--gray); }
+        .btn-cooking.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--white); box-shadow: 0 4px 15px rgba(251, 133, 0, 0.3);
+        }
+        .btn-finished.active {
+            background: linear-gradient(135deg, #2a9d8f, #21867a);
+            color: var(--white); box-shadow: 0 4px 15px rgba(42, 157, 143, 0.3);
+        }
+
+        /* ปุ่ม Back ด้านล่าง */
+        .bottom-section {
+            padding: 20px; background: var(--white); border-top: 1px solid #eee; text-align: center;
+        }
+        .btn-back {
+            background-color: #f0f2f5; color: var(--dark); border: none;
+            padding: 12px 40px; border-radius: 20px; font-size: 1rem;
+            font-weight: 500; font-family: 'Kanit', sans-serif; cursor: pointer; transition: 0.2s;
+        }
+        .btn-back:hover { background-color: #e2e6ea; }
+
+        /* Modal สำหรับดูรูปสลิปโอนเงิน */
+        .slip-modal {
+            display: none; 
+            position: fixed;
+            z-index: 100;
+            left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.7); 
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(3px); 
+        }
+        .slip-content {
+            background-color: var(--white);
+            padding: 20px;
+            border-radius: 16px;
+            width: 85%;
+            max-width: 350px;
+            position: relative;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .slip-content h3 { margin: 0 0 15px 0; color: var(--dark); font-weight: 500; }
+        .slip-img { width: 100%; border-radius: 8px; }
+        .close-slip-btn {
+            position: absolute;
+            top: 15px; right: 15px;
+            font-size: 1.5rem; color: var(--gray);
+            cursor: pointer; transition: 0.2s;
+        }
+        .close-slip-btn:hover { color: var(--danger); }
+
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>SUT FOOD QUEUE</h1>
+            <div class="header-icons">
+                <i class="fa-regular fa-address-card" onclick="window.location.href='store_profile.html'"></i>
+                
+                <button class="lang-btn" onclick="toggleLangMenu()">
+                    <i class="fa-solid fa-globe"></i>
+                </button>
+                
+                <div class="lang-dropdown" id="langDropdown">
+                    <div class="lang-option" onclick="changeLang('th')">🇹🇭 ภาษาไทย</div>
+                    <div class="lang-option" onclick="changeLang('en')">🇬🇧 English</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- การ์ดชื่อร้าน -->
+        <div class="store-header-card">
+            <span class="store-name" id="displayStoreName">ร้านค้า (Store)</span>
+            <i class="fa-solid fa-shop" style="color: var(--primary); font-size: 1.2rem;"></i>
+        </div>
+
+        <!-- เนื้อหาหลัก -->
+        <div class="content">
+            
+            <!-- รูปลูกค้า -->
+            <div class="customer-profile">
+                <div class="customer-img-box">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <div class="customer-name">สมชาย รักเรียน</div>
+            </div>
+
+            <!-- ใบเสร็จ -->
+            <div class="receipt-card">
+                <div class="receipt-header" id="txtOrderTitle">รายการอาหาร (ออเดอร์ #1)</div>
+                
+                <div class="receipt-item">
+                    <span>- ข้าวผัดกระเพราหมู</span>
+                    <span>฿40</span>
+                </div>
+                <div class="receipt-item">
+                    <span>- ข้าวผัดกระเพรากุ้ง</span>
+                    <span>฿45</span>
+                </div>
+
+                <div class="receipt-divider"></div>
+
+                <div class="receipt-total">
+                    <span id="txtTotal">ราคารวม</span>
+                    <span>฿85</span>
+                </div>
+            </div>
+
+            <!-- สถานะการจ่ายเงิน -->
+            <div class="payment-status" onclick="openSlipModal()">
+                <div class="payment-status-left">
+                    <i class="fa-solid fa-qrcode"></i> 
+                    <span id="txtPromptpay">QR PROMPTPAY</span>
+                </div>
+                <div class="payment-status-right">
+                    <span id="txtViewSlip" style="text-decoration: underline;">ดูสลิป</span>
+                    <i class="fa-regular fa-circle-check"></i>
+                </div>
+            </div>
+
+            <!-- ปุ่มอัปเดตสถานะ -->
+            <div class="status-buttons">
+                <button class="btn-action btn-cooking active" id="btnCooking" onclick="setStatus('cooking')">กำลังทำ (Cooking)</button>
+                <button class="btn-action btn-finished btn-inactive" id="btnFinished" onclick="setStatus('finished')">เสร็จแล้ว (Finished)</button>
+            </div>
+
+        </div>
+
+        <!-- ปุ่ม Back -->
+        <div class="bottom-section">
+            <button class="btn-back" id="backBtn" onclick="window.location.href='store_orders.html'">กลับ (Back)</button>
+        </div>
+    </div>
+
+    <!-- หน้าต่าง Pop-up โชว์สลิป -->
+    <div class="slip-modal" id="slipModal" onclick="closeSlipModal()">
+        <div class="slip-content" onclick="event.stopPropagation()">
+            <i class="fa-solid fa-xmark close-slip-btn" onclick="closeSlipModal()"></i>
+            <h3 id="txtSlipTitle">หลักฐานการโอนเงิน</h3>
+            <img src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?auto=format&fit=crop&q=80&w=400&h=600" alt="Payment Slip" class="slip-img">
+        </div>
+    </div>
+
+    <script>
+        // --- ระบบภาษา ---
+        const translations = {
+            th: { 
+                backBtn: "กลับ", orderTitle: "รายการอาหาร (ออเดอร์ #1)", total: "ราคารวม",
+                btnCooking: "กำลังทำ (Cooking)", btnFinished: "เสร็จแล้ว (Finished)",
+                viewSlip: "ดูสลิป", slipTitle: "หลักฐานการโอนเงิน", promptpay: "QR PROMPTPAY"
+            },
+            en: { 
+                backBtn: "Back", orderTitle: "Ordered foods : 1", total: "Total Price",
+                btnCooking: "Cooking", btnFinished: "Finished",
+                viewSlip: "View Slip", slipTitle: "Payment Slip", promptpay: "QR PROMPTPAY"
+            }
+        };
+
+        let currentLang = localStorage.getItem('userLang') || 'th'; 
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedName = localStorage.getItem('savedUsername');
+            if (savedName) document.getElementById('displayStoreName').innerText = savedName;
+            updateUIText();
+        });
+
+        function toggleLangMenu() { document.getElementById('langDropdown').classList.toggle('show'); }
+
+        function changeLang(lang) {
+            currentLang = lang;
+            localStorage.setItem('userLang', lang); 
+            updateUIText();
+            document.getElementById('langDropdown').classList.remove('show');
+        }
+
+        function updateUIText() {
+            document.getElementById('backBtn').innerText = translations[currentLang].backBtn;
+            document.getElementById('txtOrderTitle').innerText = translations[currentLang].orderTitle;
+            document.getElementById('txtTotal').innerText = translations[currentLang].total;
+            document.getElementById('btnCooking').innerText = translations[currentLang].btnCooking;
+            document.getElementById('btnFinished').innerText = translations[currentLang].btnFinished;
+            document.getElementById('txtViewSlip').innerText = translations[currentLang].viewSlip;
+            document.getElementById('txtSlipTitle').innerText = translations[currentLang].slipTitle;
+        }
+
+        window.onclick = function(event) {
+            if (!event.target.matches('.fa-globe') && !event.target.matches('.lang-btn')) {
+                let dropdown = document.getElementById("langDropdown");
+                if (dropdown && dropdown.classList.contains('show')) dropdown.classList.remove('show');
+            }
+        }
+
+        // --- ระบบเปิด/ปิด หน้าต่างโชว์สลิป ---
+        function openSlipModal() {
+            document.getElementById('slipModal').style.display = 'flex';
+        }
+
+        function closeSlipModal() {
+            document.getElementById('slipModal').style.display = 'none';
+        }
+
+        // --- 🚀 ระบบอัปเดตสถานะ ---
+        function setStatus(status) {
+            const btnCooking = document.getElementById('btnCooking');
+            const btnFinished = document.getElementById('btnFinished');
+
+            if (status === 'cooking') {
+                btnCooking.className = "btn-action btn-cooking active";
+                btnFinished.className = "btn-action btn-finished btn-inactive";
+                
+                localStorage.setItem('order_1_status', 'cooking');
+                alert("แจ้งสถานะไปยังลูกค้า: 'ร้านกำลังทำอาหาร' แล้วครับ! 🍳");
+
+            } else if (status === 'finished') {
+                btnCooking.className = "btn-action btn-cooking btn-inactive";
+                btnFinished.className = "btn-action btn-finished active";
+                
+                localStorage.setItem('order_1_status', 'finished');
+                alert("แจ้งสถานะไปยังลูกค้า: 'อาหารเสร็จแล้ว มารับได้เลย!' แล้วครับ! 🛎️");
+                
+                // 🚀 พอแจ้งเตือนเสร็จ ให้เด้งกลับไปหน้า store_orders.html ทันที!
+                window.location.href = 'store_orders.html';
+            }
+        }
+    </script>
+</body>
+</html>

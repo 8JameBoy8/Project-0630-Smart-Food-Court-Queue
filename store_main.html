@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUT Food Queue - Modern Store Main</title>
+    <!-- นำเข้าไอคอนจาก FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- นำเข้าฟอนต์ Kanit -->
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #FFB703; 
+            --secondary: #FB8500;
+            --dark: #2b2d42;
+            --gray: #8d99ae;
+            --light: #f8f9fa;
+            --white: #ffffff;
+            --success: #2a9d8f; /* สีเขียวตอนเปิดร้าน */
+            --danger: #e63946;  /* สีแดง */
+        }
+
+        body {
+            background-color: #edf2f4;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Kanit', sans-serif;
+        }
+
+        .app-container {
+            background-color: var(--light);
+            width: 100%;
+            max-width: 400px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 30px rgba(0,0,0,0.08);
+            position: relative;
+        }
+
+        /* แถบ Header สีเข้ม โค้งมนด้านล่าง */
+        .header {
+            background-color: var(--dark); 
+            color: var(--white);
+            padding: 25px 20px 45px; 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom-left-radius: 25px;
+            border-bottom-right-radius: 25px;
+        }
+        .header h1 { margin: 0; font-size: 1.2rem; font-weight: 500; color: var(--primary); }
+        
+        .header-icons { 
+            position: relative;
+            display: flex; 
+            align-items: center; 
+            gap: 15px;
+        }
+        .header-icons i.fa-address-card { font-size: 1.5rem; cursor: pointer; transition: 0.2s; }
+        .header-icons i.fa-address-card:hover { color: var(--primary); }
+
+        /* ปุ่มลูกโลกเปลี่ยนภาษา */
+        .lang-btn {
+            background: none;
+            border: none;
+            color: var(--white);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: 0.2s;
+            padding: 0;
+        }
+        .lang-btn:hover { color: var(--primary); }
+
+        /* เมนู Dropdown เลือกภาษา */
+        .lang-dropdown {
+            position: absolute;
+            top: 35px;
+            right: 0;
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+            display: none; 
+            flex-direction: column;
+            overflow: hidden;
+            width: 120px;
+            z-index: 10;
+        }
+        .lang-dropdown.show { display: flex; } 
+        .lang-option {
+            padding: 12px;
+            text-align: center;
+            font-size: 0.95rem;
+            color: var(--dark);
+            cursor: pointer;
+            border-bottom: 1px solid #f0f2f5;
+            transition: 0.2s;
+        }
+        .lang-option:hover { background-color: #f0f2f5; color: var(--primary); }
+        .lang-option:last-child { border-bottom: none; }
+
+        /* การ์ดชื่อร้านและปุ่ม Toggle (ลอยทับ Header) */
+        .store-header-card {
+            background: var(--white);
+            margin: -25px 20px 20px;
+            padding: 15px 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+        .store-name { color: var(--dark); font-size: 1.1rem; font-weight: 600; }
+
+        /* ระบบสวิตช์เปิด-ปิดร้านสไตล์ iOS */
+        .status-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .status-text {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--success); /* สีตั้งต้นตอนเปิด */
+            transition: color 0.3s;
+        }
+        .modern-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+        .modern-switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute; content: "";
+            height: 20px; width: 20px;
+            left: 3px; bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        input:checked + .slider { background-color: var(--success); }
+        input:checked + .slider:before { transform: translateX(24px); }
+
+        /* รายการเมนูอาหาร */
+        .menu-list {
+            padding: 0 20px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            flex-grow: 1;
+        }
+
+        /* การ์ดเมนูสไตล์โมเดิร์น */
+        .menu-item {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            transition: 0.2s;
+        }
+        .menu-item:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.08); }
+
+        /* Checkbox แบบ Custom */
+        .custom-checkbox {
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+
+        .menu-img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+
+        .menu-details { flex-grow: 1; display: flex; flex-direction: column; gap: 4px; }
+        .menu-name { color: var(--dark); font-size: 1.05rem; font-weight: 500; }
+        
+        .menu-actions { display: flex; align-items: center; gap: 10px; }
+        /* ปุ่ม + / - แบบกลม */
+        .btn-circle {
+            background: #f0f2f5; color: var(--dark); border: none;
+            width: 26px; height: 26px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.85rem; cursor: pointer; transition: 0.2s;
+        }
+        .btn-circle:hover { background: #e2e6ea; }
+        .qty-text { font-size: 0.95rem; font-weight: 500; color: var(--dark); width: 15px; text-align: center;}
+
+        .menu-price { color: var(--secondary); font-size: 0.95rem; font-weight: 600; }
+
+        /* ปุ่มดูออเดอร์ (แถมให้ด้านล่างสุด) */
+        .bottom-btn-container {
+            padding: 20px;
+            background: var(--white);
+            border-top: 1px solid #eee;
+            text-align: center;
+        }
+        .btn-orders {
+            background: linear-gradient(135deg, var(--primary), var(--secondary)); 
+            color: var(--white);
+            border: none;
+            padding: 15px 40px;
+            border-radius: 14px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            font-family: 'Kanit', sans-serif;
+            cursor: pointer;
+            width: 100%;
+            box-shadow: 0 4px 15px rgba(251, 133, 0, 0.3);
+            transition: 0.2s;
+        }
+        .btn-orders:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(251, 133, 0, 0.4); }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- แถบ Header โมเดิร์น -->
+        <div class="header">
+            <h1>SUT FOOD QUEUE</h1>
+            <div class="header-icons">
+                <i class="fa-regular fa-address-card" onclick="window.location.href='store_profile.html'"></i>
+                
+                <!-- ปุ่มลูกโลก เปลี่ยนภาษา -->
+                <button class="lang-btn" onclick="toggleLangMenu()">
+                    <i class="fa-solid fa-globe"></i>
+                </button>
+                
+                <div class="lang-dropdown" id="langDropdown">
+                    <div class="lang-option" onclick="changeLang('th')">🇹🇭 ภาษาไทย</div>
+                    <div class="lang-option" onclick="changeLang('en')">🇬🇧 English</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- การ์ดชื่อร้านและปุ่มเปิดปิดร้าน -->
+        <div class="store-header-card">
+            <span class="store-name" id="displayStoreName">ร้านค้า (Store)</span>
+            
+            <!-- สวิตช์เปิด-ปิดร้าน -->
+            <div class="status-wrapper">
+                <span class="status-text" id="statusText">เปิดร้าน</span>
+                <label class="modern-switch">
+                    <input type="checkbox" id="storeToggle" checked onchange="toggleStoreStatus()">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <!-- รายการเมนู -->
+        <div class="menu-list" id="menuListContainer">
+            <!-- ข้อมูลจะถูกดึงมาใส่ตรงนี้ -->
+        </div>
+
+        <!-- ปุ่มสำหรับไปหน้ากระดิ่งรับออเดอร์ -->
+        <div class="bottom-btn-container">
+            <button class="btn-orders" id="btnOrders" onclick="window.location.href='store_orders.html'">ดูออเดอร์ (Orders)</button>
+        </div>
+    </div>
+
+    <script>
+        // --- ระบบข้อมูลและภาษา ---
+        const translations = {
+            th: {
+                storeOpen: "เปิดร้าน",
+                storeClosed: "ปิดร้าน",
+                priceText: "ราคา",
+                baht: "บาท",
+                btnOrders: "ดูออเดอร์ (Orders)"
+            },
+            en: {
+                storeOpen: "Open",
+                storeClosed: "Closed",
+                priceText: "Price",
+                baht: "THB",
+                btnOrders: "View Orders"
+            }
+        };
+
+        let currentLang = localStorage.getItem('userLang') || 'th'; 
+
+        // ข้อมูลเมนู (ใช้รูปล่าสุดของคุณวานิตเลยครับ)
+        const menus = [
+            { id: 1, name: "ผัดกระเพราหมู", price: 40, available: true, img: "https://www.unileverfoodsolutions.co.th/dam/global-ufs/mcos/SEA/calcmenu/recipes/TH-recipes/minced-pork-and-basil-fried-rice-with-lava-fried-egg/3be1b76f-ddbe-4f1c-a73c-0f894d66ba1c_header.jpg" },
+            { id: 2, name: "ผัดกระเพราไก่", price: 35, available: true, img: "https://s359.kapook.com/pagebuilder/7595f0f5-696a-4cfe-ad3a-9cd4dd3ccbf8.jpg" },
+            { id: 3, name: "ผัดกระเพรากุ้ง", price: 45, available: true, img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTm5-eVPYTK9-ogaCU555GAUNDvbb0mIaX1oQ&s" },
+            { id: 4, name: "ผัดกระเพราปลาหมึก", price: 40, available: true, img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT4nXUWGaeECCcgZXsn1yeWUUU76EWM_HKXdg&s" },
+            { id: 5, name: "ผัดกระเพราเนื้อ", price: 55, available: false, img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSY3MQZqzTfLad9Ynl-oxZ38iQIfN_bsaTwjw&s" }
+        ];
+
+        window.addEventListener('DOMContentLoaded', () => {
+            // ดึงชื่อร้านมาแสดง
+            const savedName = localStorage.getItem('savedUsername');
+            if (savedName) document.getElementById('displayStoreName').innerText = savedName;
+
+            updateUIText();
+            renderMenus();
+        });
+
+        // --- ระบบสวิตช์เปิด/ปิดร้าน ---
+        function toggleStoreStatus() {
+            const toggle = document.getElementById('storeToggle');
+            const statusText = document.getElementById('statusText');
+            
+            if (toggle.checked) {
+                statusText.innerText = translations[currentLang].storeOpen;
+                statusText.style.color = "var(--success)"; // สีเขียว
+                console.log("ร้านเปิดรับออเดอร์");
+            } else {
+                statusText.innerText = translations[currentLang].storeClosed;
+                statusText.style.color = "#888"; // สีเทา
+                console.log("ร้านปิดรับออเดอร์");
+            }
+        }
+
+        // --- ระบบเรนเดอร์เมนู ---
+        function renderMenus() {
+            const container = document.getElementById('menuListContainer');
+            container.innerHTML = ""; 
+
+            menus.forEach(menu => {
+                let isChecked = menu.available ? "checked" : "";
+                // ทำให้เมนูที่ของหมด สีรูปซีดลงนิดนึงให้ดูรู้ว่าหมด
+                let opacity = menu.available ? "1" : "0.5"; 
+
+                container.innerHTML += `
+                    <div class="menu-item" style="opacity: ${opacity}">
+                        <input type="checkbox" class="custom-checkbox" ${isChecked} onchange="toggleMenu(${menu.id}, this.checked)">
+                        <img src="${menu.img}" class="menu-img" alt="${menu.name}">
+                        <div class="menu-details">
+                            <div class="menu-name">${menu.name}</div>
+                            <div class="menu-actions">
+                                <button class="btn-circle"><i class="fa-solid fa-minus"></i></button>
+                                <span class="qty-text">1</span>
+                                <button class="btn-circle"><i class="fa-solid fa-plus"></i></button>
+                            </div>
+                            <div class="menu-price">${translations[currentLang].priceText} ${menu.price} ${translations[currentLang].baht}</div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function toggleMenu(id, isAvailable) {
+            console.log(`เมนู ID ${id} อัปเดตสถานะเป็น: ${isAvailable ? 'พร้อมขาย' : 'หมด'}`);
+            // (ถ้าจะให้ล้ำคือ พอติ๊กว่าหมด ให้เรนเดอร์ opacity ใหม่ แต่ตอนนี้เก็บ Log ไว้ก่อนครับ)
+        }
+
+        // --- ระบบเปลี่ยนภาษา ---
+        function toggleLangMenu() {
+            document.getElementById('langDropdown').classList.toggle('show');
+        }
+
+        function changeLang(lang) {
+            currentLang = lang;
+            localStorage.setItem('userLang', lang); 
+            updateUIText();
+            toggleStoreStatus(); // อัปเดตคำว่าเปิด/ปิดร้านใหม่
+            renderMenus(); // เรนเดอร์เมนูใหม่เพื่อเปลี่ยนคำว่า ราคา/บาท
+            document.getElementById('langDropdown').classList.remove('show');
+        }
+
+        function updateUIText() {
+            document.getElementById('btnOrders').innerText = translations[currentLang].btnOrders;
+            toggleStoreStatus();
+        }
+
+        window.onclick = function(event) {
+            if (!event.target.matches('.fa-globe') && !event.target.matches('.lang-btn')) {
+                let dropdown = document.getElementById("langDropdown");
+                if (dropdown && dropdown.classList.contains('show')) dropdown.classList.remove('show');
+            }
+        }
+    </script>
+</body>
+</html>

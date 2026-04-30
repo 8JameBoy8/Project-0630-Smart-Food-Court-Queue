@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUT Food Queue - Store Login</title>
+    <!-- นำเข้าไอคอนจาก FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- นำเข้าฟอนต์ Kanit ให้ดูทันสมัย -->
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #FFB703; 
+            --secondary: #FB8500;
+            --dark: #2b2d42;
+            --gray: #8d99ae;
+            --light: #f8f9fa;
+            --white: #ffffff;
+        }
+
+        body {
+            background-color: #edf2f4; /* สีพื้นหลังอมเทานิดๆ */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Kanit', sans-serif; /* เปลี่ยนมาใช้ Kanit */
+        }
+
+        .app-container {
+            background-color: var(--white);
+            width: 100%;
+            max-width: 400px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 30px rgba(0,0,0,0.08); /* เงาฟุ้งๆ นุ่มๆ */
+            position: relative;
+        }
+
+        /* แถบด้านบนสไตล์โมเดิร์น */
+        .header {
+            background-color: var(--dark); 
+            color: var(--white);
+            padding: 25px 20px 35px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom-left-radius: 25px; /* โค้งมน */
+            border-bottom-right-radius: 25px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: var(--primary); /* สีเหลืองส้ม */
+        }
+
+        .header-icons {
+            font-size: 1.3rem;
+            position: relative;
+        }
+
+        /* ปุ่มลูกโลกเปลี่ยนภาษา */
+        .lang-btn {
+            background: none;
+            border: none;
+            color: var(--white);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .lang-btn:hover { color: var(--primary); }
+
+        /* เมนู Dropdown เลือกภาษา */
+        .lang-dropdown {
+            position: absolute;
+            top: 35px;
+            right: 0;
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+            display: none; /* ซ่อนไว้ก่อน */
+            flex-direction: column;
+            overflow: hidden;
+            width: 120px;
+            z-index: 10;
+        }
+        .lang-dropdown.show { display: flex; } /* คลาสนี้เอาไว้สั่งโชว์ตอนกด */
+        .lang-option {
+            padding: 12px;
+            text-align: center;
+            font-size: 0.95rem;
+            color: var(--dark);
+            cursor: pointer;
+            border-bottom: 1px solid #f0f2f5;
+            transition: 0.2s;
+        }
+        .lang-option:hover { background-color: #f0f2f5; color: var(--primary); }
+        .lang-option:last-child { border-bottom: none; }
+
+        /* ส่วนจัดวางฟอร์มตรงกลาง */
+        .login-form {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            margin-top: -60px; /* ดึงฟอร์มขยับขึ้นไปตรงกลางให้สวยๆ */
+        }
+
+        /* กรอบช่องกรอกข้อมูลแบบโค้งมน */
+        .input-group {
+            position: relative;
+            width: 85%; 
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+            color: var(--gray);
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 15px 15px 15px 50px;
+            background-color: #f0f2f5;
+            border: 2px solid transparent;
+            border-radius: 14px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            color: var(--dark);
+            font-family: 'Kanit', sans-serif;
+            transition: 0.3s;
+        }
+
+        /* เอฟเฟกต์ตอนคลิกช่องพิมพ์ */
+        .input-field:focus {
+            border-color: var(--primary);
+            outline: none;
+            background-color: var(--white);
+            box-shadow: 0 0 0 4px rgba(255, 183, 3, 0.1);
+        }
+
+        /* ปุ่ม Submit แบบไล่สี */
+        .submit-btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary)); 
+            color: var(--white);
+            border: none;
+            padding: 15px 40px;
+            width: 85%;
+            border-radius: 14px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(251, 133, 0, 0.3);
+            font-family: 'Kanit', sans-serif;
+            transition: 0.2s;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(251, 133, 0, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- แถบ Header โมเดิร์น -->
+        <div class="header">
+            <h1>SUT FOOD QUEUE</h1>
+            <div class="header-icons">
+                <!-- ปุ่มลูกโลก (เอาไอคอนคนออกแล้ว) -->
+                <button class="lang-btn" onclick="toggleLangMenu()">
+                    <i class="fa-solid fa-globe"></i>
+                </button>
+                
+                <!-- กล่อง Dropdown เลือกภาษา -->
+                <div class="lang-dropdown" id="langDropdown">
+                    <div class="lang-option" onclick="changeLang('th')">🇹🇭 ภาษาไทย</div>
+                    <div class="lang-option" onclick="changeLang('en')">🇬🇧 English</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ฟอร์มล็อกอิน -->
+        <div class="login-form">
+            <div class="input-group">
+                <i class="fa-regular fa-face-smile"></i>
+                <input type="text" id="username" class="input-field" placeholder="ชื่อร้านค้า (Store Name)">
+            </div>
+
+            <div class="input-group">
+                <i class="fa-solid fa-lock"></i>
+                <input type="password" id="password" class="input-field" placeholder="รหัสผ่าน (Password)">
+            </div>
+
+            <button class="submit-btn" id="submitBtn" onclick="handleLogin()">เข้าสู่ระบบร้านค้า</button>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. ระบบเปลี่ยนภาษา ---
+        const translations = {
+            th: {
+                userPlaceholder: "ชื่อร้านค้า (Store Name)",
+                passPlaceholder: "รหัสผ่าน (Password)",
+                btnText: "เข้าสู่ระบบร้านค้า",
+                alertText: "กรุณากรอกชื่อร้านค้าก่อนนะครับ"
+            },
+            en: {
+                userPlaceholder: "Store Name",
+                passPlaceholder: "Password",
+                btnText: "Login to Store",
+                alertText: "Please enter your store name first."
+            }
+        };
+
+        let currentLang = localStorage.getItem('userLang') || 'th'; 
+
+        window.addEventListener('DOMContentLoaded', () => {
+            updateUIText(); 
+        });
+
+        function toggleLangMenu() {
+            document.getElementById('langDropdown').classList.toggle('show');
+        }
+
+        function changeLang(lang) {
+            currentLang = lang;
+            localStorage.setItem('userLang', lang); 
+            updateUIText();
+            document.getElementById('langDropdown').classList.remove('show'); 
+        }
+
+        function updateUIText() {
+            document.getElementById('username').placeholder = translations[currentLang].userPlaceholder;
+            document.getElementById('password').placeholder = translations[currentLang].passPlaceholder;
+            document.getElementById('submitBtn').innerText = translations[currentLang].btnText;
+        }
+
+        window.onclick = function(event) {
+            if (!event.target.matches('.fa-globe') && !event.target.matches('.lang-btn')) {
+                let dropdown = document.getElementById("langDropdown");
+                if (dropdown.classList.contains('show')) {
+                    dropdown.classList.remove('show');
+                }
+            }
+        }
+
+        // --- 2. ระบบ Login ของร้านค้า (แก้ใหม่) ---
+        function handleLogin() {
+            let username = document.getElementById('username').value;
+            
+            if (username.trim() === "") {
+                alert(translations[currentLang].alertText);
+                return;
+            }
+
+            // บันทึกชื่อร้านค้าเก็บไว้
+            localStorage.setItem('savedUsername', username);
+            
+            // 🚀 ตรงนี้แก้ให้พุ่งตรงไปหน้าข้อมูลร้านค้าเสมอครับ
+            window.location.href = 'store_profile.html'; 
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUT Food Queue - Modern Store Profile</title>
+    <!-- นำเข้าไอคอนจาก FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- นำเข้าฟอนต์ Kanit -->
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #FFB703; 
+            --secondary: #FB8500;
+            --dark: #2b2d42;
+            --gray: #8d99ae;
+            --light: #f8f9fa;
+            --white: #ffffff;
+        }
+
+        body {
+            background-color: #edf2f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Kanit', sans-serif;
+        }
+
+        .app-container {
+            background-color: var(--light);
+            width: 100%;
+            max-width: 400px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 30px rgba(0,0,0,0.08);
+            position: relative;
+        }
+
+        /* Header สีเข้ม โค้งมนด้านล่าง */
+        .header {
+            background-color: var(--dark); 
+            color: var(--white);
+            padding: 25px 20px 50px; 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+        }
+        .header h1 { margin: 0; font-size: 1.2rem; font-weight: 500; color: var(--primary); }
+        
+        .header-icons { 
+            position: relative;
+            display: flex; 
+            align-items: center; 
+        }
+
+        /* ปุ่มลูกโลกเปลี่ยนภาษา */
+        .lang-btn {
+            background: none;
+            border: none;
+            color: var(--white);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: 0.2s;
+            padding: 0;
+        }
+        .lang-btn:hover { color: var(--primary); }
+
+        /* เมนู Dropdown เลือกภาษา */
+        .lang-dropdown {
+            position: absolute;
+            top: 35px;
+            right: 0;
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+            display: none; 
+            flex-direction: column;
+            overflow: hidden;
+            width: 120px;
+            z-index: 10;
+        }
+        .lang-dropdown.show { display: flex; } 
+        .lang-option {
+            padding: 12px;
+            text-align: center;
+            font-size: 0.95rem;
+            color: var(--dark);
+            cursor: pointer;
+            border-bottom: 1px solid #f0f2f5;
+            transition: 0.2s;
+        }
+        .lang-option:hover { background-color: #f0f2f5; color: var(--primary); }
+        .lang-option:last-child { border-bottom: none; }
+
+        /* พื้นที่เนื้อหาที่ลอยขึ้นมาทับ Header */
+        .content {
+            padding: 30px 20px 20px; /* เพิ่ม padding บนมาชดเชยปุ่ม Edit ที่หายไป */
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            margin-top: -30px; 
+        }
+
+        /* จัดกลุ่ม User กับ Store (การ์ดคู่) */
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .profile-card {
+            background-color: var(--white);
+            border-radius: 20px;
+            padding: 20px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .profile-card:hover { 
+            transform: translateY(-5px); 
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08); 
+        }
+
+        /* กล่องรูปภาพ */
+        .img-box {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #f0f2f5, #e2e6ea);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .img-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .user-icon { font-size: 2.5rem; color: var(--gray); }
+
+        .label { color: var(--dark); font-size: 1.05rem; font-weight: 600; text-align: center; word-break: break-all;}
+
+        /* ปุ่มประวัติการขาย */
+        .history-btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary)); 
+            color: var(--white);
+            border: none;
+            padding: 16px 20px;
+            border-radius: 16px;
+            font-size: 1.05rem;
+            font-weight: 500;
+            font-family: 'Kanit', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 4px 15px rgba(251, 133, 0, 0.3);
+            width: 100%;
+        }
+        .history-btn i { font-size: 1.2rem; }
+        .history-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(251, 133, 0, 0.4); }
+
+        /* ส่วนปุ่ม Back ด้านล่าง */
+        .bottom-section {
+            padding: 20px;
+            background: var(--white);
+            border-top: 1px solid #eee;
+            text-align: center;
+            margin-top: auto;
+        }
+        .btn-back {
+            background-color: #f0f2f5;
+            color: var(--dark);
+            border: none;
+            padding: 12px 40px;
+            border-radius: 20px;
+            font-size: 1rem;
+            font-weight: 500;
+            font-family: 'Kanit', sans-serif;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-back:hover { background-color: #e2e6ea; }
+
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>SUT FOOD QUEUE</h1>
+            <div class="header-icons">
+                <!-- ปุ่มลูกโลก เปลี่ยนภาษา -->
+                <button class="lang-btn" onclick="toggleLangMenu()">
+                    <i class="fa-solid fa-globe"></i>
+                </button>
+                
+                <!-- กล่อง Dropdown เลือกภาษา -->
+                <div class="lang-dropdown" id="langDropdown">
+                    <div class="lang-option" onclick="changeLang('th')">🇹🇭 ภาษาไทย</div>
+                    <div class="lang-option" onclick="changeLang('en')">🇬🇧 English</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- เนื้อหา -->
+        <div class="content">
+
+            <!-- รูป Username กับ Store แยกเป็นการ์ด 2 ใบ -->
+            <div class="profile-grid">
+                
+                <!-- การ์ดผู้ใช้งาน -->
+                <div class="profile-card">
+                    <div class="img-box">
+                        <i class="fa-solid fa-user user-icon"></i>
+                    </div>
+                    <div class="label" id="displayUsername">Username</div>
+                </div>
+
+                <!-- การ์ดร้านค้า (กดแล้วไปหน้าจัดการร้าน) -->
+                <div class="profile-card" onclick="window.location.href='store_main.html'">
+                    <div class="img-box">
+                        <!-- รูปร้านค้าจำลอง -->
+                        <img src="https://images.unsplash.com/photo-1559314809-0d155014e29e?auto=format&fit=crop&q=80&w=200&h=200" alt="Store Image">
+                    </div>
+                    <div class="label" id="storeLabel" style="color: var(--secondary);">ร้านค้า</div>
+                </div>
+
+            </div>
+
+            <!-- ปุ่มประวัติการขาย -->
+            <button class="history-btn" onclick="alert('กำลังเปิดหน้าประวัติการขาย...')">
+                <i class="fa-solid fa-clock-rotate-left"></i> <span id="historyText">ประวัติการขาย</span>
+            </button>
+        </div>
+
+        <!-- ปุ่ม Back -->
+        <div class="bottom-section">
+            <button class="btn-back" id="backBtn" onclick="handleBack()">กลับ</button>
+        </div>
+    </div>
+
+    <script>
+        // --- ระบบเปลี่ยนภาษา ---
+        const translations = {
+            th: {
+                storeLabel: "ร้านค้า",
+                historyText: "ประวัติการขาย",
+                backBtn: "กลับ",
+                confirmLogout: "ต้องการออกจากระบบใช่หรือไม่?"
+            },
+            en: {
+                storeLabel: "Store",
+                historyText: "Sales History",
+                backBtn: "Back",
+                confirmLogout: "Do you want to logout?"
+            }
+        };
+
+        // ดึงภาษาล่าสุดจากในเครื่อง (ถ้าไม่มีให้เป็นภาษาไทย)
+        let currentLang = localStorage.getItem('userLang') || 'th';
+
+        window.addEventListener('DOMContentLoaded', () => {
+            // ดึงชื่อมาโชว์
+            const savedName = localStorage.getItem('savedUsername');
+            if (savedName) {
+                document.getElementById('displayUsername').innerText = savedName;
+            }
+            // อัปเดตภาษาเริ่มต้น
+            updateUIText();
+        });
+
+        // เปิด/ปิด Dropdown
+        function toggleLangMenu() {
+            document.getElementById('langDropdown').classList.toggle('show');
+        }
+
+        // เปลี่ยนภาษา
+        function changeLang(lang) {
+            currentLang = lang;
+            localStorage.setItem('userLang', lang); // จำค่าไว้เผื่อไปหน้าอื่น
+            updateUIText();
+            document.getElementById('langDropdown').classList.remove('show');
+        }
+
+        // อัปเดตข้อความบนหน้า
+        function updateUIText() {
+            document.getElementById('storeLabel').innerText = translations[currentLang].storeLabel;
+            document.getElementById('historyText').innerText = translations[currentLang].historyText;
+            document.getElementById('backBtn').innerText = translations[currentLang].backBtn;
+        }
+
+        // คลิกที่อื่นเพื่อปิด Dropdown
+        window.onclick = function(event) {
+            if (!event.target.matches('.fa-globe') && !event.target.matches('.lang-btn')) {
+                let dropdown = document.getElementById("langDropdown");
+                if (dropdown && dropdown.classList.contains('show')) {
+                    dropdown.classList.remove('show');
+                }
+            }
+        }
+
+        // ฟังก์ชันกดปุ่ม Back 
+        function handleBack() {
+            if(confirm(translations[currentLang].confirmLogout)) {
+                localStorage.removeItem('savedUsername');
+                window.location.href = 'store_login.html'; // กลับไปหน้า Login ร้าน
+            }
+        }
+    </script>
+</body>
+</html>
