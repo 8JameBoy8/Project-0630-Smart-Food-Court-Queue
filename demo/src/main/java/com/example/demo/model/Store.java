@@ -7,21 +7,48 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+
+@Entity
+@Table(name = "stores")
 public class Store {
-    private List<Product> productsList; //ลิสเก็บ class product ที่ขายของร้านค้า
-    private Queue<Order> orderQueue; //ลิสเก็บคิว order ที่ถูกสั่งมาให้ร้านนี้
-    private Staff staff;
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private  int storeID;
+
     private String storeName;
+
+    @OneToOne
+    private Staff staff;
+
+    @ManyToOne
+    private Canteen canteen;
+
+    @OneToMany(mappedBy = "store")
+    private List<Product> productsList; //ลิสเก็บ class product ที่ขายของร้านค้า
+
+    @OneToMany(mappedBy = "store")
+    private List<Order> orderQueue; //ลิสเก็บคิว order ที่ถูกสั่งมาให้ร้านนี้
+
+    @Transient
     private Map<DayOfWeek, OpeningHours> openingHoursMap = new HashMap<>(); //ใช้ map เพื่อเด็บ key เป็นชื่อวัน และ value เป็น class OpeningHours ที่เป็นเวลาเปิด-ปิด
 
     //contructor ที่ใส่ข้อมูล id ชื่อ Staff ที่เป็นเจ้าชองร้าน เพื่อสร้าง Class Store และสร้างลิสรายการเพื่อเก็บ Product ที่มีอยู่ใน Store นี้ และ ลิสคิวที่เก็บ Order ที่ถูกสั่งมาให้ร้านนี้
-    public Store(int storeID, String storeName,Staff staff) {
+    public Store(int storeID, String storeName,Staff staff,Canteen canteen) {
         this.storeID = storeID;
         this.storeName = storeName;
         this.staff = staff;
+        this.canteen = canteen;
         this.productsList = new ArrayList<>();
         this.orderQueue = new LinkedList<>();
     }
@@ -45,13 +72,6 @@ public class Store {
         orderQueue.add(order);
     }
 
-    public Order peekOrder() {
-        return orderQueue.peek();
-    }
-
-    public void removeReadyOrder() {
-        orderQueue.poll();
-    }
 
     //method เพื่มเวลาปิดเปิดในวันนั้น
     public void setOpeningHours(DayOfWeek day, OpeningHours hours) {
@@ -85,7 +105,7 @@ public class Store {
     public int getStoreID() {return  storeID;} //ขอ ID ของ Store
     public String getStoreName() {return  storeName;} //ขอชื่อ Store
     public List<Product> getProductList() { return productsList; } //ของลิสรายการโปรดักในร้านทั้งหมด
-    public Queue<Order> getOrderQueue() { return orderQueue; } //ชอลิสคิว Order ของร้านทั้งหมด
+    public List<Order> getOrderQueue() { return orderQueue; } //ชอลิสคิว Order ของร้านทั้งหมด
 
     
 }

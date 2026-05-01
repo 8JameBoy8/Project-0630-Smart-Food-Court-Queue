@@ -1,8 +1,24 @@
 package com.example.demo.model;
 
+import jakarta.persistence.Entity ;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+
+
+@Entity
+@Table(name = "customers")
 public class Customer extends User {
+    
+    @OneToOne
     private Reservation currentReservation; //ตัวแปรการจองโต๊ะของลูกค้าคนนี้
+    @OneToOne
     private Order currentOrder; //ตัวแปรการสั่งอาหารของลูกค้าคนนี้
+
+    public Customer() {};
+
+    public Customer(String userName, String email, String password) {
+        super(userName, email, password); 
+    }
 
     //contructor ที่ใส่ข้อมูล contructor ทั้งหมดของ Super Class user เพื่อสร้าง sub Class Customer
     public Customer(int userID, String userName, String email, String password) {
@@ -10,7 +26,7 @@ public class Customer extends User {
     }
     
     //method สร้างการจองโต๊ะ
-    public Reservation reserveTable(Table table, int durationMinutes, int reservationId) {
+    public Reservation reserveTable(table table, int durationMinutes, int reservationId) {
 
         // เช็คว่ามีการจองอยู่แล้วไหม
         if (currentReservation != null && currentReservation.isActive()) {

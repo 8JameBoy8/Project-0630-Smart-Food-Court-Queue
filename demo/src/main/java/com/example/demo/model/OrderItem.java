@@ -1,12 +1,31 @@
 package com.example.demo.model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "orderitems")
 public class OrderItem {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int orderItemid;
+
+    @ManyToOne
     private Product product;
+
+    @ManyToOne
+    private Order order;
+
     private int quantity;
     private int totalPrice; 
 
     //contructor ที่ใส่ข้อมูล product จำนวนของProduct เพื่อสร้าง Class OrderItem และคำนวนราคารวมเริ่มต้น
-    public OrderItem(Product product, int quantity) {
+    public OrderItem(Order order, Product product, int quantity) {
+        this.order = order;
         this.product = product;
         this.quantity = quantity;
         this.totalPrice = product.getPrice() * quantity;

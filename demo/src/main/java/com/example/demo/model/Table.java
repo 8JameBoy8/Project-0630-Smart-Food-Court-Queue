@@ -1,12 +1,26 @@
 package com.example.demo.model;
-public class Table {
-    private Canteen canteen;//class canteen
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "tables")
+public class table {
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int tableID;
     private int tableNo; //หมายเลขโต๊ะ
+    @ManyToOne
+    private Canteen canteen;//class canteen
     private boolean isAvailable; //สถานะว่างหรือไม่
 
     //contructor ที่ใส่ข้อมูล โรงอาหาร IDโต๊ะ หมายเลขโต๊ะ เพื่อสร้าง Class Table
-    public Table(Canteen canteenName, int tableID, int tableNo) {   
+    public table(Canteen canteenName, int tableID, int tableNo) {   
         this.canteen = canteenName;
         this.tableID = tableID;
         this.tableNo = tableNo;

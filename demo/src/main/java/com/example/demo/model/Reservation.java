@@ -1,16 +1,32 @@
 package com.example.demo.model;
 import java.time.LocalDateTime;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "reservations")
 public class Reservation {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int reservationId;
+
+    @ManyToOne
     private Customer customer;
-    private Table table;
+
+    @ManyToOne
+    private table table;
     private LocalDateTime startTime; //เวลาเปิด
     private LocalDateTime endTime; //เวลาปิด
     private boolean isActive;
 
     //contructor ที่ใส่ข้อมูล id ลูกค้าที่จะจอง โต๊ะที่จะจอง ระยะเวลาการจอง เพื่อสร้าง Class Reservation
-    public Reservation(int id, Customer customer, Table table, int durationMinutes) {
+    public Reservation(int id, Customer customer, table table, int durationMinutes) {
         this.reservationId = id;
         this.customer = customer;
         this.table = table;
@@ -30,7 +46,7 @@ public class Reservation {
     //method get ต่างๆที่เอาขอค่าของ class Reservation
     public int getReservationID() {return  reservationId;} //ขอ ID ของการจองโต๊ะรายการนี้
     public Customer getCustomer() {return  customer;} //ขอ Class Customer ของการจองโต๊ะรายการนี้
-    public Table getTable() {return table;} //ขอ Class Table ที่รายการนี้ต้องการจอง
+    public table getTable() {return table;} //ขอ Class Table ที่รายการนี้ต้องการจอง
     public boolean isActive() {return isActive;} //ขอสถานะว่าการจองรายการนี้ยังใช้งานอยู่หรือเปล่า
     public boolean isExpired() {return LocalDateTime.now().isAfter(endTime);} //ขอถามว่ารายการหมดเวลาการจองไปหรือยัง
 }

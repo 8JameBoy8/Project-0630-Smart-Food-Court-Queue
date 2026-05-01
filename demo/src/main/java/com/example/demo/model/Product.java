@@ -1,8 +1,23 @@
 package com.example.demo.model;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+
 // คลาสแม่ (Superclass) สำหรับสินค้าในร้าน
+@Entity
+@Table(name = "products")
 public  class Product {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected  int productID;
     protected  String productName;
+
+    @ManyToOne
     protected   Store store;
     protected  int price;
     protected   boolean isAvailable=true; //ตัวแปรเช็คสถานะ

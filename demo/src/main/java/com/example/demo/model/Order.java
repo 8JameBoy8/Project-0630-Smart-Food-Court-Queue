@@ -3,11 +3,32 @@ package com.example.demo.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "orders")
 public class Order {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int orderID;
+
+    @ManyToOne
     private Customer customer;
+
+    @ManyToOne
     private Store store;
+
+    @OneToOne
     private Payment payment;
+
+     @OneToMany (mappedBy = "order")
     private  List<OrderItem> orderItems;  //ลิสเก็บ orderItem ที่เก็บ product และจำนวน
     private OrderStatus status; //สถานะของ order
 
@@ -45,7 +66,7 @@ public class Order {
             }
         }
 
-        orderItems.add(new OrderItem(product, quantity)); //สร้าง class orderItem ที่รับค่าเข้ามาและเพิ่มแข้าไปในลิส orderItem ของ order นี้
+        orderItems.add(new OrderItem(this, product, quantity)); //สร้าง class orderItem ที่รับค่าเข้ามาและเพิ่มแข้าไปในลิส orderItem ของ order นี้
     }
 
     //method ลบอาหารที่อยู่ในลิส

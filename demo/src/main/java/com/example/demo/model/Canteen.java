@@ -7,11 +7,29 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+
+@Entity
+@Table(name = "canteens")
 public class Canteen {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int canteenID;
     private String canteenName;
-    private  List<Table> tables; //ลิสเก็บ class table ของโรงอาหาร
+
+    @OneToMany(mappedBy = "canteen")
+    private  List<table> tables; //ลิสเก็บ class table ของโรงอาหาร
+
+    @OneToMany(mappedBy = "canteen")
     private  List<Store> stores; //ลิสเก็บ class Store ขอ'โรงอาหาร
+
+    @Transient
     private Map<DayOfWeek, OpeningHours> openingHoursMap = new HashMap<>(); //ใช้ map เพื่อเด็บ key เป็นชื่อวัน และ value เป็น class OpeningHours ที่เป็นเวลาเปิด-ปิดของวันนั้น
 
     //contructor ที่ใส่ข้อมูล IDโรงอาหาร ชื่อโรงอาหาร เพื่อสร้าง Class Canteen และสร้างลิสของเพื่อเก็บ class table และ store ที่อยู่ในโรงอาหารนั้น
@@ -23,7 +41,7 @@ public class Canteen {
     }
 
     //เพิ่ม class table เข้าลิส
-    public void addTable(Table table) {
+    public void addTable(table table) {
         tables.add(table);
     }
 
@@ -62,7 +80,7 @@ public class Canteen {
     //method get ต่างๆที่เอาขอค่าของ class Canteen
     public int getCanteenID() {return  canteenID; } //ขอ ID ของโรงอาหารนี้
     public String getCanteenName() {return  canteenName;} //ขอชื่อโรงอาหารนี้
-    public List<Table> getTableList() {return tables;} //ของลิส CLass Table ของโรงอาหารนี้
+    public List<table> getTableList() {return tables;} //ของลิส CLass Table ของโรงอาหารนี้
     public List<Store> getStoreList() {return stores;} //ขอลิส Class Store ของโรงอาหารนี้
     public int getTableNum() {return tables.size();} //ขอจำนวนโต๊ะในโรงอาหารนี้
     public int getStoreNum() {return stores.size();} //ขอจำนวนร้านอาหารในโรงอาหารนี้
