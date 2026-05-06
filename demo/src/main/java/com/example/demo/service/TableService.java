@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.stereotype.Service;
 
@@ -12,58 +11,61 @@ import com.example.demo.model.Canteen;
 import com.example.demo.model.Customer;
 import com.example.demo.model.Reservation;
 import com.example.demo.model.table;
+import com.example.demo.repository.CanteenRepository;
+import com.example.demo.repository.CustomerRepository;
+import com.example.demo.repository.ReservationRepository;
+import com.example.demo.repository.tableRepository;
 
 @Service
 public class TableService {
+    private final ReservationRepository reservationRepository;
+    private final tableRepository tableRepository;
+    private final CanteenRepository canteenRepository;
+    private final CustomerRepository customerRepository;
 
-    private Map<Integer, Canteen> canteens = new HashMap<>();
-    private final AtomicInteger reservationIdGen = new AtomicInteger(1);
-    private Map<Integer, Reservation> reservations = new HashMap<>();
-    private final Map<Integer, Customer> customers = new HashMap<>();   // เก็บลูกค้าแบบง่าย ๆ (demo)
-
-    public TableService() {
-        
-        Canteen canteen = new Canteen(1, "Main Canteen");
-
-        // สร้างโต๊ะ 1–20
-        for (int i = 1; i <= 20; i++) {
-            table t = new table(canteen, i, i);
-            t.setAvailable(true);
-            canteen.addTable(t);
-        }
-        canteens.put(1, canteen);
-
-        // mock ลูกค้า 1 คน (เดี๋ยวค่อยทำ login ทีหลัง)
-        Customer c = new Customer(1, "DemoUser", "demo@mail.com", "1234");
-        customers.put(1, c);
-
+    public TableService(
+        tableRepository tableRepository, 
+        CanteenRepository canteenRepository, 
+        CustomerRepository customerRepository, ReservationRepository reservationRepository
+    ) 
+    {
+        this.tableRepository = tableRepository;
+        this.canteenRepository = canteenRepository;
+        this.customerRepository = customerRepository;
+        this.reservationRepository = reservationRepository;
     }
 
     //  หาโต๊ะ
     private table findTableByNo(int tableNo,int canteenId) {
-        Canteen canteen = findCanteenById(canteenId);
-        for (table t : canteen.getTableList()) {
+        Canteen canteen = canteenRepository.findByCanteenID(canteenId);
+        for (table t : tableRepository.findByCanteen_CanteenID(canteenId)) {
             if (t.getTableNo() == tableNo) return t;
         }
         return null;
     }
 
+    public Map<String, Object> findTableNum(int canteenId) {
+        Canteen canteen = canteenRepository.findByCanteenID(canteenId);
+
+        return Map.of("TableNum", canteen.getTableNum());
+    }
+
     //GET: สถานะโต๊ะ
     public Map<String, Object> getTableStatus(int canteenId) {
         removeExpiredReservations();
-        Canteen canteen = findCanteenById(canteenId);
+        Canteen canteen = canteenRepository.findByCanteenID(canteenId);
 
         List<Integer> bookedTables = new ArrayList<>();
 
         for (table table : canteen.getTableList()) {
             if (!table.isAvailable()) {
-                bookedTables.add(table.getTableNo());
+                bookedTables.add(table.getTableID());
             }
         }
 
         Map<String, Object> res = new HashMap<>();
         res.put("totalTables", canteen.getTableList().size());
-        res.put("bookedTables", bookedTables);
+        res.put("bookedTablesID", bookedTables);
     
         return res;
     }
@@ -71,12 +73,24 @@ public class TableService {
      //POST: จองโต๊ะ
     public Map<String, Object> bookTable(int userId, int tableNo, int duration,int canteenId) {
 
-        Customer customer = customers.get(userId);
+        if (duration <= 0) {
+            return Map.of("error", "duration ต้องมากกว่า 0");
+        }
+
+        Customer customer = customerRepository.findByUserID(userId);
+
+        // เช็คว่ามี reservation ที่ยัง active อยู่ไหม
+        boolean hasActiveReservation = reservationRepository.existsByCustomerAndIsActiveTrue(userId);
+    
+        if (hasActiveReservation) {
+            return Map.of("success", false, "message", "มีการจองโต๊ะอยู่แล้ว");
+        }
+
         if (customer == null) {
             return Map.of("success", false, "message", "ไม่พบผู้ใช้");
         }
 
-        table table = findTableByNo(tableNo,canteenId);
+        table table = tableRepository.findByCanteen_CanteenIDAndTableNo(canteenId, tableNo);
         if (table == null) {
             return Map.of("success", false, "message", "ไม่พบโต๊ะ");
         }
@@ -85,13 +99,11 @@ public class TableService {
             return Map.of("success", false, "message", "โต๊ะไม่ว่าง");
         }
 
-        int reservationId = reservationIdGen.getAndIncrement();
-
-        Reservation r = customer.reserveTable(table, duration, reservationId);
+        Reservation r = new Reservation(customer,table, duration);
 
 
         if (r != null) {
-          reservations.put(r.getReservationID(), r);
+          reservationRepository.save(r);
         }
 
         if (r == null) {
@@ -108,18 +120,18 @@ public class TableService {
     //method ยกเลิกจองโต๊ะ
     public Map<String, Object> cancelReservation(int reservationId) {
 
-    Reservation r = reservations.get(reservationId);
+    Reservation r = reservationRepository.findByReservationId(reservationId);
 
         if (r == null) {
             return Map.of("success", false, "message", "ไม่พบ reservation");
         }
 
         if (!r.isActive()) {
-            return Map.of("success", false, "message", "ถูกยกเลิกไปแล้ว");
+            return Map.of("success", false, "message", "ว่างอยู่แล้ว");
         }
 
         r.cancel(); // คืนโต๊ะ
-        reservations.remove(reservationId);
+        reservationRepository.save(r);
 
         return Map.of("success", true, "message", "ยกเลิกสำเร็จ");
     }
@@ -129,7 +141,7 @@ public class TableService {
 
     List<Integer> toRemove = new ArrayList<>();
 
-    for (Reservation r : reservations.values()) {
+    for (Reservation r : reservationRepository.findAll()) {
         if (r.isExpired()) {
             r.cancel(); // คืนโต๊ะ
             toRemove.add(r.getReservationID());
@@ -137,12 +149,7 @@ public class TableService {
     }
 
     for (int id : toRemove) {
-        reservations.remove(id);
+        reservationRepository.deleteById(id);;
     }
-    }
-
-    //helper method หา canteen ด้วย id
-    private Canteen findCanteenById(int canteenId) {
-        return canteens.get(canteenId);
     }
 }

@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -17,69 +18,68 @@ import com.example.demo.service.OrderService;
 @CrossOrigin
 public class OrderController {
 
-    private final OrderService service;
+    private final OrderService orderService;
 
-    public OrderController(OrderService service) {
-        this.service = service;
+    public OrderController(OrderService orderService) {
+        this.orderService = orderService;
     }
 
     //สร้าง order
-    @PostMapping("/api/order/create")
+    @PostMapping("/api/orders")
     public Map<String, Object> create(@RequestBody Map<String, Integer> data) {
-        return service.createOrder(
+        return orderService.createOrder(
             data.get("userId"),
             data.get("storeId"));
-    }
+    }   
 
     //เพิ่ม item ใน order
-    @PostMapping("/api/order/addItem")
-    public String addItem(@RequestBody Map<String, Integer> data) {
-        return service.addItem(
-            data.get("orderId"),
-            data.get("productId"),
-            data.get("quantity")
-        );
+    @PostMapping("/api/orders/{id}/items")
+    public Map<String, Object> addItem(@RequestBody Map<String, Object> data, @PathVariable int id) {
+    
+    int productId = (int) data.get("productId");
+    int quantity = (int) data.get("quantity");
+
+    // toppingIds เป็น optional — ถ้าไม่ส่งมาก็ได้
+    List<Integer> toppingIds = (List<Integer>) data.getOrDefault("toppingIds", new ArrayList<>());
+
+    return orderService.addItem(id, productId, quantity, toppingIds);
+    }
+
+    @PostMapping("/api/orders/{id}/note")
+    public Map<String, Object> setNote(@PathVariable int id,@RequestBody Map<String, String> data) {
+    return orderService.setNote(id, data.get("note"));
     }
 
     //นำ order ไปต่อคิว
-    @PostMapping("/api/order/place")
-    public Map<String, Object> place(@RequestBody Map<String, Integer> data) {
-        return service.placeOrder(data.get("orderId"));
+    @PostMapping("/api/orders/{id}/place")
+    public Map<String, Object> place(@PathVariable int id) {
+        return orderService.placeOrder(id);
+    }
+
+    //ยกเลิก order 
+    @PostMapping("/api/orders/{id}/cancel")
+    public Map<String, Object> cancel(@PathVariable int id) {
+        return orderService.cancelOrder(id);
     }
 
     //upload รูป
-    @PostMapping("/api/payment/upload")
-    public String upload(@RequestBody Map<String, String> data) {
-        return service.uploadSlip(
+    @PostMapping("/api/payments/{id}/upload")
+    public String upload(@RequestBody Map<String, String> data, @PathVariable int id) {
+        return orderService.uploadSlip(
             Integer.parseInt(data.get("paymentId")),
             data.get("path")
         );
     }
 
-    //ยืนยันรูป payment
-    @PostMapping("/api/payment/verify")
-    public String verify(@RequestBody Map<String, Object> data) {
-        return service.verifyPayment(
-            (int) data.get("paymentId"),
-            (boolean) data.get("isValid")
-        );
+    // GET order ปัจจุบันของ user
+    @GetMapping("/api/users/{id}/order")
+    public Map<String, Object> getCurrentOrder(@PathVariable int id) {
+        return orderService.getActiveOrder(id);
     }
 
-    @GetMapping("/api/store/{storeId}/orders")
-    public List<Map<String, Object>> getStoreOrders(@PathVariable int storeId) {
-        return service.getOrdersByStore(storeId);
+    // GET ประวัติ order ทั้งหมดของ user
+    @GetMapping("/api/users/{id}/orders")
+    public List<Map<String, Object>> getOrderHistory(@PathVariable int id) {
+        return orderService.getOrderHistory(id);
     }
-
-    //ขอข้อมูล order ของ id ที่ให้มา 
-    @GetMapping("/api/order/{id}")
-    public Map<String, Object> getOrder(@PathVariable int id) {
-        return service.getOrder(id);
-    }
-    
-    //ขอข้อมูล payment ของ id ที่ให้มา
-    @GetMapping("/api/payment/{id}")
-    public Map<String, Object> getPayment(@PathVariable int id) {
-        return service.getPayment(id);
-    }
-
 }

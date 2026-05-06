@@ -1,11 +1,7 @@
 package com.example.demo.model;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -13,7 +9,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 
 @Entity
 @Table(name = "canteens")
@@ -29,9 +24,19 @@ public class Canteen {
     @OneToMany(mappedBy = "canteen")
     private  List<Store> stores; //ลิสเก็บ class Store ขอ'โรงอาหาร
 
-    @Transient
-    private Map<DayOfWeek, OpeningHours> openingHoursMap = new HashMap<>(); //ใช้ map เพื่อเด็บ key เป็นชื่อวัน และ value เป็น class OpeningHours ที่เป็นเวลาเปิด-ปิดของวันนั้น
+    @OneToMany(mappedBy = "canteen")
+    private List<OpeningHours> openingHours = new ArrayList<>(); // เวลาเปิดปิด
 
+    public Canteen() {
+        this.tables = new ArrayList<>();
+        this.stores = new ArrayList<>();
+    }
+
+    public Canteen(String canteenName) {
+        this.canteenName = canteenName;
+        this.tables = new ArrayList<>();
+        this.stores = new ArrayList<>();
+    }
     //contructor ที่ใส่ข้อมูล IDโรงอาหาร ชื่อโรงอาหาร เพื่อสร้าง Class Canteen และสร้างลิสของเพื่อเก็บ class table และ store ที่อยู่ในโรงอาหารนั้น
     public Canteen(int canteenID, String canteenName) {
         this.canteenID = canteenID;
@@ -50,32 +55,8 @@ public class Canteen {
         stores.add(store);
     }
 
-    //method เพื่มเวลาปิดเปิดในวันนั้น
-    public void setOpeningHours(DayOfWeek day, OpeningHours hours) {
-        openingHoursMap.put(day, hours);
-    }
 
-    //เช็คว่าเถึงเวลาเปิดรึยัง
-    public boolean isOpen() {
-         DayOfWeek today = LocalDate.now().getDayOfWeek(); //รับชื่อวันนี้
-
-         OpeningHours hours = openingHoursMap.get(today); //เอาวันที่รับมาที่เป็น key ไปใช้ขอ value เวลาปิดเปิดของวันนั้น
-
-         if (hours == null) {
-            return false; // ไม่มีข้อมูล = ปิด
-         }
-
-         return hours.isOpenNow(); //เรียก method เพื่อเช็ค
-    }
-
-    //ตั้งค่าเวลาเปิดวันปกติทีเดียว
-    public void setWeekdayHours(OpeningHours hours) {
-    for (DayOfWeek day : DayOfWeek.values()) {
-        if (day != DayOfWeek.SATURDAY && day != DayOfWeek.SUNDAY) {
-            openingHoursMap.put(day, hours);
-             }
-        }
-    }
+    public void setCanteenName(String canteenName) { this.canteenName = canteenName;}
 
     //method get ต่างๆที่เอาขอค่าของ class Canteen
     public int getCanteenID() {return  canteenID; } //ขอ ID ของโรงอาหารนี้
@@ -84,4 +65,5 @@ public class Canteen {
     public List<Store> getStoreList() {return stores;} //ขอลิส Class Store ของโรงอาหารนี้
     public int getTableNum() {return tables.size();} //ขอจำนวนโต๊ะในโรงอาหารนี้
     public int getStoreNum() {return stores.size();} //ขอจำนวนร้านอาหารในโรงอาหารนี้
+    public List<OpeningHours> getOpeningHours() { return openingHours; }
  }

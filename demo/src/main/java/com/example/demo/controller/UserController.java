@@ -1,33 +1,40 @@
 package com.example.demo.controller;
 
-import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.service.UserService;
 
 @RestController
+@CrossOrigin
+@RequestMapping("/api/auth")
 public class UserController {
-    
-    private UserService userService;
+
+    private final UserService userService;
 
     public UserController(UserService userService) {
         this.userService = userService;
     }
 
-    @GetMapping("/api/userProfile")
-    public Map<String, Object> getUserProfile() {
-        Map<String, Object> user = new HashMap<>();
-        user.put("name", "Jame Boy");
-        user.put("studentId", "B63xxxxx");
-        user.put("faculty", "Engineering");
-        return user;
-    }
+    // REGISTER
+    @PostMapping("/register")
+public Map<String, Object> register(@RequestBody Map<String, String> data) {
+    return userService.register(
+        data.get("name"),
+         data.get("email"),
+         data.get("password"),
+         data.get("role")
+    );
+}
 
-    @GetMapping("/api/test-db")
-    public String testDB() {
-        return userService.testInsert();
+    // LOGIN
+    @PostMapping("/login")
+    public Map<String, Object> login(@RequestBody Map<String, String> data) {
+        return userService.login(data.get("email"), data.get("password"));
     }
 }

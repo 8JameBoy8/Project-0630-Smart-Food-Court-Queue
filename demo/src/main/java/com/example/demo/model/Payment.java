@@ -15,7 +15,7 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int paymentId;
 
-    @OneToOne
+    @OneToOne(mappedBy = "payment")
     private Order order;
     private String slipImagePath; // path รูป
     private PaymentStatus status; //สถานะของการจ่ายเงิน
@@ -25,6 +25,15 @@ public class Payment {
         UPLOADED,     
         VERIFIED,     
         REJECTED     
+    }
+
+    public Payment() {
+        this.status = PaymentStatus.PENDING; 
+    }
+
+    public Payment(Order order) {
+        this.order = order;
+        this.status = PaymentStatus.PENDING; 
     }
 
     //contructor ที่ใส่ข้อมูล IDpayment ออเดอร์ที่จะจ่าย เพื่อสร้าง Class Payment และเปลี่ยนสถานะเป็นรอดำเนินการ
@@ -54,6 +63,10 @@ public class Payment {
         order.cancelOrder();
     }
 
+    public void setOrder(Order order) {this.order = order;}
+    
     //method get ต่างๆที่เอาขอค่าของ class Payment
+    public Order getOrder() {return order;}
+    public int getPaymentID() {return paymentId;}
     public PaymentStatus getStatus() { return status; } //ขอสถานะการจ่ายเงินของรายการนี้
 }

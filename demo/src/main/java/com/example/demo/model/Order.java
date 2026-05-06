@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
@@ -26,10 +27,14 @@ public class Order {
     private Store store;
 
     @OneToOne
+    @JoinColumn(name = "paymentID")
     private Payment payment;
 
      @OneToMany (mappedBy = "order")
     private  List<OrderItem> orderItems;  //ลิสเก็บ orderItem ที่เก็บ product และจำนวน
+
+    private String note; 
+    int totalPrice = 0;
     private OrderStatus status; //สถานะของ order
 
     public enum OrderStatus {
@@ -38,6 +43,18 @@ public class Order {
         Cooking,
         Ready,
         Cancelled
+    }
+
+    public Order(){
+        this.orderItems = new ArrayList<>();
+        this.status = OrderStatus.Pending;
+    }
+
+     public Order(Customer customer,Store store){
+        this.customer = customer;
+        this.store = store;
+        this.orderItems = new ArrayList<>();
+        this.status = OrderStatus.Pending;
     }
 
     //contructor ที่ใส่ข้อมูล orderID ลุกค้าที่จะสั่ง order นี้ ร้านที่รับ order นี้ เพื่อสร้าง Class Order และสร้างลิส orderItem มาเพื่อเตรียมรับรายการอาหารและตั้งค่าสถานะออเดอร์
@@ -56,17 +73,21 @@ public class Order {
     }
 
     //method เพื่มอาหารและจำนวนเข้าลิส orderItem
-     public void addItem(Product product, int quantity) {
+      public void addItem(Product product, int quantity, List<Topping> selectedToppings) {
         for (OrderItem item : orderItems) {
-
-            //เช็คว่าเพิ่มอาหารอันเดิมซ้ำรึเปล่า
             if (item.getProduct().equals(product)) {
                 item.setQuantity(quantity);
                 return;
             }
         }
+        OrderItem newItem = new OrderItem(this, product, quantity);
+        selectedToppings.forEach(newItem::addTopping);
+        orderItems.add(newItem);
+    }
 
-        orderItems.add(new OrderItem(this, product, quantity)); //สร้าง class orderItem ที่รับค่าเข้ามาและเพิ่มแข้าไปในลิส orderItem ของ order นี้
+    // addItem แบบไม่มี topping (เผื่อกรณีไม่เลือก)
+    public void addItem(Product product, int quantity) {
+        addItem(product, quantity, new ArrayList<>());
     }
 
     //method ลบอาหารที่อยู่ในลิส
@@ -76,13 +97,12 @@ public class Order {
 
     //method คำนวนเงินของทุก orderItem ในลิส
     public double calculateTotalPrice() {
-        double total = 0;
-
+        totalPrice = 0; // reset ก่อนเสมอ
         for (OrderItem item : orderItems) {
-            total += item.getTotalPrice();
+            totalPrice += item.getTotalPrice();
         }
 
-        return total;
+        return totalPrice;
     }
 
     //method เปลี่ยนสถานะของ Order นี้
@@ -109,6 +129,10 @@ public class Order {
         this.status = OrderStatus.Cancelled;
     }
 
+    public void setCustomer(Customer customer) {this.customer = customer;}
+    public void setStore(Store store) {this.store = store;}
+    public void setNote(String note) { this.note = note; }
+    
     //method get ต่างๆที่เอาขอค่าของ class Order
     public int getOrderID() { return orderID; } //ขอ ID ของการสั่งอาหารครั้งนี้
     public Customer getCustomer() { return  customer;} //ขอ Class Customer ของลูกค้าที่จะสั่งครั้งนี้
@@ -117,5 +141,6 @@ public class Order {
     public List<OrderItem> getOrderItemList() { return  orderItems; } //ของลิสรายการของ Class OrderItem เพื่อดูว่ามี Product อะไรบ้าง จำนวนเท่าไหร่ ราคาเท่าไหร่ในรายการสั่งซื้อครั้งนี้
     public int getOrderItemListNum() {return  orderItems.size();} //ขอจำนวนของ ลิส OrderItem ว่ามีกี่อย่าง
     public OrderStatus getOrderStatus() { return  status;} //ขอสถานะของ Order นี้
-    
+    public int getTotalPrice() {return totalPrice;}
+    public String getNote() { return note; }
 }

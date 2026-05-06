@@ -25,6 +25,18 @@ public class Reservation {
     private LocalDateTime endTime; //เวลาปิด
     private boolean isActive;
 
+    public Reservation() {}
+
+    public Reservation(Customer customer, table table, int durationMinutes) {
+        this.customer = customer;
+        this.table = table;
+        this.startTime = LocalDateTime.now();
+        this.endTime = startTime.plusMinutes(durationMinutes);
+        this.isActive = true;
+
+        table.setAvailable(false); // จองแล้ว
+    }
+
     //contructor ที่ใส่ข้อมูล id ลูกค้าที่จะจอง โต๊ะที่จะจอง ระยะเวลาการจอง เพื่อสร้าง Class Reservation
     public Reservation(int id, Customer customer, table table, int durationMinutes) {
         this.reservationId = id;
@@ -42,6 +54,12 @@ public class Reservation {
         this.isActive = false;
         table.setAvailable(true);
     }
+
+    public void setCustomer(Customer customer) {this.customer = customer;}
+    public void setTable(table table) {this.table = table;}
+    public void setStartTime() {this.startTime = LocalDateTime.now();}
+    public void setEndTime(int durationMinutes) {this.endTime = startTime.plusMinutes(durationMinutes);}
+    public void setActive(boolean isActive) {this.isActive = isActive;}
 
     //method get ต่างๆที่เอาขอค่าของ class Reservation
     public int getReservationID() {return  reservationId;} //ขอ ID ของการจองโต๊ะรายการนี้
