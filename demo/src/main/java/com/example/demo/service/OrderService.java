@@ -168,7 +168,7 @@ public class OrderService {
     //upload slip
     public String uploadSlip(int paymentId, String path) {
 
-        Payment p = paymentRepository.findByPaymentID(paymentId);
+        Payment p = paymentRepository.findByPaymentId(paymentId);
 
         if (p == null) return "ไม่พบ payment";
         

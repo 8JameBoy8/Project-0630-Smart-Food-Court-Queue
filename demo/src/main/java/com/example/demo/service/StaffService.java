@@ -7,12 +7,9 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
-import com.example.demo.model.Order;
-import com.example.demo.model.OrderItem;
 import com.example.demo.model.Product;
 import com.example.demo.model.Staff;
 import com.example.demo.model.Store;
-import com.example.demo.model.Topping;
 import com.example.demo.repository.OrderRepository;
 import com.example.demo.repository.StaffRepository;
 
@@ -21,13 +18,16 @@ public class StaffService {
 
     private final StaffRepository staffRepository;
     private final OrderRepository orderRepository;
+    private final QueueService queueService;
 
     public StaffService(
         StaffRepository staffRepository,
-        OrderRepository orderRepository
+        OrderRepository orderRepository,
+        QueueService queueService
     ) {
         this.staffRepository = staffRepository;
         this.orderRepository = orderRepository;
+        this.queueService  = queueService;
     }
 
     // GET ร้านของ staff คนนี้
@@ -61,57 +61,22 @@ public class StaffService {
     }
 
     // GET order queue ของร้าน staff คนนี้
-    public List<Map<String, Object>> getMyOrders(int staffId) {
+   public List<Map<String, Object>> getMyOrders(int staffId) {
 
-        Staff staff = staffRepository.findByUserID(staffId);
+    Staff staff = staffRepository.findByUserID(staffId);
 
-        if (staff == null || staff.getStore() == null) return List.of();
+    if (staff == null || staff.getStore() == null) return List.of();
 
-        int storeId = staff.getStore().getStoreID();
-        List<Map<String, Object>> result = new ArrayList<>();
+    // เรียกใช้ QueueService แทนเขียนใหม่
+    List<Map<String, Object>> allOrders = queueService
+        .getOrdersByStore(staff.getStore().getStoreID());
 
-        for (Order order : orderRepository.findByStore_StoreIDOrderByOrderIDAsc(storeId)) {
-
-            // แสดงเฉพาะ order ที่ยังไม่เสร็จ
-            if (order.getOrderStatus() == Order.OrderStatus.Cancelled ||
-                order.getOrderStatus() == Order.OrderStatus.Ready) {
-                continue;
-            }
-
-            Map<String, Object> orderData = new HashMap<>();
-            orderData.put("orderId", order.getOrderID());
-            orderData.put("status", order.getOrderStatus().toString());
-            orderData.put("totalPrice", order.calculateTotalPrice());
-
-            if (order.getNote() != null && !order.getNote().isEmpty()) {
-                orderData.put("note", order.getNote());
-            }
-
-            // items
-            List<Map<String, Object>> items = new ArrayList<>();
-            for (OrderItem item : order.getOrderItemList()) {
-                Map<String, Object> itemData = new HashMap<>();
-                itemData.put("name", item.getProduct().getName());
-                itemData.put("quantity", item.getQuantity());
-
-                List<String> toppingNames = item.getSelectedToppings().stream()
-                    .map(Topping::getToppingName)
-                    .toList();
-                itemData.put("toppings", toppingNames);
-                items.add(itemData);
-            }
-            orderData.put("items", items);
-
-            // payment status
-            if (order.getPayment() != null) {
-                orderData.put("paymentStatus", order.getPayment().getStatus().toString());
-            } else {
-                orderData.put("paymentStatus", "NO_PAYMENT");
-            }
-
-            result.add(orderData);
-        }
-
-        return result;
-    }
+    // กรองเฉพาะ order ที่ยังไม่เสร็จ
+    return allOrders.stream()
+        .filter(order -> {
+            String status = (String) order.get("status");
+            return !status.equals("Cancelled") && !status.equals("Ready");
+        })
+        .toList();
+}
 }

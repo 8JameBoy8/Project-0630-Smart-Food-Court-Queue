@@ -1,5 +1,9 @@
 package com.example.demo.model;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import jakarta.persistence.Entity ;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
@@ -30,6 +34,28 @@ public class Staff extends User {
     public Staff(int userID, String userName, String email, String password, Store store) {
         super(userID, userName, email, password);
         this.store = store;
+    }
+
+    @Override
+    public String getRole() {
+        return "staff";
+    }
+
+    @Override
+    public List<String> getPermissions() {
+        return List.of("view_orders", "update_order_status", "verify_payment", "manage_menu");
+    }
+
+    @Override
+    public Map<String, Object> getProfileInfo() {
+        Map<String, Object> info = new HashMap<>();
+        info.put("userId", userID);
+        info.put("name", userName);
+        info.put("email", email);
+        info.put("role", getRole());
+        info.put("storeId", store != null ? store.getStoreID() : null);
+        info.put("storeName", store != null ? store.getStoreName() : null);
+        return info;
     }
 
     public void setStore(Store store) {this.store = store;}

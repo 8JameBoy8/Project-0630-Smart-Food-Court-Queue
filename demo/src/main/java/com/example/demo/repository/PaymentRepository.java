@@ -6,5 +6,5 @@ import com.example.demo.model.Payment;
 
 public interface PaymentRepository extends JpaRepository<Payment, Integer> {
     
-    Payment findByPaymentID(int payment);
+    Payment findByPaymentId(int payment);
 }

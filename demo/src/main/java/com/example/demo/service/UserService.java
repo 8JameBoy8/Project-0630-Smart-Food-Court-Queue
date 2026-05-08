@@ -55,21 +55,11 @@ public class UserService {
             return Map.of("success", false, "message", "รหัสผ่านไม่ถูกต้อง");
         }
 
-        String role;
-
-        if (user instanceof Staff) {
-            role = "staff";
-        } else if (user instanceof Customer) {
-            role = "customer";
-        } else {
-            role = "unknown";
-        }
-
         return Map.of(
             "success", true,
             "userId", user.getuserID(),
             "name", user.getName(),
-            "role", role
+            "role", user.getRole()
         );
     }
 }

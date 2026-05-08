@@ -1,5 +1,8 @@
 package com.example.demo.model;
 
+import java.util.List;
+import java.util.Map;
+
 import jakarta.persistence.Entity ;
 import jakarta.persistence.Table;
 
@@ -19,5 +22,23 @@ public class Customer extends User {
         super(userID, userName, email, password); 
     }
     
-   
+    @Override
+    public String getRole() {
+        return "customer";
+    }
+
+    @Override
+    public List<String> getPermissions() {
+        return List.of("view_menu", "create_order", "book_table", "upload_slip");
+    }
+
+    @Override
+    public Map<String, Object> getProfileInfo() {
+        return Map.of(
+            "userId", userID,
+            "name", userName,
+            "email", email,
+            "role", getRole()
+        );
+    }
 }

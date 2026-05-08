@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -9,8 +10,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.example.demo.service.FileStorageService;
 import com.example.demo.service.OrderService;
 
 
@@ -19,9 +23,11 @@ import com.example.demo.service.OrderService;
 public class OrderController {
 
     private final OrderService orderService;
+    private final FileStorageService fileStorageService;
 
-    public OrderController(OrderService orderService) {
+    public OrderController(OrderService orderService, FileStorageService fileStorageService) {
         this.orderService = orderService;
+        this.fileStorageService = fileStorageService;
     }
 
     //สร้าง order
@@ -64,11 +70,23 @@ public class OrderController {
 
     //upload รูป
     @PostMapping("/api/payments/{id}/upload")
-    public String upload(@RequestBody Map<String, String> data, @PathVariable int id) {
-        return orderService.uploadSlip(
-            Integer.parseInt(data.get("paymentId")),
-            data.get("path")
-        );
+    public Map<String, Object> upload(
+        @PathVariable int id,
+        @RequestParam("file") MultipartFile file
+    ) {
+        try {
+            String path = fileStorageService.saveFile(file);
+            orderService.uploadSlip(id, path);
+            return Map.of("success", true, "message", "อัปโหลดสำเร็จ");
+
+        } catch (IllegalArgumentException e) {
+            // error จากการกรองไฟล์
+            return Map.of("success", false, "message", e.getMessage());
+
+        } catch (IOException e) {
+            // error จากการบันทึกไฟล์
+            return Map.of("success", false, "message", "บันทึกไฟล์ไม่สำเร็จ");
+        }
     }
 
     // GET order ปัจจุบันของ user

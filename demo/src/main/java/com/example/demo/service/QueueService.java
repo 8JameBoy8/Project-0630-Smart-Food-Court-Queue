@@ -40,7 +40,7 @@ public class QueueService {
      //staff verify
     public String verifyPayment(int paymentId, boolean isValid) {
 
-        Payment p = paymentRepository.findByPaymentID(paymentId);
+        Payment p = paymentRepository.findByPaymentId(paymentId);
 
         if (p.getStatus() != PaymentStatus.UPLOADED) {
             return "สถานะไม่ถูกต้อง";
@@ -145,7 +145,7 @@ public class QueueService {
     //ขอดูข้อมูล payment จาก id ที่ให้มา
    public Map<String, Object> getPayment(int paymentId) {
 
-    Payment p = paymentRepository.findByPaymentID(paymentId);
+    Payment p = paymentRepository.findByPaymentId(paymentId);
 
     if (p == null) {
         return Map.of("error", "ไม่พบ payment");

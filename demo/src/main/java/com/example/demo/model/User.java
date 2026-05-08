@@ -1,5 +1,8 @@
 package com.example.demo.model;
 
+import java.util.List;
+import java.util.Map;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -36,6 +39,15 @@ public abstract  class User {
         this.email = email;
         this.password = password;
     }
+
+    // แต่ละ role มี dashboard ที่แตกต่างกัน
+    public abstract String getRole();
+
+    // แต่ละ role มีสิทธิ์ทำอะไรได้บ้าง
+    public abstract List<String> getPermissions();
+
+    // แต่ละ role แสดงข้อมูลต่างกัน
+    public abstract Map<String, Object> getProfileInfo();
 
     public void setUserName(String name) {this.userName = name;}
     public void setEmail(String email) {this.email = email;}
