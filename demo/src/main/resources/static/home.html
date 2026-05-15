@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUT Food Queue - เลือกภาษา</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <h1>SUT FOOD QUEUE</h1>
+        </div>
+
+        <div class="wrapper-box">
+            <p class="page-title" data-lang="lang_title">เลือกภาษา / Select Language</p>
+
+            <button class="big-action-btn btn-yellow-dark" onclick="setLang('th')">
+                <i class="fa-solid fa-flag"></i>
+                <span>ภาษาไทย</span>
+            </button>
+
+            <button class="big-action-btn btn-yellow-light" onclick="setLang('en')">
+                <i class="fa-solid fa-globe"></i>
+                <span>English</span>
+            </button>
+
+            <div class="text-center mt-20">
+                <button class="btn-back" onclick="goBack()">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span data-lang="btn_back">กลับ</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="lang.js"></script>
+    <script src="api.js"></script>
+    <script>
+        function setLang(lang) {
+            localStorage.setItem('userLang', lang);
+            applyLanguage();
+            showToast(lang === 'th' ? 'เปลี่ยนเป็นภาษาไทยแล้ว' : 'Language changed to English', 'success');
+            setTimeout(() => goBack(), 800);
+        }
+
+        function goBack() {
+            const session = getSession();
+            if (!session.userId) {
+                window.location.href = 'index.html';
+            } else if (session.userRole === 'staff') {
+                window.location.href = 'staff.html';
+            } else {
+                window.location.href = 'main.html';
+            }
+        }
+    </script>
+</body>
+</html>

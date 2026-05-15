@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUT Food Queue - สั่งอาหาร</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <i class="fa-solid fa-chevron-left" style="cursor:pointer; color:var(--primary);" onclick="window.location.href='menu.html'"></i>
+                <h1 data-lang="order_title">รายละเอียดคำสั่งซื้อ</h1>
+            </div>
+            <div class="header-icons">
+                <i class="fa-solid fa-globe" onclick="window.location.href='home.html'"></i>
+            </div>
+        </div>
+
+        <div class="wrapper-box">
+            <!-- Product Preview -->
+            <div class="order-preview">
+                <div class="order-preview-icon"><i class="fa-solid fa-bowl-rice"></i></div>
+                <div class="order-preview-info">
+                    <h2 id="productName">-</h2>
+                    <p id="productPrice">฿0</p>
+                    <p style="font-size:0.8rem; color:#888;" id="storeName"></p>
+                </div>
+            </div>
+
+            <!-- Toppings -->
+            <div id="toppingSection">
+                <p class="section-title" data-lang="order_add_topping">เพิ่มท็อปปิ้ง</p>
+                <div id="toppingGrid" class="topping-grid"></div>
+            </div>
+
+            <!-- Note -->
+            <div style="margin-bottom:16px;">
+                <p class="section-title" data-lang="note_title">หมายเหตุ</p>
+                <textarea id="noteInput" class="note-input"
+                    data-lang-placeholder="note_placeholder"
+                    placeholder="เช่น ไม่เผ็ด, ไม่ใส่ผัก"></textarea>
+            </div>
+
+            <!-- Total + Order Button -->
+            <div class="order-total-bar">
+                <div class="total-info">
+                    <p data-lang="total_text">ราคารวม</p>
+                    <h3>฿<span id="totalDisplay">0</span></h3>
+                </div>
+                <button id="orderBtn" class="btn-small btn-small-yellow" style="padding:12px 24px; font-size:1rem;"
+                        onclick="placeOrder()">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                    <span data-lang="btn_place_order">สั่งซื้อ</span>
+                </button>
+            </div>
+
+            <div class="text-center mt-20">
+                <button class="btn-back" onclick="window.location.href='menu.html'">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span data-lang="btn_back">กลับ</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="lang.js"></script>
+    <script src="api.js"></script>
+    <script>
+        let product, session, selectedToppingIds = [], basePrice = 0;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            session = requireAuth();
+            if (!session) return;
+
+            const raw = localStorage.getItem('selectedProduct');
+            if (!raw) { window.location.href = 'menu.html'; return; }
+
+            product = JSON.parse(raw);
+            basePrice = product.price || 0;
+
+            document.getElementById('productName').textContent = product.name;
+            document.getElementById('productPrice').textContent = `฿${basePrice}`;
+            document.getElementById('storeName').textContent = localStorage.getItem('selectedStoreName') || '';
+
+            renderToppings(product.toppings || []);
+            updateTotal();
+            applyLanguage();
+        });
+
+        function renderToppings(toppings) {
+            const grid = document.getElementById('toppingGrid');
+            if (!toppings.length) {
+                grid.innerHTML = `<p style="color:#bbb; font-size:0.85rem;" data-lang="no_toppings">ไม่มีท็อปปิ้งให้เลือก</p>`;
+                applyLanguage();
+                return;
+            }
+            grid.innerHTML = toppings.map(tp => `
+                <div class="topping-card" id="tp-${tp.toppingId}" onclick="toggleTopping(${tp.toppingId}, ${tp.extraPrice})">
+                    <i class="fa-solid fa-plus-circle"></i>
+                    <span>${escHtml(tp.name)}</span>
+                    <small>+฿${tp.extraPrice}</small>
+                </div>`).join('');
+        }
+
+        function toggleTopping(id, extraPrice) {
+            const card = document.getElementById(`tp-${id}`);
+            const idx = selectedToppingIds.indexOf(id);
+            if (idx === -1) {
+                selectedToppingIds.push(id);
+                card.classList.add('selected');
+            } else {
+                selectedToppingIds.splice(idx, 1);
+                card.classList.remove('selected');
+            }
+            updateTotal();
+        }
+
+        function updateTotal() {
+            const extra = selectedToppingIds.reduce((sum, id) => {
+                const tp = (product.toppings || []).find(t => t.toppingId === id);
+                return sum + (tp ? tp.extraPrice : 0);
+            }, 0);
+            document.getElementById('totalDisplay').textContent = basePrice + extra;
+        }
+
+        async function placeOrder() {
+            const storeId = localStorage.getItem('selectedStoreId');
+            if (!storeId) { showToast('กรุณาเลือกร้านอาหารก่อน', 'warn'); return; }
+
+            const btn = document.getElementById('orderBtn');
+            const note = document.getElementById('noteInput').value.trim();
+            const lang = localStorage.getItem('userLang') || 'th';
+
+            setLoading(btn, true);
+            try {
+                // 1. สร้าง order
+                const orderRes = await api.createOrder(session.userId, parseInt(storeId));
+                if (orderRes.error || orderRes.success === false) {
+                    showToast(orderRes.message || orderRes.error || (lang === 'th' ? 'สร้างออเดอร์ไม่สำเร็จ' : 'Failed to create order'), 'error');
+                    setLoading(btn, false);
+                    return;
+                }
+
+                const orderId = orderRes.orderId;
+                localStorage.setItem('currentOrderId', orderId);
+
+                // 2. เพิ่มสินค้า
+                await api.addItem(orderId, product.productId, 1, selectedToppingIds);
+
+                // 3. เพิ่ม note ถ้ามี
+                if (note) await api.setNote(orderId, note);
+
+                // 4. Place order → รับ paymentId
+                const placeRes = await api.placeOrder(orderId);
+                if (placeRes.error) {
+                    showToast(placeRes.error, 'error');
+                    setLoading(btn, false);
+                    return;
+                }
+
+                const paymentId = placeRes.paymentId;
+                const totalPrice = placeRes.totalPrice || document.getElementById('totalDisplay').textContent;
+                localStorage.setItem('currentPaymentId', paymentId);
+                localStorage.setItem('currentTotalPrice', totalPrice);
+                localStorage.setItem('currentStoreName', localStorage.getItem('selectedStoreName') || '');
+
+                showToast(lang === 'th' ? 'ส่งคำสั่งซื้อสำเร็จ!' : 'Order placed!', 'success');
+                setTimeout(() => window.location.href = 'payment.html', 800);
+
+            } catch (err) {
+                showToast('เกิดข้อผิดพลาด กรุณาลองใหม่', 'error');
+                setLoading(btn, false);
+            }
+        }
+
+        function escHtml(str) {
+            return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+    </script>
+</body>
+</html>

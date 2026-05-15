@@ -3,6 +3,7 @@ package com.example.demo.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,7 +25,7 @@ public class Canteen {
     @OneToMany(mappedBy = "canteen")
     private  List<Store> stores; //ลิสเก็บ class Store ขอ'โรงอาหาร
 
-    @OneToMany(mappedBy = "canteen")
+    @OneToMany(mappedBy = "canteen", cascade=CascadeType.ALL)
     private List<OpeningHours> openingHours = new ArrayList<>(); // เวลาเปิดปิด
 
     public Canteen() {

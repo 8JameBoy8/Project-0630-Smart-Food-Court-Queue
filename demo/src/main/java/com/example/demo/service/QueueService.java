@@ -81,6 +81,11 @@ public class QueueService {
                 itemData.put("quantity", item.getQuantity());
                 itemData.put("price", item.getTotalPrice());
 
+                List<String> toppingNames = item.getSelectedToppings().stream()
+                    .map(Topping::getToppingName)
+                    .toList();
+                itemData.put("toppings", toppingNames);
+
                 items.add(itemData);
             }
 
@@ -90,8 +95,10 @@ public class QueueService {
             if (order.getPayment() != null) {
                 orderData.put("paymentStatus",
                     order.getPayment().getStatus().toString());
+                orderData.put("paymentId", order.getPayment().getPaymentID());
             } else {
                 orderData.put("paymentStatus", "NO_PAYMENT");
+                orderData.put("paymentId", 0);
             }
 
             result.add(orderData);

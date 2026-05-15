@@ -71,10 +71,16 @@ public class OrderService {
 
         Customer customer = customerRepository.findByUserID(userId);
 
-        boolean hasActiveOrder = orderRepository.existsByCustomerAndStatusNot(customer, OrderStatus.Cancelled);
-
-        if (hasActiveOrder) {
-            return Map.of("success", false, "message", "มีคำสั่งซื้อที่ยังดำเนินการอยู่");
+        // ตรวจ order ที่ยังไม่ยกเลิก
+        Order existingOrder = orderRepository.findByCustomerUserIDAndStatusNot(userId, OrderStatus.Cancelled);
+        if (existingOrder != null) {
+            if (existingOrder.getOrderStatus() == OrderStatus.Ready) {
+                // อาหารพร้อมแล้ว — ถือว่ารับอาหารแล้ว: ยกเลิก order เก่าก่อนสร้างใหม่
+                existingOrder.cancelOrder();
+                orderRepository.save(existingOrder);
+            } else {
+                return Map.of("success", false, "message", "มีคำสั่งซื้อที่ยังดำเนินการอยู่");
+            }
         }
 
         Order order = new Order(customer, store);
@@ -111,6 +117,7 @@ public class OrderService {
     }
 
     order.addItem(product, qty, selectedToppings);
+    order.calculateTotalPrice();
     orderRepository.save(order);
 
     return Map.of("success", "เพิ่มสินค้าแล้ว");

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUT Food Queue - เมนูอาหาร</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <i class="fa-solid fa-chevron-left" style="cursor:pointer; color:var(--primary);" onclick="window.location.href='store.html'"></i>
+                <h1 data-lang="menu_title">เมนูอาหาร</h1>
+            </div>
+            <div class="header-icons">
+                <span id="headerName" class="header-name"></span>
+                <i class="fa-solid fa-globe" onclick="window.location.href='home.html'"></i>
+            </div>
+        </div>
+
+        <div class="wrapper-box">
+            <div id="storeLabel" style="font-weight:600; color:#555; margin-bottom:4px; font-size:0.95rem; display:flex; align-items:center; gap:8px;">
+                <i class="fa-solid fa-store" style="color:var(--primary);"></i>
+                <span id="storeNameText"></span>
+            </div>
+            <p style="font-size:0.82rem; color:#aaa; margin-bottom:18px;" data-lang="menu_title">เมนูอาหาร</p>
+
+            <div id="menuList">
+                <div class="loading-spinner">
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+                    <p>กำลังโหลดเมนู...</p>
+                </div>
+            </div>
+
+            <div class="text-center mt-20">
+                <button class="btn-back" onclick="window.location.href='store.html'">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span data-lang="btn_back">กลับ</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="lang.js"></script>
+    <script src="api.js"></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', async () => {
+            const session = requireAuth();
+            if (!session) return;
+
+            const storeId = localStorage.getItem('selectedStoreId');
+            const storeName = localStorage.getItem('selectedStoreName') || '';
+            if (!storeId) { window.location.href = 'store.html'; return; }
+
+            document.getElementById('headerName').textContent = session.userName;
+            document.getElementById('storeNameText').textContent = storeName;
+
+            await loadMenu(storeId);
+        });
+
+        async function loadMenu(storeId) {
+            const list = document.getElementById('menuList');
+            const lang = localStorage.getItem('userLang') || 'th';
+            try {
+                const products = await api.getProducts(storeId);
+                if (!products || products.length === 0) {
+                    list.innerHTML = `<div class="empty-state"><i class="fa-solid fa-bowl-food"></i><p data-lang="menu_empty">ไม่มีเมนูในร้านนี้</p></div>`;
+                    applyLanguage();
+                    return;
+                }
+
+                list.innerHTML = products.map(p => {
+                    const unavail = !p.isAvailable;
+                    const priceText = `฿${p.price}`;
+                    const btnText = lang === 'th' ? 'สั่ง' : 'Order';
+                    const unavailText = lang === 'th' ? 'ไม่มีให้บริการ' : 'Unavailable';
+
+                    return `
+                    <div class="menu-item ${unavail ? 'unavailable' : ''}">
+                        <div class="menu-icon">
+                            <i class="fa-solid fa-bowl-rice"></i>
+                        </div>
+                        <div class="menu-info">
+                            <h3>${escHtml(p.name)}</h3>
+                            <p class="price">${priceText}</p>
+                            ${unavail ? `<span class="unavail-badge">${unavailText}</span>` : ''}
+                            ${p.toppings && p.toppings.length > 0
+                                ? `<p style="font-size:0.75rem; color:#aaa; margin-top:3px;">
+                                    ${lang === 'th' ? 'ท็อปปิ้ง:' : 'Toppings:'} ${p.toppings.map(t => escHtml(t.name)).join(', ')}
+                                   </p>`
+                                : ''}
+                        </div>
+                        ${!unavail ? `
+                        <button class="btn-small btn-small-yellow" onclick='selectProduct(${JSON.stringify(p)})'>
+                            ${btnText}
+                        </button>` : ''}
+                    </div>`;
+                }).join('');
+            } catch (err) {
+                list.innerHTML = `<div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i><p>โหลดเมนูไม่สำเร็จ</p></div>`;
+            }
+        }
+
+        function selectProduct(product) {
+            localStorage.setItem('selectedProduct', JSON.stringify(product));
+            window.location.href = 'order.html';
+        }
+
+        function escHtml(str) {
+            return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+    </script>
+</body>
+</html>

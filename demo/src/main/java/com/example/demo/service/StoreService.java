@@ -54,7 +54,9 @@ public class StoreService {
         Staff staff = staffRepository.findByUserID(staffId);
         Canteen canteen = canteenRepository.findByCanteenID(canteenId);
         Store s = new Store(storeName, staff, canteen);
+        staff.setStore(s);
         storeRepository.save(s);
+        staffRepository.save(staff);
         return Map.of("storeId", s.getStoreID(), "storeName", s.getStoreName());
     }
 

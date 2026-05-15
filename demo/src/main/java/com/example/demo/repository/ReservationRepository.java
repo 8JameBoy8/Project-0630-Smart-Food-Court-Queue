@@ -10,7 +10,7 @@ public interface  ReservationRepository extends JpaRepository<Reservation, Integ
     
     Reservation findByReservationId(int reservationId);
 
-    boolean existsByCustomerAndIsActiveTrue(int CustomerId);
+    boolean existsByCustomer_UserIDAndIsActiveTrue(int userId);
 
      Reservation findByCustomerUserIDAndIsActiveTrue(int userId);
     List<Reservation> findByCustomerUserID(int userId);

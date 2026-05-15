@@ -1,20 +1,21 @@
 package com.example.demo.service;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
+
 import com.example.demo.model.Canteen;
 import com.example.demo.model.OpeningHours;
-import com.example.demo.model.table;
 import com.example.demo.model.Store;
+import com.example.demo.model.table;
 import com.example.demo.repository.CanteenRepository;
+import com.example.demo.repository.OpeningHoursRepository;
 import com.example.demo.repository.StoreRepository;
 import com.example.demo.repository.tableRepository;
-import com.example.demo.repository.OpeningHoursRepository;
 
 
 @Service
@@ -120,6 +121,7 @@ public class CanteenService {
         if (canteen == null) return Map.of("error", "ไม่พบโรงอาหาร");
 
         table t = new table(canteen, tableNo);
+        t.setAvailable(true);
         tableRepository.save(t);
 
         return Map.of("success", true, "tableNo", tableNo);

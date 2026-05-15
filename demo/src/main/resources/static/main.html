@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUT Food Queue - หน้าหลัก</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <h1 data-lang="title_main">จองโต๊ะ & สั่งอาหาร</h1>
+            <div class="header-icons">
+                <span id="headerName" class="header-name"></span>
+                <i class="fa-solid fa-circle-user" onclick="window.location.href='user.html'" title="โปรไฟล์"></i>
+                <i class="fa-solid fa-globe" onclick="window.location.href='home.html'" title="ภาษา"></i>
+            </div>
+        </div>
+
+        <div class="wrapper-box">
+            <div style="text-align:center; margin-bottom:24px;">
+                <p style="color:#aaa; font-size:0.85rem;" data-lang="main_desc">SUT Smart Life</p>
+                <h3 style="color:#555; font-weight:500; margin-top:4px;" data-lang="main_subtitle">เลือกรายการที่คุณต้องการ</h3>
+            </div>
+
+            <button class="big-action-btn btn-yellow-dark" onclick="window.location.href='canteen.html?mode=book'">
+                <i class="fa-solid fa-chair"></i>
+                <span data-lang="btn_book">จองโต๊ะ</span>
+            </button>
+
+            <button class="big-action-btn btn-yellow-light" onclick="window.location.href='canteen.html?mode=order'">
+                <i class="fa-solid fa-utensils"></i>
+                <span data-lang="btn_order">สั่งอาหาร</span>
+            </button>
+
+            <button class="big-action-btn" style="background:#f0f4ff; border:2px solid #7c83fd; color:#3d44db;"
+                    onclick="window.location.href='status.html'">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                <span data-lang="btn_status">ดูสถานะ</span>
+            </button>
+
+            <button class="big-action-btn" style="background:#f5f5f5; border:2px solid #bbb; color:#555;"
+                    onclick="window.location.href='history.html'">
+                <i class="fa-solid fa-rectangle-list"></i>
+                <span data-lang="btn_history">ประวัติ</span>
+            </button>
+
+            <div style="text-align:center; margin-top:24px;">
+                <button class="btn-back" style="color:#c62828; border-color:#ffcdd2;" onclick="logout()">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span data-lang="btn_logout">ออกจากระบบ</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="lang.js"></script>
+    <script src="api.js"></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const session = requireAuth();
+            if (!session) return;
+            if (session.userRole === 'staff') {
+                window.location.href = 'staff.html';
+                return;
+            }
+            document.getElementById('headerName').textContent = session.userName;
+        });
+
+        function logout() {
+            clearSession();
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

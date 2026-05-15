@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUT Food Queue - เข้าสู่ระบบ</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container login-page">
+        <div class="login-card wrapper-box">
+
+            <div class="login-header header">
+                <h1>SUT FOOD QUEUE</h1>
+                <div class="header-icons">
+                    <i class="fa-solid fa-globe" onclick="window.location.href='home.html'" title="เปลี่ยนภาษา"></i>
+                </div>
+            </div>
+
+            <div class="login-content">
+                <div class="profile-icon-container">
+                    <i class="fa-solid fa-user-large" style="font-size:3rem; color:#eee;"></i>
+                </div>
+
+                <h2 style="text-align:center; margin-bottom:24px; color:#333;" data-lang="login_header">เข้าสู่ระบบ</h2>
+
+                <div class="form-group">
+                    <input type="email" id="emailInput" data-lang-placeholder="email_label" placeholder="อีเมล" autocomplete="email">
+                    <i class="fa-solid fa-envelope"></i>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="passwordInput" data-lang-placeholder="pass_label" placeholder="รหัสผ่าน" autocomplete="current-password">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+
+                <button id="loginBtn" class="btn-submit" onclick="handleLogin()">
+                    <span data-lang="btn_submit">เข้าสู่ระบบ</span>
+                </button>
+
+                <div class="auth-link">
+                    <span data-lang="no_account">ยังไม่มีบัญชี?</span>
+                    <a href="register.html" data-lang="btn_register_link">สมัครสมาชิก</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="lang.js"></script>
+    <script src="api.js"></script>
+    <script>
+        // ถ้า login แล้วให้เด้งไปหน้าหลักเลย
+        window.addEventListener('DOMContentLoaded', () => {
+            const session = getSession();
+            if (session.userId) {
+                window.location.href = session.userRole === 'staff' ? 'staff.html' : 'main.html';
+            }
+        });
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Enter') handleLogin();
+        });
+
+        async function handleLogin() {
+            const email = document.getElementById('emailInput').value.trim();
+            const password = document.getElementById('passwordInput').value;
+            const btn = document.getElementById('loginBtn');
+
+            if (!email || !password) {
+                showToast('กรุณากรอกอีเมลและรหัสผ่าน', 'warn');
+                return;
+            }
+
+            setLoading(btn, true);
+            try {
+                const data = await api.login(email, password);
+                if (data.success) {
+                    saveSession(data);
+                    showToast('เข้าสู่ระบบสำเร็จ!', 'success');
+                    setTimeout(() => {
+                        window.location.href = data.role === 'staff' ? 'staff.html' : 'main.html';
+                    }, 500);
+                } else {
+                    showToast(data.message || 'อีเมลหรือรหัสผ่านไม่ถูกต้อง', 'error');
+                    setLoading(btn, false);
+                }
+            } catch (err) {
+                showToast('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ กรุณาลองใหม่', 'error');
+                setLoading(btn, false);
+            }
+        }
+    </script>
+</body>
+</html>

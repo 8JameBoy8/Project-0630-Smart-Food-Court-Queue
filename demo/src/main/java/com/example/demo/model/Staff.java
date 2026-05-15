@@ -57,9 +57,7 @@ public class Staff extends User {
         info.put("storeName", store != null ? store.getStoreName() : null);
         return info;
     }
-
     public void setStore(Store store) {this.store = store;}
-
     //method get ต่างๆที่เอาขอค่าของ class Staff
     public Store getStore() {return store;} //ขอ Class Store ที่ Staff คนนี้เป็นเจ้าของ
 }

@@ -59,6 +59,7 @@ public class UserService {
             "success", true,
             "userId", user.getuserID(),
             "name", user.getName(),
+            "email", user.getEmail(),
             "role", user.getRole()
         );
     }

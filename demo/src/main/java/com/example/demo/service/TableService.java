@@ -59,13 +59,13 @@ public class TableService {
 
         for (table table : canteen.getTableList()) {
             if (!table.isAvailable()) {
-                bookedTables.add(table.getTableID());
+                bookedTables.add(table.getTableNo());
             }
         }
 
         Map<String, Object> res = new HashMap<>();
         res.put("totalTables", canteen.getTableList().size());
-        res.put("bookedTablesID", bookedTables);
+        res.put("bookedTablesNo", bookedTables);
     
         return res;
     }
@@ -80,7 +80,7 @@ public class TableService {
         Customer customer = customerRepository.findByUserID(userId);
 
         // เช็คว่ามี reservation ที่ยัง active อยู่ไหม
-        boolean hasActiveReservation = reservationRepository.existsByCustomerAndIsActiveTrue(userId);
+        boolean hasActiveReservation = reservationRepository.existsByCustomer_UserIDAndIsActiveTrue(userId);
     
         if (hasActiveReservation) {
             return Map.of("success", false, "message", "มีการจองโต๊ะอยู่แล้ว");

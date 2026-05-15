@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUT Food Queue - ประวัติ</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <i class="fa-solid fa-chevron-left" style="cursor:pointer; color:var(--primary);" onclick="window.location.href='main.html'"></i>
+                <h1 data-lang="history_title">ประวัติ</h1>
+            </div>
+            <div class="header-icons">
+                <i class="fa-solid fa-globe" onclick="window.location.href='home.html'"></i>
+            </div>
+        </div>
+
+        <div class="wrapper-box">
+            <!-- Tab Bar -->
+            <div class="tab-bar">
+                <button class="tab-btn active" id="tabOrders" onclick="switchTab('orders')" data-lang="history_orders">ประวัติออเดอร์</button>
+                <button class="tab-btn" id="tabReservations" onclick="switchTab('reservations')" data-lang="history_reservations">ประวัติการจอง</button>
+            </div>
+
+            <!-- Orders Tab -->
+            <div id="ordersPanel">
+                <div class="loading-spinner">
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+                    <p>กำลังโหลด...</p>
+                </div>
+            </div>
+
+            <!-- Reservations Tab -->
+            <div id="reservationsPanel" style="display:none;">
+                <div class="loading-spinner">
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+                    <p>กำลังโหลด...</p>
+                </div>
+            </div>
+
+            <div class="text-center mt-20">
+                <button class="btn-back" onclick="window.location.href='main.html'">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span data-lang="btn_back">กลับ</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="lang.js"></script>
+    <script src="api.js"></script>
+    <script>
+        let session, ordersLoaded = false, reservationsLoaded = false;
+
+        const statusBadgeMap = {
+            Pending:   'badge-pending',
+            Received:  'badge-active',
+            Cooking:   'badge-cooking',
+            Ready:     'badge-ready',
+            Cancelled: 'badge-cancelled',
+        };
+        const statusLabelTh = { Pending:'รอดำเนินการ', Received:'ได้รับแล้ว', Cooking:'กำลังปรุง', Ready:'พร้อมแล้ว', Cancelled:'ยกเลิกแล้ว' };
+        const statusLabelEn = { Pending:'Pending', Received:'Received', Cooking:'Cooking', Ready:'Ready', Cancelled:'Cancelled' };
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            session = requireAuth();
+            if (!session) return;
+            applyLanguage();
+            await loadOrders();
+        });
+
+        function switchTab(tab) {
+            const isOrders = tab === 'orders';
+            document.getElementById('tabOrders').classList.toggle('active', isOrders);
+            document.getElementById('tabReservations').classList.toggle('active', !isOrders);
+            document.getElementById('ordersPanel').style.display = isOrders ? 'block' : 'none';
+            document.getElementById('reservationsPanel').style.display = isOrders ? 'none' : 'block';
+
+            if (!isOrders && !reservationsLoaded) loadReservations();
+        }
+
+        async function loadOrders() {
+            const panel = document.getElementById('ordersPanel');
+            const lang = localStorage.getItem('userLang') || 'th';
+            try {
+                const orders = await api.getOrderHistory(session.userId);
+                ordersLoaded = true;
+
+                if (!orders || orders.length === 0) {
+                    panel.innerHTML = `<div class="empty-state"><i class="fa-solid fa-bag-shopping"></i><p data-lang="history_no_orders">${lang === 'th' ? 'ยังไม่มีประวัติออเดอร์' : 'No order history'}</p></div>`;
+                    return;
+                }
+
+                const labelMap = lang === 'th' ? statusLabelTh : statusLabelEn;
+                panel.innerHTML = [...orders].reverse().map(o => {
+                    const badgeCls = statusBadgeMap[o.status] || 'badge-pending';
+                    const label = labelMap[o.status] || o.status;
+                    return `
+                    <div class="history-item ${o.status !== 'Cancelled' && o.status !== 'Ready' ? 'active-item' : ''}">
+                        <div class="item-left">
+                            <h4>${lang === 'th' ? 'ออเดอร์' : 'Order'} #${o.orderId}</h4>
+                            <p>${escHtml(o.storeName || '')}</p>
+                            <span class="history-badge ${badgeCls}">${label}</span>
+                        </div>
+                        <div class="item-right">
+                            <p class="item-price">฿${o.totalPrice}</p>
+                        </div>
+                    </div>`;
+                }).join('');
+            } catch (err) {
+                panel.innerHTML = `<div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i><p>โหลดข้อมูลไม่สำเร็จ</p></div>`;
+            }
+        }
+
+        async function loadReservations() {
+            const panel = document.getElementById('reservationsPanel');
+            const lang = localStorage.getItem('userLang') || 'th';
+            try {
+                const reservations = await api.getReservationHistory(session.userId);
+                reservationsLoaded = true;
+
+                if (!reservations || reservations.length === 0) {
+                    panel.innerHTML = `<div class="empty-state"><i class="fa-solid fa-chair"></i><p data-lang="history_no_reservations">${lang === 'th' ? 'ยังไม่มีประวัติการจอง' : 'No reservation history'}</p></div>`;
+                    return;
+                }
+
+                panel.innerHTML = [...reservations].reverse().map(r => {
+                    const isActive = r.isActive;
+                    const badgeCls = isActive ? 'badge-active' : 'badge-inactive';
+                    const label = isActive
+                        ? (lang === 'th' ? 'ใช้งานอยู่' : 'Active')
+                        : (lang === 'th' ? 'เสร็จสิ้น' : 'Completed');
+                    return `
+                    <div class="history-item ${isActive ? 'active-item' : ''}">
+                        <div class="item-left">
+                            <h4>${lang === 'th' ? 'โต๊ะที่' : 'Table'} ${r.tableNo}</h4>
+                            <p>${escHtml(r.canteenName || '')}</p>
+                            <span class="history-badge ${badgeCls}">${label}</span>
+                        </div>
+                        <div class="item-right">
+                            <i class="fa-solid fa-chair" style="color:var(--primary); font-size:1.5rem;"></i>
+                        </div>
+                    </div>`;
+                }).join('');
+            } catch (err) {
+                panel.innerHTML = `<div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i><p>โหลดข้อมูลไม่สำเร็จ</p></div>`;
+            }
+        }
+
+        function escHtml(str) {
+            return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+    </script>
+</body>
+</html>

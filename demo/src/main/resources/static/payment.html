@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUT Food Queue - ชำระเงิน</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <i class="fa-solid fa-chevron-left" style="cursor:pointer; color:var(--primary);" onclick="history.back()"></i>
+                <h1 data-lang="pay_title">ชำระเงิน</h1>
+            </div>
+            <div class="header-icons">
+                <i class="fa-solid fa-globe" onclick="window.location.href='home.html'"></i>
+            </div>
+        </div>
+
+        <div style="padding:15px;">
+
+            <!-- Summary Card -->
+            <div class="payment-summary">
+                <div class="store-info">
+                    <i class="fa-solid fa-store"></i>
+                    <div>
+                        <p style="margin:0; font-size:0.75rem; color:#888;" data-lang="pay_store">ร้านอาหาร</p>
+                        <span id="storeNameDisplay">-</span>
+                    </div>
+                </div>
+                <div class="amount">
+                    <p data-lang="pay_total">ยอดชำระ</p>
+                    <h2>฿<span id="totalDisplay">0</span></h2>
+                </div>
+            </div>
+
+            <!-- QR Code -->
+            <div class="qr-card">
+                <img id="qrImg" src="" alt="QR Code">
+                <p><i class="fa-solid fa-qrcode"></i> <span data-lang="pay_scan">สแกนเพื่อชำระเงิน</span></p>
+            </div>
+
+            <!-- Upload Slip -->
+            <div class="upload-section">
+                <h3 data-lang="pay_upload">อัปโหลดสลิปการโอนเงิน</h3>
+                <label for="file-upload" class="upload-area">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <span id="fileNameText" data-lang="pay_choose_file">เลือกรูปภาพสลิป</span>
+                </label>
+                <input id="file-upload" type="file" accept="image/*" onchange="handleFileSelect(this)">
+                <div id="previewContainer" style="display:none; margin-top:12px;">
+                    <img id="slipPreview" style="max-width:100%; border-radius:10px; border:1.5px solid #eee;" alt="slip preview">
+                </div>
+            </div>
+
+            <!-- Confirm Button -->
+            <button id="confirmBtn" class="big-action-btn btn-yellow-dark" onclick="confirmPayment()">
+                <i class="fa-solid fa-check-circle"></i>
+                <span data-lang="btn_confirm_pay">ยืนยันการชำระเงิน</span>
+            </button>
+
+            <div class="text-center mt-20">
+                <button class="btn-back" onclick="window.location.href='main.html'">
+                    <i class="fa-solid fa-house"></i>
+                    <span data-lang="btn_go_home">กลับหน้าหลัก</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="lang.js"></script>
+    <script src="api.js"></script>
+    <script>
+        let selectedFile = null;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const session = requireAuth();
+            if (!session) return;
+
+            const totalPrice = localStorage.getItem('currentTotalPrice') || '0';
+            const storeName = localStorage.getItem('currentStoreName') || '-';
+            const paymentId = localStorage.getItem('currentPaymentId');
+
+            document.getElementById('totalDisplay').textContent = totalPrice;
+            document.getElementById('storeNameDisplay').textContent = storeName;
+
+            // Generate QR code with payment details
+            const qrData = `SUT-PAYMENT-${paymentId || 'N/A'}-THB${totalPrice}`;
+            document.getElementById('qrImg').src =
+                `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(qrData)}`;
+
+            applyLanguage();
+        });
+
+        function handleFileSelect(input) {
+            if (input.files && input.files[0]) {
+                selectedFile = input.files[0];
+                const lang = localStorage.getItem('userLang') || 'th';
+                document.getElementById('fileNameText').textContent = selectedFile.name;
+                document.getElementById('fileNameText').style.color = '#2e7d32';
+
+                const reader = new FileReader();
+                reader.onload = e => {
+                    document.getElementById('slipPreview').src = e.target.result;
+                    document.getElementById('previewContainer').style.display = 'block';
+                };
+                reader.readAsDataURL(selectedFile);
+            }
+        }
+
+        async function confirmPayment() {
+            const lang = localStorage.getItem('userLang') || 'th';
+            if (!selectedFile) {
+                showToast(lang === 'th' ? 'กรุณาอัปโหลดสลิปก่อนยืนยัน' : 'Please upload a slip first', 'warn');
+                return;
+            }
+
+            const paymentId = localStorage.getItem('currentPaymentId');
+            if (!paymentId) {
+                showToast('ไม่พบข้อมูลการชำระเงิน', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('confirmBtn');
+            setLoading(btn, true);
+
+            try {
+                const formData = new FormData();
+                formData.append('file', selectedFile);
+
+                const result = await api.uploadSlip(parseInt(paymentId), formData);
+                if (result.success) {
+                    showToast(lang === 'th' ? 'ส่งสลิปเรียบร้อยแล้ว!' : 'Slip uploaded!', 'success');
+                    setTimeout(() => window.location.href = 'status.html', 1000);
+                } else {
+                    showToast(result.message || 'อัปโหลดไม่สำเร็จ', 'error');
+                    setLoading(btn, false);
+                }
+            } catch (err) {
+                showToast('เกิดข้อผิดพลาด กรุณาลองใหม่', 'error');
+                setLoading(btn, false);
+            }
+        }
+    </script>
+</body>
+</html>

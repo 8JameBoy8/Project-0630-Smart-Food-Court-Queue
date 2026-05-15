@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUT Food Queue - จองโต๊ะ</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <i class="fa-solid fa-chevron-left" style="cursor:pointer; color:var(--primary);" onclick="window.location.href='canteen.html?mode=book'"></i>
+                <h1 data-lang="booking_title">จองโต๊ะ</h1>
+            </div>
+            <div class="header-icons">
+                <span id="headerName" class="header-name"></span>
+                <i class="fa-solid fa-globe" onclick="window.location.href='home.html'"></i>
+            </div>
+        </div>
+
+        <div class="wrapper-box">
+            <div id="canteenLabel" style="font-weight:600; color:#555; margin-bottom:16px; font-size:0.95rem;">
+                <i class="fa-solid fa-store" style="color:var(--primary);"></i>
+                <span id="canteenNameText"></span>
+            </div>
+
+            <div class="duration-section">
+                <label data-lang="book_time_label"><i class="fa-solid fa-hourglass-half"></i> เลือกระยะเวลาการใช้งาน:</label>
+                <select id="durationSelect">
+                    <option value="5" data-lang="time_5">5 นาที (แวะรับอาหาร)</option>
+                    <option value="10" data-lang="time_10">10 นาที (ทานด่วน)</option>
+                    <option value="15" data-lang="time_15">15 นาที (ทานปกติ)</option>
+                    <option value="30" selected data-lang="time_30">30 นาที (มาตรฐาน)</option>
+                </select>
+            </div>
+
+            <div id="tableGrid" class="table-grid">
+                <div style="grid-column:1/-1;" class="loading-spinner">
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+                    <p>กำลังโหลดข้อมูลโต๊ะ...</p>
+                </div>
+            </div>
+
+            <div class="text-center mt-20">
+                <button class="btn-back" onclick="window.location.href='canteen.html?mode=book'">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span data-lang="btn_back">กลับ</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="lang.js"></script>
+    <script src="api.js"></script>
+    <script>
+        let canteenId, session;
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            session = requireAuth();
+            if (!session) return;
+
+            canteenId = localStorage.getItem('selectedCanteenId');
+            const canteenName = localStorage.getItem('selectedCanteenName') || '';
+            if (!canteenId) { window.location.href = 'canteen.html?mode=book'; return; }
+
+            document.getElementById('headerName').textContent = session.userName;
+            document.getElementById('canteenNameText').textContent = ' ' + canteenName;
+
+            applyLanguage();
+            await loadTables();
+        });
+
+        async function loadTables() {
+            const grid = document.getElementById('tableGrid');
+            try {
+                const data = await api.getTableStatus(canteenId);
+                const total = data.totalTables || 0;
+                const booked = data.bookedTablesNo || data.bookedTablesID || [];
+                const lang = localStorage.getItem('userLang') || 'th';
+
+                if (total === 0) {
+                    grid.innerHTML = `<div style="grid-column:1/-1;" class="empty-state"><i class="fa-solid fa-chair"></i><p>ไม่มีโต๊ะในโรงอาหารนี้</p></div>`;
+                    return;
+                }
+
+                grid.innerHTML = '';
+                for (let i = 1; i <= total; i++) {
+                    const isBooked = booked.includes(i);
+                    const btn = document.createElement('button');
+                    btn.className = `table-btn ${isBooked ? 'booked' : 'available'}`;
+                    btn.innerHTML = isBooked
+                        ? `<i class="fa-solid fa-xmark"></i><br>${lang === 'th' ? `โต๊ะ ${i}` : `Table ${i}`}<br><small>${lang === 'th' ? 'ไม่ว่าง' : 'Booked'}</small>`
+                        : `<i class="fa-solid fa-chair"></i><br>${lang === 'th' ? `โต๊ะ ${i}` : `Table ${i}`}<br><small>${lang === 'th' ? 'ว่าง' : 'Available'}</small>`;
+                    if (!isBooked) btn.onclick = () => confirmBook(i);
+                    grid.appendChild(btn);
+                }
+            } catch (err) {
+                grid.innerHTML = `<div style="grid-column:1/-1;" class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i><p>โหลดข้อมูลโต๊ะไม่สำเร็จ</p></div>`;
+            }
+        }
+
+        async function confirmBook(tableNo) {
+            const duration = parseInt(document.getElementById('durationSelect').value);
+            const lang = localStorage.getItem('userLang') || 'th';
+            const msg = lang === 'th'
+                ? `ยืนยันการจองโต๊ะที่ ${tableNo} เป็นเวลา ${duration} นาที?`
+                : `Confirm booking Table ${tableNo} for ${duration} minutes?`;
+
+            if (!confirm(msg)) return;
+
+            try {
+                const result = await api.bookTable(canteenId, session.userId, tableNo, duration);
+                if (result.success) {
+                    localStorage.setItem('currentReservationId', result.reservationId);
+                    showToast(lang === 'th' ? `จองโต๊ะที่ ${tableNo} สำเร็จ!` : `Table ${tableNo} booked!`, 'success');
+                    setTimeout(() => window.location.href = 'status.html', 1000);
+                } else {
+                    showToast(result.message || (lang === 'th' ? 'จองไม่สำเร็จ' : 'Booking failed'), 'error');
+                    await loadTables();
+                }
+            } catch (err) {
+                showToast('เกิดข้อผิดพลาด กรุณาลองใหม่', 'error');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -68,5 +68,6 @@ public class Payment {
     //method get ต่างๆที่เอาขอค่าของ class Payment
     public Order getOrder() {return order;}
     public int getPaymentID() {return paymentId;}
-    public PaymentStatus getStatus() { return status; } //ขอสถานะการจ่ายเงินของรายการนี้
+    public PaymentStatus getStatus() { return status; }
+    public String getSlipImagePath() { return slipImagePath; }
 }

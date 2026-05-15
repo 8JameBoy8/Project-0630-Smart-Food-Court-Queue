@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUT Food Queue - จัดการร้าน</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .section-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 16px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.05);
+        }
+        .section-card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-card h3 i { color: var(--primary-dark); }
+
+        /* Create Store */
+        .create-store-box {
+            background: linear-gradient(135deg, #fff9e6, #fffdf5);
+            border: 2px dashed var(--primary);
+            border-radius: 18px;
+            padding: 28px 20px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        .create-store-box i { font-size: 2.5rem; color: var(--primary-dark); margin-bottom: 14px; display: block; }
+        .create-store-box h3 { color: var(--secondary); margin-bottom: 8px; font-size: 1.1rem; }
+        .create-store-box p { color: #888; font-size: 0.88rem; margin-bottom: 20px; }
+
+        /* Product List */
+        .product-block {
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+        .product-block:last-child { border-bottom: none; margin-bottom: 0; }
+        .product-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0;
+            gap: 8px;
+        }
+        .product-name { font-size: 0.95rem; color: var(--secondary); font-weight: 500; flex: 1; }
+        .product-price { font-size: 0.88rem; color: var(--primary-dark); font-weight: 600; margin-right: 6px; }
+        .product-row.unavailable .product-name { color: #bbb; text-decoration: line-through; }
+
+        .topping-toggle-btn {
+            background: none;
+            border: 1.5px solid #ddd;
+            border-radius: 8px;
+            padding: 5px 10px;
+            font-size: 0.75rem;
+            color: #888;
+            cursor: pointer;
+            font-family: inherit;
+            white-space: nowrap;
+        }
+        .topping-toggle-btn:hover { border-color: var(--primary); color: var(--primary-dark); }
+
+        /* Topping Panel */
+        .topping-panel {
+            display: none;
+            background: #fafafa;
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 4px;
+        }
+        .topping-panel.open { display: block; }
+        .topping-panel-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .topping-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid #eee;
+            gap: 8px;
+        }
+        .topping-item:last-of-type { border-bottom: none; }
+        .topping-item-name { font-size: 0.85rem; color: #444; flex: 1; }
+        .topping-item-name.off { color: #bbb; text-decoration: line-through; }
+        .topping-item-price { font-size: 0.8rem; color: #888; margin-right: 6px; }
+
+        .add-topping-form {
+            display: flex;
+            gap: 6px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .add-topping-form input {
+            flex: 1;
+            min-width: 90px;
+            padding: 7px 10px;
+            border-radius: 8px;
+            border: 1.5px solid #ddd;
+            font-family: inherit;
+            font-size: 13px;
+        }
+        .add-topping-form input:focus { outline: none; border-color: var(--primary); }
+        .add-topping-form input[type="number"] { flex: 0 0 80px; }
+
+        /* Add Product Form */
+        .add-product-form {
+            background: #f9f9f9;
+            border-radius: 12px;
+            padding: 14px;
+            margin-top: 14px;
+            display: none;
+        }
+        .add-product-form.show { display: block; }
+        .inline-inputs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .inline-inputs input {
+            flex: 1;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1.5px solid #eee;
+            font-family: inherit;
+            font-size: 14px;
+            background: #fff;
+        }
+        .inline-inputs input:focus { outline: none; border-color: var(--primary); }
+        .inline-inputs input[type="number"] { flex: 0 0 90px; }
+
+        /* Order Queue */
+        .order-queue-item {
+            background: #fff;
+            border-radius: 14px;
+            padding: 14px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-left: 4px solid #ccc;
+        }
+        .order-queue-item.status-pending   { border-left-color: var(--primary); }
+        .order-queue-item.status-received  { border-left-color: #1565c0; }
+        .order-queue-item.status-cooking   { border-left-color: var(--orange, #f57c00); }
+        .queue-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+        .queue-header h4 { margin: 0; font-size: 1rem; color: var(--secondary); font-weight: 700; }
+        .queue-ref { font-size: 0.75rem; color: #bbb; margin-bottom: 8px; }
+        .queue-items { font-size: 0.84rem; color: #666; margin-bottom: 10px; line-height: 1.9; }
+        .queue-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+        /* Slip Modal */
+        .slip-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .slip-modal-overlay.open { display: flex; }
+        .slip-modal {
+            background: #fff;
+            border-radius: 18px;
+            padding: 20px;
+            max-width: 420px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        .slip-modal h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 4px;
+        }
+        .slip-modal .slip-total {
+            font-size: 0.88rem;
+            color: #666;
+            margin-bottom: 14px;
+        }
+        .slip-img-wrap {
+            background: #f5f5f5;
+            border-radius: 12px;
+            overflow: hidden;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+        .slip-img-wrap img {
+            max-width: 100%;
+            max-height: 380px;
+            object-fit: contain;
+            display: block;
+        }
+        .slip-img-wrap .slip-loading {
+            color: #aaa;
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 40px 20px;
+        }
+        .slip-modal-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        .slip-modal-actions button { flex: 1; }
+    </style>
+</head>
+<body>
+
+    <!-- ===== SLIP MODAL ===== -->
+    <div class="slip-modal-overlay" id="slipModalOverlay" onclick="closeSlipModal(event)">
+        <div class="slip-modal">
+            <h3 id="slipModalTitle">สลิปการชำระเงิน</h3>
+            <div class="slip-total" id="slipModalTotal"></div>
+            <div class="slip-img-wrap" id="slipImgWrap">
+                <div class="slip-loading"><i class="fa-solid fa-spinner fa-spin"></i><br>กำลังโหลดรูป...</div>
+            </div>
+            <div class="slip-modal-actions" id="slipModalActions">
+                <!-- verify / reject buttons injected here -->
+            </div>
+            <div style="margin-top:10px;">
+                <button class="btn-small btn-small-gray" style="width:100%;" onclick="closeSlipModal()">
+                    <i class="fa-solid fa-xmark"></i> ปิด
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <div class="header">
+            <h1>จัดการร้าน</h1>
+            <div class="header-icons">
+                <span id="headerName" class="header-name"></span>
+                <i class="fa-solid fa-circle-user" onclick="window.location.href='user.html'"></i>
+                <i class="fa-solid fa-rotate" onclick="loadAll()" style="cursor:pointer; color:var(--primary);" title="รีเฟรช"></i>
+                <i class="fa-solid fa-globe" onclick="window.location.href='home.html'"></i>
+            </div>
+        </div>
+
+        <div class="wrapper-box">
+
+            <!-- ===== ยังไม่มีร้าน: สร้างร้าน ===== -->
+            <div id="noStoreSection" style="display:none;">
+                <div class="create-store-box">
+                    <i class="fa-solid fa-store-slash"></i>
+                    <h3>ยังไม่มีร้านที่กำหนด</h3>
+                    <p>สร้างร้านของคุณเพื่อเริ่มรับออเดอร์จากลูกค้า</p>
+                </div>
+
+                <div class="section-card">
+                    <h3><i class="fa-solid fa-plus-circle"></i> สร้างร้านใหม่</h3>
+
+                    <div class="form-group">
+                        <input type="text" id="newStoreName" placeholder="ชื่อร้านอาหาร">
+                        <i class="fa-solid fa-store"></i>
+                    </div>
+
+                    <div class="form-group">
+                        <select id="canteenSelect">
+                            <option value="">-- เลือกโรงอาหาร --</option>
+                        </select>
+                        <i class="fa-solid fa-building"></i>
+                    </div>
+
+                    <button id="createStoreBtn" class="btn-submit" onclick="createStore()">
+                        <i class="fa-solid fa-store"></i> สร้างร้าน
+                    </button>
+                </div>
+            </div>
+
+            <!-- ===== มีร้านแล้ว: จัดการร้าน ===== -->
+            <div id="hasStoreSection" style="display:none;">
+
+                <!-- Store Info Bar -->
+                <div class="store-status-bar" style="margin-bottom:16px;">
+                    <div class="store-status-info">
+                        <h3 id="storeNameDisplay">-</h3>
+                        <p id="storeStatusText">กำลังโหลด...</p>
+                    </div>
+                    <button id="toggleStoreBtn" class="btn-small btn-small-green" onclick="toggleStore()">
+                        <i class="fa-solid fa-power-off"></i>
+                        <span id="toggleBtnText">เปิดร้าน</span>
+                    </button>
+                </div>
+
+                <!-- Product Management -->
+                <div class="section-card">
+                    <h3>
+                        <i class="fa-solid fa-bowl-rice"></i> เมนูในร้าน
+                        <button class="btn-small btn-small-yellow" style="margin-left:auto; font-size:0.78rem;"
+                                onclick="toggleAddProductForm()">
+                            <i class="fa-solid fa-plus"></i> เพิ่มเมนู
+                        </button>
+                    </h3>
+
+                    <!-- Add Product Form -->
+                    <div class="add-product-form" id="addProductForm">
+                        <div class="inline-inputs">
+                            <input type="text" id="newProductName" placeholder="ชื่อเมนู">
+                            <input type="number" id="newProductPrice" placeholder="ราคา" min="1">
+                        </div>
+                        <div style="display:flex; gap:8px;">
+                            <button class="btn-small btn-small-yellow" style="flex:1;" onclick="addProduct()">
+                                <i class="fa-solid fa-check"></i> บันทึก
+                            </button>
+                            <button class="btn-small btn-small-gray" style="flex:1;" onclick="toggleAddProductForm()">
+                                ยกเลิก
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Product List -->
+                    <div id="productList">
+                        <div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i><p>กำลังโหลด...</p></div>
+                    </div>
+                </div>
+
+                <!-- Order Queue -->
+                <div class="section-card">
+                    <h3>
+                        <i class="fa-solid fa-list-check"></i> คิวออเดอร์
+                        <span id="orderCount" style="background:var(--primary); color:#000; padding:2px 10px; border-radius:20px; font-size:0.78rem; margin-left:auto;">0</span>
+                    </h3>
+                    <div id="orderQueue">
+                        <div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i><p>กำลังโหลด...</p></div>
+                    </div>
+                </div>
+
+            </div>
+            <!-- ===== end hasStoreSection ===== -->
+
+            <div class="refresh-info">
+                <i class="fa-solid fa-circle-info"></i>
+                <span>รีเฟรชอัตโนมัติทุก 30 วินาที</span>
+            </div>
+
+            <div style="text-align:center; margin-top:20px;">
+                <button class="btn-back" style="color:#c62828; border-color:#ffcdd2;" onclick="logout()">
+                    <i class="fa-solid fa-right-from-bracket"></i> ออกจากระบบ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="lang.js"></script>
+    <script src="api.js"></script>
+    <script>
+        let session, storeId = null, isOpen = false, refreshTimer;
+        let _slipPaymentId = null;
+
+        const statusLabelTh = { Pending:'รอดำเนินการ', Received:'ได้รับแล้ว', Cooking:'กำลังปรุง', Ready:'พร้อมแล้ว', Cancelled:'ยกเลิกแล้ว' };
+        const payLabelTh    = { NO_PAYMENT:'รอชำระ', PENDING:'รอชำระ', UPLOADED:'อัปโหลดสลิปแล้ว', VERIFIED:'ยืนยันแล้ว', REJECTED:'ปฏิเสธแล้ว' };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            session = requireAuth();
+            if (!session) return;
+            if (session.userRole !== 'staff') { window.location.href = 'main.html'; return; }
+
+            document.getElementById('headerName').textContent = session.userName;
+            loadAll();
+            refreshTimer = setInterval(loadAll, 30000);
+        });
+
+        window.addEventListener('beforeunload', () => clearInterval(refreshTimer));
+
+        async function loadAll() {
+            await loadStoreInfo();
+        }
+
+        /* ============================================================
+           STORE INFO
+        ============================================================ */
+        async function loadStoreInfo() {
+            try {
+                const data = await api.getStaffStore(session.userId);
+
+                if (data.error) {
+                    document.getElementById('noStoreSection').style.display = 'block';
+                    document.getElementById('hasStoreSection').style.display = 'none';
+                    await loadCanteenOptions();
+                    return;
+                }
+
+                storeId = data.storeId;
+                isOpen  = data.isOpen;
+
+                document.getElementById('noStoreSection').style.display = 'none';
+                document.getElementById('hasStoreSection').style.display = 'block';
+
+                document.getElementById('storeNameDisplay').textContent = data.storeName;
+                document.getElementById('storeStatusText').textContent = isOpen ? '🟢 เปิดให้บริการ' : '🔴 ปิดให้บริการ';
+
+                const btn = document.getElementById('toggleStoreBtn');
+                btn.className = `btn-small ${isOpen ? 'btn-small-red' : 'btn-small-green'}`;
+                document.getElementById('toggleBtnText').textContent = isOpen ? 'ปิดร้าน' : 'เปิดร้าน';
+
+                renderProducts(data.products || []);
+                await loadOrders();
+
+            } catch (err) {
+                showToast('โหลดข้อมูลร้านไม่สำเร็จ', 'error');
+            }
+        }
+
+        /* ============================================================
+           CREATE STORE
+        ============================================================ */
+        async function loadCanteenOptions() {
+            const select = document.getElementById('canteenSelect');
+            try {
+                const canteens = await api.getCanteens();
+                select.innerHTML = '<option value="">-- เลือกโรงอาหาร --</option>';
+                canteens.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.canteenId;
+                    opt.textContent = c.canteenName;
+                    select.appendChild(opt);
+                });
+            } catch (err) {
+                select.innerHTML = '<option value="">โหลดไม่สำเร็จ</option>';
+            }
+        }
+
+        async function createStore() {
+            const name      = document.getElementById('newStoreName').value.trim();
+            const canteenId = parseInt(document.getElementById('canteenSelect').value);
+
+            if (!name)      { showToast('กรุณาใส่ชื่อร้าน', 'warn'); return; }
+            if (!canteenId) { showToast('กรุณาเลือกโรงอาหาร', 'warn'); return; }
+
+            const btn = document.getElementById('createStoreBtn');
+            setLoading(btn, true);
+            try {
+                const result = await api.createStore(name, session.userId, canteenId);
+                if (result.storeId) {
+                    showToast(`สร้างร้าน "${result.storeName}" สำเร็จ!`, 'success');
+                    await loadAll();
+                } else {
+                    showToast(result.error || 'สร้างร้านไม่สำเร็จ', 'error');
+                    setLoading(btn, false);
+                }
+            } catch (err) {
+                showToast('เกิดข้อผิดพลาด กรุณาลองใหม่', 'error');
+                setLoading(btn, false);
+            }
+        }
+
+        /* ============================================================
+           PRODUCT MANAGEMENT
+        ============================================================ */
+        function renderProducts(products) {
+            const list = document.getElementById('productList');
+
+            if (!products.length) {
+                list.innerHTML = `<div class="empty-state" style="padding:16px 0;">
+                    <i class="fa-solid fa-bowl-food"></i>
+                    <p>ยังไม่มีเมนู กดปุ่ม "เพิ่มเมนู" เพื่อเริ่มต้น</p>
+                </div>`;
+                return;
+            }
+
+            list.innerHTML = products.map(p => `
+                <div class="product-block">
+                    <div class="product-row ${!p.isAvailable ? 'unavailable' : ''}">
+                        <span class="product-name">${escHtml(p.name)}</span>
+                        <span class="product-price">฿${p.price}</span>
+                        <button class="topping-toggle-btn" onclick="toggleToppingPanel(${p.productId})">
+                            <i class="fa-solid fa-list"></i> ท็อปปิ้ง
+                        </button>
+                        <button class="btn-small ${p.isAvailable ? 'btn-small-red' : 'btn-small-green'}"
+                                style="font-size:0.75rem; padding:6px 12px;"
+                                onclick="toggleProduct(${p.productId}, ${p.isAvailable})">
+                            ${p.isAvailable ? 'ปิด' : 'เปิด'}
+                        </button>
+                    </div>
+                    <div class="topping-panel" id="toppingPanel_${p.productId}">
+                        <div class="topping-panel-title"><i class="fa-solid fa-pepper-hot"></i> ท็อปปิ้งของเมนูนี้</div>
+                        <div id="toppingList_${p.productId}" style="font-size:0.83rem; color:#aaa;">
+                            กำลังโหลด...
+                        </div>
+                        <div class="add-topping-form">
+                            <input type="text"   id="toppingName_${p.productId}" placeholder="ชื่อท็อปปิ้ง">
+                            <input type="number" id="toppingPrice_${p.productId}" placeholder="บวกเพิ่ม ฿" min="0" value="0">
+                            <button class="btn-small btn-small-yellow" style="padding:7px 12px;"
+                                    onclick="addTopping(${p.productId})">
+                                <i class="fa-solid fa-plus"></i> เพิ่ม
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function toggleToppingPanel(productId) {
+            const panel = document.getElementById(`toppingPanel_${productId}`);
+            const isOpen = panel.classList.toggle('open');
+            if (isOpen) {
+                await loadToppings(productId);
+            }
+        }
+
+        async function loadToppings(productId) {
+            const listEl = document.getElementById(`toppingList_${productId}`);
+            listEl.innerHTML = 'กำลังโหลด...';
+            try {
+                const toppings = await api.getToppings(productId);
+                if (!toppings || toppings.length === 0) {
+                    listEl.innerHTML = '<span style="color:#bbb;">ยังไม่มีท็อปปิ้ง</span>';
+                    return;
+                }
+                listEl.innerHTML = toppings.map(t => `
+                    <div class="topping-item">
+                        <span class="topping-item-name ${!t.isAvailable ? 'off' : ''}">${escHtml(t.toppingName)}</span>
+                        <span class="topping-item-price">+฿${t.extraPrice}</span>
+                        <button class="btn-small ${t.isAvailable ? 'btn-small-red' : 'btn-small-green'}"
+                                style="font-size:0.7rem; padding:4px 10px;"
+                                onclick="toggleTopping(${t.toppingId}, ${t.isAvailable}, ${productId})">
+                            ${t.isAvailable ? 'ปิด' : 'เปิด'}
+                        </button>
+                    </div>
+                `).join('');
+            } catch (err) {
+                listEl.innerHTML = '<span style="color:#e57373;">โหลดท็อปปิ้งไม่สำเร็จ</span>';
+            }
+        }
+
+        async function addTopping(productId) {
+            const nameEl  = document.getElementById(`toppingName_${productId}`);
+            const priceEl = document.getElementById(`toppingPrice_${productId}`);
+            const name  = nameEl.value.trim();
+            const price = parseInt(priceEl.value) || 0;
+
+            if (!name) { showToast('กรุณาใส่ชื่อท็อปปิ้ง', 'warn'); return; }
+
+            try {
+                const result = await api.addTopping(productId, name, price);
+                if (result.toppingId) {
+                    showToast(`เพิ่มท็อปปิ้ง "${result.toppingName}" แล้ว`, 'success');
+                    nameEl.value  = '';
+                    priceEl.value = '0';
+                    await loadToppings(productId);
+                } else {
+                    showToast(result.error || 'เพิ่มท็อปปิ้งไม่สำเร็จ', 'error');
+                }
+            } catch (err) {
+                showToast('เกิดข้อผิดพลาด', 'error');
+            }
+        }
+
+        async function toggleTopping(toppingId, currentStatus, productId) {
+            try {
+                await api.setToppingStatus(toppingId, !currentStatus);
+                showToast(!currentStatus ? 'เปิดท็อปปิ้งแล้ว' : 'ปิดท็อปปิ้งแล้ว', 'success');
+                await loadToppings(productId);
+            } catch (err) {
+                showToast('เกิดข้อผิดพลาด', 'error');
+            }
+        }
+
+        function toggleAddProductForm() {
+            const form = document.getElementById('addProductForm');
+            form.classList.toggle('show');
+            if (form.classList.contains('show')) {
+                document.getElementById('newProductName').focus();
+            }
+        }
+
+        async function addProduct() {
+            const name  = document.getElementById('newProductName').value.trim();
+            const price = parseInt(document.getElementById('newProductPrice').value);
+
+            if (!name)          { showToast('กรุณาใส่ชื่อเมนู', 'warn'); return; }
+            if (!price || price < 1) { showToast('กรุณาใส่ราคา', 'warn'); return; }
+            if (!storeId) return;
+
+            try {
+                const result = await api.addProduct(storeId, name, price);
+                if (result.productId) {
+                    showToast(`เพิ่มเมนู "${result.name}" แล้ว`, 'success');
+                    document.getElementById('newProductName').value  = '';
+                    document.getElementById('newProductPrice').value = '';
+                    document.getElementById('addProductForm').classList.remove('show');
+                    await loadStoreInfo();
+                } else {
+                    showToast(result.error || 'เพิ่มเมนูไม่สำเร็จ', 'error');
+                }
+            } catch (err) {
+                showToast('เกิดข้อผิดพลาด', 'error');
+            }
+        }
+
+        async function toggleProduct(productId, currentStatus) {
+            try {
+                await api.setProductStatus(productId, !currentStatus);
+                showToast(!currentStatus ? 'เปิดเมนูแล้ว' : 'ปิดเมนูแล้ว', 'success');
+                await loadStoreInfo();
+            } catch (err) {
+                showToast('เกิดข้อผิดพลาด', 'error');
+            }
+        }
+
+        /* ============================================================
+           STORE OPEN / CLOSE
+        ============================================================ */
+        async function toggleStore() {
+            if (!storeId) return;
+            const action = isOpen ? 'ปิดร้าน' : 'เปิดร้าน';
+            if (!confirm(`ยืนยันการ${action}?`)) return;
+
+            try {
+                await api.setStoreStatus(storeId, !isOpen);
+                showToast(`${action}แล้ว`, 'success');
+                await loadStoreInfo();
+            } catch (err) {
+                showToast('เกิดข้อผิดพลาด', 'error');
+            }
+        }
+
+        /* ============================================================
+           ORDER QUEUE
+        ============================================================ */
+        async function loadOrders() {
+            const queue = document.getElementById('orderQueue');
+            try {
+                const orders = await api.getStaffOrders(session.userId);
+                document.getElementById('orderCount').textContent = orders.length || 0;
+
+                if (!orders || orders.length === 0) {
+                    queue.innerHTML = `<div class="empty-state" style="padding:16px 0;">
+                        <i class="fa-solid fa-mug-hot"></i>
+                        <p>ไม่มีออเดอร์ในขณะนี้</p>
+                    </div>`;
+                    return;
+                }
+
+                queue.innerHTML = orders.map((o, idx) => {
+                    const queueNo  = idx + 1;   // ลำดับคิว เริ่มต้นจาก 1
+                    const payStatus = o.paymentStatus || 'NO_PAYMENT';
+                    const paymentId = o.paymentId || 0;
+
+                    // ---- button logic ----
+                    // ดูสลิป: มีสลิปรออนุมัติ
+                    const canViewSlip = payStatus === 'UPLOADED' && paymentId > 0;
+                    // เริ่มทำ: ชำระแล้ว (VERIFIED) และ order status = Received
+                    const canCook    = o.status === 'Received' && payStatus === 'VERIFIED';
+                    // พร้อมแล้ว: กำลังปรุงอยู่
+                    const canReady   = o.status === 'Cooking';
+
+                    const statusCls = {
+                        Pending:  'status-pending',
+                        Received: 'status-received',
+                        Cooking:  'status-cooking',
+                    }[o.status] || '';
+
+                    const statusBadgeCls = {
+                        Pending:  'badge-pending',
+                        Received: 'badge-cooking',
+                        Cooking:  'badge-cooking',
+                    }[o.status] || 'badge-pending';
+
+                    const totalText = `฿${o.totalPrice}`;
+
+                    const itemsHtml = (o.items || []).map(i => {
+                        const tops = (i.toppings && i.toppings.length)
+                            ? `<span style="font-size:0.78rem; color:#999; margin-left:6px;">+ ${i.toppings.join(', ')}</span>`
+                            : '';
+                        return `• ${escHtml(i.name)} × ${i.quantity} (฿${i.price})${tops}`;
+                    }).join('<br>');
+
+                    return `
+                    <div class="order-queue-item ${statusCls}">
+                        <div class="queue-header">
+                            <h4>คิวที่ ${queueNo}</h4>
+                            <span class="history-badge ${statusBadgeCls}">
+                                ${statusLabelTh[o.status] || o.status}
+                            </span>
+                        </div>
+                        <div class="queue-ref">ID #${o.orderId}</div>
+                        <div class="queue-items">${itemsHtml || '-'}</div>
+                        <div class="status-row" style="margin-bottom:8px;">
+                            <span class="label">ยอดรวม</span>
+                            <span class="value" style="font-weight:600; color:var(--primary-dark);">${totalText}</span>
+                        </div>
+                        <div class="status-row" style="margin-bottom:12px;">
+                            <span class="label">สถานะชำระ</span>
+                            <span class="value">${payLabelTh[payStatus] || payStatus}</span>
+                        </div>
+                        <div class="queue-actions">
+                            ${canViewSlip ? `
+                            <button class="btn-small btn-small-yellow"
+                                    onclick="openSlipModal(${paymentId}, '${totalText}', ${o.orderId})">
+                                <i class="fa-solid fa-image"></i> ดูสลิป
+                            </button>` : ''}
+                            ${canCook ? `
+                            <button class="btn-small btn-small-orange" onclick="startCooking(${o.orderId})">
+                                <i class="fa-solid fa-fire"></i> เริ่มทำอาหาร
+                            </button>` : ''}
+                            ${canReady ? `
+                            <button class="btn-small btn-small-green" onclick="markReady(${o.orderId})">
+                                <i class="fa-solid fa-bell"></i> อาหารพร้อม
+                            </button>` : ''}
+                        </div>
+                    </div>`;
+                }).join('');
+
+            } catch (err) {
+                queue.innerHTML = `<div class="empty-state" style="padding:16px 0;"><i class="fa-solid fa-triangle-exclamation"></i><p>โหลดคิวไม่สำเร็จ</p></div>`;
+            }
+        }
+
+        async function startCooking(orderId) {
+            try {
+                await api.startCooking(orderId);
+                showToast('เริ่มปรุงอาหารแล้ว', 'success');
+                await loadOrders();
+            } catch (err) { showToast('เกิดข้อผิดพลาด', 'error'); }
+        }
+
+        async function markReady(orderId) {
+            try {
+                await api.markReady(orderId);
+                showToast('อาหารพร้อมแล้ว!', 'success');
+                await loadOrders();
+            } catch (err) { showToast('เกิดข้อผิดพลาด', 'error'); }
+        }
+
+        /* ============================================================
+           SLIP MODAL
+        ============================================================ */
+        function openSlipModal(paymentId, totalText, orderId) {
+            _slipPaymentId = paymentId;
+            document.getElementById('slipModalTitle').textContent = 'สลิปการชำระเงิน';
+            document.getElementById('slipModalTotal').textContent = `ยอดรวม: ${totalText}`;
+
+            // reset image area
+            const wrap = document.getElementById('slipImgWrap');
+            wrap.innerHTML = '<div class="slip-loading"><i class="fa-solid fa-spinner fa-spin"></i><br>กำลังโหลดรูป...</div>';
+
+            // load image
+            const img = new Image();
+            img.onload  = () => { wrap.innerHTML = ''; wrap.appendChild(img); };
+            img.onerror = () => { wrap.innerHTML = '<div class="slip-loading" style="color:#e57373;"><i class="fa-solid fa-triangle-exclamation"></i><br>โหลดรูปไม่ได้<br><small>ตรวจสอบว่ามีไฟล์สลิปหรือเปล่า</small></div>'; };
+            img.src   = `http://localhost:8080/api/payments/${paymentId}/slip-image`;
+            img.style.cssText = 'max-width:100%; max-height:380px; object-fit:contain; border-radius:8px;';
+
+            // action buttons
+            document.getElementById('slipModalActions').innerHTML = `
+                <button class="btn-small btn-small-green" style="flex:1;"
+                        onclick="verifySlip(${paymentId}, ${orderId}, true)">
+                    <i class="fa-solid fa-check"></i> ยืนยันสลิป
+                </button>
+                <button class="btn-small btn-small-red" style="flex:1;"
+                        onclick="verifySlip(${paymentId}, ${orderId}, false)">
+                    <i class="fa-solid fa-xmark"></i> ปฏิเสธ
+                </button>
+            `;
+
+            document.getElementById('slipModalOverlay').classList.add('open');
+        }
+
+        function closeSlipModal(e) {
+            if (e && e.target !== document.getElementById('slipModalOverlay')) return;
+            document.getElementById('slipModalOverlay').classList.remove('open');
+        }
+
+        async function verifySlip(paymentId, orderId, isValid) {
+            try {
+                const result = await api.verifyPayment(paymentId, isValid);
+                document.getElementById('slipModalOverlay').classList.remove('open');
+                // result is plain text from backend e.g. "ยืนยันสำเร็จ" / "สถานะไม่ถูกต้อง"
+                const isErr = typeof result === 'string' && result === 'สถานะไม่ถูกต้อง';
+                if (isErr) {
+                    showToast('สถานะไม่ถูกต้อง (รีเฟรชแล้วลองใหม่)', 'error');
+                } else {
+                    showToast(isValid ? 'ยืนยันสลิปแล้ว ✅' : 'ปฏิเสธสลิปแล้ว ❌',
+                              isValid ? 'success' : 'warn');
+                }
+                await loadOrders();
+            } catch (err) {
+                showToast('เกิดข้อผิดพลาด กรุณาลองใหม่', 'error');
+            }
+        }
+
+        /* ============================================================
+           MISC
+        ============================================================ */
+        function logout() {
+            clearSession();
+            window.location.href = 'index.html';
+        }
+
+        function escHtml(str) {
+            return String(str)
+                .replace(/&/g,'&amp;')
+                .replace(/</g,'&lt;')
+                .replace(/>/g,'&gt;')
+                .replace(/"/g,'&quot;');
+        }
+    </script>
+</body>
+</html>

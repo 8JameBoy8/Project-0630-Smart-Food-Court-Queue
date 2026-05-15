@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUT Food Queue - สมัครสมาชิก</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container login-page">
+        <div class="login-card wrapper-box">
+
+            <div class="login-header header">
+                <h1>SUT FOOD QUEUE</h1>
+                <div class="header-icons">
+                    <i class="fa-solid fa-globe" onclick="window.location.href='home.html'"></i>
+                </div>
+            </div>
+
+            <div class="login-content">
+                <div class="profile-icon-container">
+                    <i class="fa-solid fa-user-plus" style="font-size:2.8rem; color:#eee;"></i>
+                </div>
+
+                <h2 style="text-align:center; margin-bottom:24px; color:#333;" data-lang="register_title">สมัครสมาชิก</h2>
+
+                <div class="form-group">
+                    <input type="text" id="nameInput" data-lang-placeholder="name_label" placeholder="ชื่อ" autocomplete="name">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <div class="form-group">
+                    <input type="email" id="emailInput" data-lang-placeholder="email_label" placeholder="อีเมล" autocomplete="email">
+                    <i class="fa-solid fa-envelope"></i>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="passwordInput" data-lang-placeholder="pass_label" placeholder="รหัสผ่าน" autocomplete="new-password">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <div class="form-group">
+                    <select id="roleSelect">
+                        <option value="customer" data-lang="role_customer">ลูกค้า</option>
+                        <option value="staff" data-lang="role_staff">พนักงาน</option>
+                    </select>
+                    <i class="fa-solid fa-id-badge"></i>
+                </div>
+
+                <button id="registerBtn" class="btn-submit" onclick="handleRegister()">
+                    <span data-lang="btn_register">สมัครสมาชิก</span>
+                </button>
+
+                <div class="auth-link">
+                    <span data-lang="have_account">มีบัญชีแล้ว?</span>
+                    <a href="index.html" data-lang="btn_login_link">เข้าสู่ระบบ</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="lang.js"></script>
+    <script src="api.js"></script>
+    <script>
+        async function handleRegister() {
+            const name = document.getElementById('nameInput').value.trim();
+            const email = document.getElementById('emailInput').value.trim();
+            const password = document.getElementById('passwordInput').value;
+            const role = document.getElementById('roleSelect').value;
+            const btn = document.getElementById('registerBtn');
+
+            if (!name || !email || !password) {
+                showToast('กรุณากรอกข้อมูลให้ครบ', 'warn');
+                return;
+            }
+            if (password.length < 4) {
+                showToast('รหัสผ่านต้องมีอย่างน้อย 4 ตัวอักษร', 'warn');
+                return;
+            }
+
+            setLoading(btn, true);
+            try {
+                const data = await api.register(name, email, password, role);
+                if (data.success) {
+                    showToast('สมัครสมาชิกสำเร็จ! กรุณาเข้าสู่ระบบ', 'success');
+                    setTimeout(() => window.location.href = 'index.html', 1200);
+                } else {
+                    showToast(data.message || 'สมัครสมาชิกไม่สำเร็จ', 'error');
+                    setLoading(btn, false);
+                }
+            } catch (err) {
+                showToast('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'error');
+                setLoading(btn, false);
+            }
+        }
+    </script>
+</body>
+</html>

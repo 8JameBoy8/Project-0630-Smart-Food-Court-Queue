@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUT Food Queue - โปรไฟล์</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <i class="fa-solid fa-chevron-left" style="cursor:pointer; color:var(--primary);" onclick="window.location.href='main.html'"></i>
+                <h1 data-lang="profile_title">โปรไฟล์</h1>
+            </div>
+            <div class="header-icons">
+                <i class="fa-solid fa-globe" onclick="window.location.href='home.html'"></i>
+            </div>
+        </div>
+
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <div class="profile-avatar">
+                <i class="fa-solid fa-user"></i>
+            </div>
+            <p class="profile-name" id="profileName">-</p>
+            <div id="profileRoleBadge" class="profile-role-badge">-</div>
+        </div>
+
+        <div class="wrapper-box" style="margin-top:20px;">
+            <p class="page-title" style="font-size:1.1rem;" data-lang="profile_title">โปรไฟล์</p>
+
+            <div class="info-row">
+                <i class="fa-solid fa-user"></i>
+                <div>
+                    <p class="info-label" data-lang="profile_name">ชื่อ</p>
+                    <p class="info-value" id="infoName">-</p>
+                </div>
+            </div>
+
+            <div class="info-row">
+                <i class="fa-solid fa-envelope"></i>
+                <div>
+                    <p class="info-label" data-lang="profile_email">อีเมล</p>
+                    <p class="info-value" id="infoEmail">-</p>
+                </div>
+            </div>
+
+            <div class="info-row">
+                <i class="fa-solid fa-id-badge"></i>
+                <div>
+                    <p class="info-label" data-lang="profile_role">ประเภทบัญชี</p>
+                    <p class="info-value" id="infoRole">-</p>
+                </div>
+            </div>
+
+            <div class="info-row">
+                <i class="fa-solid fa-hashtag"></i>
+                <div>
+                    <p class="info-label">User ID</p>
+                    <p class="info-value" id="infoId">-</p>
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div style="margin-top:20px; display:flex; flex-direction:column; gap:10px;">
+                <button class="big-action-btn btn-yellow-light" onclick="window.location.href='status.html'" style="font-size:0.95rem; padding:15px;">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    <span data-lang="btn_status">ดูสถานะปัจจุบัน</span>
+                </button>
+                <button class="big-action-btn" style="background:#f5f5f5; border:2px solid #bbb; color:#555; font-size:0.95rem; padding:15px;"
+                        onclick="window.location.href='history.html'">
+                    <i class="fa-solid fa-rectangle-list"></i>
+                    <span data-lang="btn_history">ประวัติ</span>
+                </button>
+            </div>
+
+            <div style="text-align:center; margin-top:24px;">
+                <button class="btn-back" style="color:#c62828; border-color:#ffcdd2;" onclick="logout()">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span data-lang="btn_logout">ออกจากระบบ</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="lang.js"></script>
+    <script src="api.js"></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const session = requireAuth();
+            if (!session) return;
+
+            const lang = localStorage.getItem('userLang') || 'th';
+            const roleDisplay = session.userRole === 'staff'
+                ? (lang === 'th' ? 'พนักงาน' : 'Staff')
+                : (lang === 'th' ? 'ลูกค้า' : 'Customer');
+
+            document.getElementById('profileName').textContent = session.userName || '-';
+            document.getElementById('profileRoleBadge').textContent = roleDisplay;
+            document.getElementById('infoName').textContent = session.userName || '-';
+            document.getElementById('infoEmail').textContent = session.userEmail || '-';
+            document.getElementById('infoRole').textContent = roleDisplay;
+            document.getElementById('infoId').textContent = session.userId || '-';
+
+            applyLanguage();
+        });
+
+        function logout() {
+            clearSession();
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

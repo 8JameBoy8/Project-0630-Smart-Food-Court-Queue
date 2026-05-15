@@ -3,6 +3,7 @@ package com.example.demo.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -22,7 +23,7 @@ public  class Product {
     protected  int productID;
     protected  String productName;
     
-    @OneToMany
+    @OneToMany (cascade=CascadeType.ALL)
     @JoinColumn(name = "productID")
     private List<Topping> availableToppings = new ArrayList<>(); // topping ที่มีให้เลือก
 

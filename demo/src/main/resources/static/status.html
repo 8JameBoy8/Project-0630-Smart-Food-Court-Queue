@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUT Food Queue - สถานะ</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <i class="fa-solid fa-chevron-left" style="cursor:pointer; color:var(--primary);" onclick="window.location.href='main.html'"></i>
+                <h1 data-lang="status_title">สถานะปัจจุบัน</h1>
+            </div>
+            <div class="header-icons">
+                <i class="fa-solid fa-rotate" onclick="loadAll()" title="รีเฟรช" style="cursor:pointer; color:var(--primary);"></i>
+                <i class="fa-solid fa-globe" onclick="window.location.href='home.html'"></i>
+            </div>
+        </div>
+
+        <div class="wrapper-box">
+            <!-- Order Status -->
+            <div class="status-card">
+                <h3><i class="fa-solid fa-utensils" style="color:var(--primary); margin-right:8px;"></i>
+                    <span data-lang="status_order_title">สถานะออเดอร์</span>
+                </h3>
+                <div id="orderStatus">
+                    <div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i><p>กำลังโหลด...</p></div>
+                </div>
+            </div>
+
+            <!-- Reservation Status -->
+            <div class="status-card">
+                <h3><i class="fa-solid fa-chair" style="color:var(--primary); margin-right:8px;"></i>
+                    <span data-lang="status_reservation_title">สถานะการจองโต๊ะ</span>
+                </h3>
+                <div id="reservationStatus">
+                    <div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i><p>กำลังโหลด...</p></div>
+                </div>
+            </div>
+
+            <div class="refresh-info">
+                <i class="fa-solid fa-circle-info"></i>
+                <span data-lang="auto_refresh">รีเฟรชอัตโนมัติทุก 30 วินาที</span>
+            </div>
+
+            <div class="text-center mt-20">
+                <button class="btn-back" onclick="window.location.href='main.html'">
+                    <i class="fa-solid fa-house"></i>
+                    <span data-lang="btn_go_home">กลับหน้าหลัก</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="lang.js"></script>
+    <script src="api.js"></script>
+    <script>
+        let session, refreshTimer;
+
+        const statusMap = {
+            Pending:   { key:'status_pending',   cls:'pending',   icon:'fa-hourglass-half' },
+            Received:  { key:'status_received',  cls:'received',  icon:'fa-check' },
+            Cooking:   { key:'status_cooking',   cls:'cooking',   icon:'fa-fire' },
+            Ready:     { key:'status_ready',     cls:'ready',     icon:'fa-bell' },
+            Cancelled: { key:'status_cancelled', cls:'cancelled', icon:'fa-xmark' },
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            session = requireAuth();
+            if (!session) return;
+            loadAll();
+            refreshTimer = setInterval(loadAll, 30000);
+        });
+
+        window.addEventListener('beforeunload', () => clearInterval(refreshTimer));
+
+        async function loadAll() {
+            await Promise.all([loadOrderStatus(), loadReservationStatus()]);
+        }
+
+        async function loadOrderStatus() {
+            const container = document.getElementById('orderStatus');
+            const lang = localStorage.getItem('userLang') || 'th';
+            try {
+                const data = await api.getCurrentOrder(session.userId);
+
+                if (data.message || data.error) {
+                    container.innerHTML = `
+                        <div class="empty-state" style="padding:20px 0;">
+                            <i class="fa-regular fa-face-smile"></i>
+                            <p data-lang="status_no_order">${lang === 'th' ? 'ไม่มีออเดอร์ที่กำลังดำเนินการ' : 'No active orders'}</p>
+                        </div>`;
+                    return;
+                }
+
+                const s = statusMap[data.status] || { key: data.status, cls: 'pending', icon: 'fa-circle' };
+                const statusLabel = lang === 'th'
+                    ? (translations.th[s.key] || data.status)
+                    : (translations.en[s.key] || data.status);
+
+                const itemsHtml = (data.items || []).map(item =>
+                    `<div class="status-row">
+                        <span class="label">${escHtml(item.name)} × ${item.quantity}</span>
+                        <span class="value">฿${item.price}</span>
+                     </div>`
+                ).join('');
+
+                const canCancel = data.status === 'Pending';
+
+                container.innerHTML = `
+                    <div class="status-badge ${s.cls}">
+                        <i class="fa-solid ${s.icon}"></i> ${statusLabel}
+                    </div>
+                    <div class="status-row">
+                        <span class="label">${lang === 'th' ? 'ร้าน' : 'Store'}</span>
+                        <span class="value">${escHtml(data.storeName || '')}</span>
+                    </div>
+                    ${itemsHtml}
+                    ${data.note ? `<div class="status-row">
+                        <span class="label">${lang === 'th' ? 'หมายเหตุ' : 'Note'}</span>
+                        <span class="value">${escHtml(data.note)}</span>
+                    </div>` : ''}
+                    <div class="status-row">
+                        <span class="label">${lang === 'th' ? 'ยอดรวม' : 'Total'}</span>
+                        <span class="value" style="color:var(--primary-dark); font-weight:600;">฿${data.totalPrice}</span>
+                    </div>
+                    ${data.status === 'Ready' ? `
+                    <div style="background:#e8f5e9; padding:14px; border-radius:12px; margin-top:12px; text-align:center; color:#2e7d32; font-weight:600;">
+                        <i class="fa-solid fa-bell fa-bounce"></i>
+                        ${lang === 'th' ? 'อาหารพร้อมแล้ว! เชิญมารับได้ที่ร้าน' : 'Food is ready! Come pick it up'}
+                    </div>
+                    <div style="margin-top:12px; text-align:center;">
+                        <button class="btn-small btn-small-green" onclick="dismissReady(${data.orderId})">
+                            <i class="fa-solid fa-check-double"></i>
+                            ${lang === 'th' ? 'รับอาหารแล้ว' : 'Got it / Picked up'}
+                        </button>
+                    </div>` : ''}
+                    ${canCancel ? `
+                    <div style="margin-top:14px; text-align:center;">
+                        <button class="btn-small btn-small-red" onclick="cancelOrder(${data.orderId})">
+                            <i class="fa-solid fa-xmark"></i>
+                            ${lang === 'th' ? 'ยกเลิกออเดอร์' : 'Cancel Order'}
+                        </button>
+                    </div>` : ''}`;
+
+            } catch (err) {
+                container.innerHTML = `<p style="color:#aaa; text-align:center;">โหลดข้อมูลไม่สำเร็จ</p>`;
+            }
+        }
+
+        async function loadReservationStatus() {
+            const container = document.getElementById('reservationStatus');
+            const lang = localStorage.getItem('userLang') || 'th';
+            try {
+                const data = await api.getCurrentReservation(session.userId);
+
+                if (data.message || data.error) {
+                    container.innerHTML = `
+                        <div class="empty-state" style="padding:20px 0;">
+                            <i class="fa-regular fa-calendar-xmark"></i>
+                            <p data-lang="status_no_reservation">${lang === 'th' ? 'ไม่มีการจองโต๊ะในขณะนี้' : 'No active reservations'}</p>
+                        </div>`;
+                    return;
+                }
+
+                const reservationId = data.reservationId;
+                container.innerHTML = `
+                    <div class="status-badge ${data.isExpired ? 'cancelled' : 'ready'}">
+                        <i class="fa-solid ${data.isExpired ? 'fa-clock-rotate-left' : 'fa-chair'}"></i>
+                        ${data.isExpired
+                            ? (lang === 'th' ? 'หมดเวลาแล้ว' : 'Expired')
+                            : (lang === 'th' ? 'กำลังจองอยู่' : 'Active')}
+                    </div>
+                    <div class="status-row">
+                        <span class="label">${lang === 'th' ? 'โต๊ะที่' : 'Table'}</span>
+                        <span class="value" style="font-size:1.2rem; font-weight:700; color:var(--primary-dark);">${data.tableNo}</span>
+                    </div>
+                    <div class="status-row">
+                        <span class="label">${lang === 'th' ? 'โรงอาหาร' : 'Canteen'}</span>
+                        <span class="value">${escHtml(data.canteenName || '')}</span>
+                    </div>
+                    ${!data.isExpired ? `
+                    <div style="margin-top:14px; text-align:center;">
+                        <button class="btn-small btn-small-red" onclick="cancelReservation(${reservationId})">
+                            <i class="fa-solid fa-xmark"></i>
+                            ${lang === 'th' ? 'ยกเลิกการจอง' : 'Cancel Booking'}
+                        </button>
+                    </div>` : ''}`;
+
+            } catch (err) {
+                container.innerHTML = `<p style="color:#aaa; text-align:center;">โหลดข้อมูลไม่สำเร็จ</p>`;
+            }
+        }
+
+        async function cancelOrder(orderId) {
+            const lang = localStorage.getItem('userLang') || 'th';
+            if (!confirm(lang === 'th' ? 'ยืนยันการยกเลิกออเดอร์?' : 'Confirm cancel order?')) return;
+            try {
+                await api.cancelOrder(orderId);
+                showToast(lang === 'th' ? 'ยกเลิกออเดอร์แล้ว' : 'Order cancelled', 'success');
+                loadOrderStatus();
+            } catch (err) {
+                showToast('เกิดข้อผิดพลาด', 'error');
+            }
+        }
+
+        async function dismissReady(orderId) {
+            const lang = localStorage.getItem('userLang') || 'th';
+            try {
+                await api.cancelOrder(orderId);
+                showToast(lang === 'th' ? 'ขอบคุณที่ใช้บริการ! 🍜' : 'Enjoy your meal!', 'success');
+                loadOrderStatus();
+            } catch (err) {
+                showToast('เกิดข้อผิดพลาด', 'error');
+            }
+        }
+
+        async function cancelReservation(reservationId) {
+            const lang = localStorage.getItem('userLang') || 'th';
+            if (!confirm(lang === 'th' ? 'ยืนยันการยกเลิกการจองโต๊ะ?' : 'Confirm cancel booking?')) return;
+            try {
+                const result = await api.cancelBooking(reservationId);
+                showToast(result.message || (lang === 'th' ? 'ยกเลิกการจองแล้ว' : 'Booking cancelled'), 'success');
+                loadReservationStatus();
+            } catch (err) {
+                showToast('เกิดข้อผิดพลาด', 'error');
+            }
+        }
+
+        function escHtml(str) {
+            return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+    </script>
+</body>
+</html>
